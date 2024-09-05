@@ -1,0 +1,298 @@
+import { Dispatch } from "redux";
+import { getAmountService, getSubmitedAnswersService, getSurveyListService, getUniqueIdService, postAnswerService, postPaymentInfoService } from "../../../services/survey/survey.service";
+import { Status } from "./routesAction";
+import { InvoiceSubItemWithAmount } from "../../../screen/Invoice/SubItems.screen";
+import { save_Amount } from "./invoiceAction";
+
+export interface SurveyItem {
+    id: number;
+    question: string;
+}
+export interface ExtendedSurveyItem extends SurveyItem {
+    answ: 1 | 2 | 3,
+    description: string,
+    image: { hasImg: boolean, imguri: string | undefined }
+}
+
+export interface UniqueIdVal {
+    // unique_id: number;
+    cus_id: string;
+    tech_id: number;
+    updated_at: string; // ISO 8601 date string
+    created_at: string; // ISO 8601 date string
+    id: number;
+    ro_loc_id: number
+    status: Status
+    type: any
+}
+
+interface ApiError {
+    message: string;
+    code?: number;
+}
+
+export type getUniqueId_Apiqueryparams = { unique_id: number, ro_loc_id: number, cus_id: number, list_id: number }
+
+export enum Answer {
+    Yes = "Yes",
+    No = "No",
+    NA = "N/A"
+}
+export type postAnswer_ApiBody = {
+    unique_id: number,
+    ques_id: number,
+    answer: Answer,
+    desc: string,
+    file: string
+}
+
+export interface postAnswer_res {
+    answer: Answer;
+    created_at: string;
+    desc: string;
+    file?: string;
+    id: number;
+    ques_id: number;
+    testing_id: number;
+    unique_id: number;
+    updated_at: string;
+    success: boolean;
+}
+
+export interface postPaymentReqBody {
+    pay_opt: 'Cash' | 'Check' | 'MO';
+    check_no: string | null;
+    mo_no: string | null;
+    // descript: string
+    amount: number;
+    items: InvoiceSubItemWithAmount[];
+    list_id: number;
+    cus_id: number
+}
+
+export type postInvoiceReqBody = Omit<postPaymentReqBody, 'pay_opt' | 'check_no' | 'mo_no'>;
+
+type TestResultType = {
+    id: number;
+    testing_id: number;
+    ques_id: number;
+    answer: Answer;
+    desc: string | null;
+    file: string | null;
+    created_at: string;
+    updated_at: string;
+};
+
+interface getSubmitedSurveyResult {
+    extendedSurveyItem: ExtendedSurveyItem[];
+    uniqueID: number;
+}
+
+
+interface postPaymentInfo_res { invoice_link: string }
+
+export const getSurvey = async (dispatch: Dispatch): Promise<ExtendedSurveyItem[]> => {
+    try {
+        const response = await getSurveyListService();
+        if (response.hasError) {
+            console.warn(
+                'has error::-> getSurveyListService ::',
+                response.errorMessage,
+            );
+            return []
+        } else {
+            const res: ExtendedSurveyItem[] = response.data.map((item: SurveyItem) => ({
+                ...item,
+                answ: 2,
+                description: '',
+                image: { hasImg: false, imguri: '' }
+            }));
+
+            return res;
+        }
+    } catch (error) {
+        console.warn('catch error getSurvey ::', error);
+        return []
+    }
+}
+
+export const getSubmitedSurvey = async (dispatch: Dispatch, list_id: number, cus_id: number): Promise<getSubmitedSurveyResult | null> => {
+    try {
+        const [surveyItems, apiAnswers] = await Promise.all([
+            getSurveyListService(),
+            getSubmitedAnswers(list_id, cus_id)
+        ])
+
+        if (surveyItems.hasError || apiAnswers.length === 0) {
+            console.warn(" err getSurveyListService or getSubmitedAnswers");
+            return null
+        }
+
+        const extendedSurveyResults: ExtendedSurveyItem[] = surveyItems.data.map((survey: SurveyItem) => {
+            const answer = apiAnswers.find((ans: TestResultType) => ans.ques_id === survey.id)
+            if (answer) {
+                return {
+                    ...survey,
+                    answ: answer.answer === "Yes" ? 1 : answer.answer === "No" ? 2 : 3,
+                    description: answer.desc || "",
+                    image: {
+                        hasImg: !!answer.file,
+                        imguri: answer.file || undefined,
+                    }
+                } as ExtendedSurveyItem
+
+
+            } else {
+                console.warn("err getSubmitedSurvey -> case where there is no corresponding answer");
+                return null
+            }
+        })
+
+        // Check for any null values in the extended survey results
+        if (extendedSurveyResults.some((item) => item === null)) {
+            console.warn("Error: Null values found in extendedSurveyResults");
+            return null;
+        }
+
+        return {
+            extendedSurveyItem: extendedSurveyResults,
+            uniqueID: apiAnswers[0].testing_id,
+        };
+
+    } catch (error) {
+        console.warn('catch error getSubmitedSurvey ::', error);
+        return null
+    }
+}
+
+export const getSubmitedAnswers = async (list_id: number, cus_id: number): Promise<TestResultType[]> => {
+    try {
+        const response = await getSubmitedAnswersService(list_id, cus_id)
+
+        if (response.hasError) {
+            console.warn(
+                'has error::-> getSubmitedAnswers ::',
+                response.errorMessage,
+            );
+            return []
+        } else {
+            return response.data
+        }
+    } catch (error) {
+        console.warn('catch error getSubmitedAnswersService ::', error);
+        return []
+    }
+}
+
+export const getUniqueId = async (dispatch: Dispatch, queryparams: getUniqueId_Apiqueryparams): Promise<UniqueIdVal | null> => {
+    try {
+        const response = await getUniqueIdService({
+            unique_id: queryparams.unique_id,
+            ro_loc_id: queryparams.ro_loc_id,
+            cus_id: queryparams.cus_id,
+            list_id: queryparams.list_id
+        })
+        if (response.hasError) {
+            console.warn(
+                'has error::-> getUniqueIdService ::',
+                response.errorMessage,
+            );
+            return null;
+        } else {
+            return response.data
+        }
+
+    } catch (error) {
+        console.warn('catch error getUniqueId ::', error);
+        return null
+    }
+}
+
+export const getAmount = async (dispatch: Dispatch, ro_loc_id: number): Promise<string | null> => {
+    try {
+        const response = await getAmountService(ro_loc_id)
+        if (response.hasError) {
+            console.warn(
+                'has error::-> getAmountService ::',
+                response.errorMessage,
+            );
+            return null
+        } else {
+            dispatch(save_Amount(response.data.amount));
+            return response.data.amount
+        }
+    } catch (error) {
+        console.warn('catch error getAmount ::', error);
+        return null
+    }
+}
+
+export const postAnswer = async (dispatch: Dispatch, formData: postAnswer_ApiBody): Promise<postAnswer_res> => {
+    try {
+        const response = await postAnswerService(formData)
+        console.log("postAnswer response ::", response);
+        if (response.hasError) {
+            console.warn(
+                'has error::-> postAnswerService ::',
+                response.errorMessage,
+            );
+            throw new Error(response.errorMessage);
+        } else {
+            return response.data
+        }
+
+    } catch (error) {
+        console.warn('catch error postAnswer ::', error);
+        throw error;
+    }
+}
+
+export const postPaymentInfo = async (dispatch: Dispatch, formData: postPaymentReqBody): Promise<postPaymentInfo_res | null> => {
+    try {
+        const response = await postPaymentInfoService(formData)
+        // console.log("postPaymentInfo res::", response);
+        if (response.hasError) {
+            console.warn(
+                'has error::-> postPaymentInfoService ::',
+                response.errorMessage,
+            );
+            return null;
+        } else {
+            return response.data
+        }
+    } catch (error) {
+        console.warn('catch error postPaymentInfo ::', error);
+        return null
+    }
+}
+
+export const postInvoiceInfo = async (dispatch: Dispatch, formData: postInvoiceReqBody): Promise<postPaymentInfo_res | null> => {
+    try {
+        const response = await postPaymentInfoService(formData)
+        // console.log("postPaymentInfo res::", response);
+        if (response.hasError) {
+            console.warn(
+                'has error::-> postPaymentInfoService ::',
+                response.errorMessage,
+            );
+            return null;
+        } else {
+            return response.data
+        }
+    } catch (error) {
+        console.warn('catch error postPaymentInfo ::', error);
+        return null
+    }
+}
+
+export const submitAllSurvey_With_Res = (
+    surveyItemArray: ExtendedSurveyItem[],
+    unique_id: number
+) => ({
+    type: 'SUBMIT_SURVEY',
+    payload: {
+        surveyItemArray,
+        unique_id
+    },
+});
+
