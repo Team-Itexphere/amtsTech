@@ -1,139 +1,149 @@
-import { View, Text, StatusBar, FlatList, ViewStyle, TouchableOpacity, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
-import { useDispatch } from 'react-redux';
-import { getServiceCallList, ServiceCallListType } from '../../store/actions/ServiceCall/ServiceCallAction';
+import { View, Text, StatusBar, FlatList, TouchableOpacity, Animated, Keyboard } from 'react-native'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { COLORS, FONTS, SIZES } from '../../assets/theme';
-import Loading from '../../components/UI/Loading';
 import { Status } from '../../types';
-import assetsPng from "../../assets/pngs"
-import { useIsFocused, useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '../../navigation/navigationTypes';
-import NoDataImage from '../../components/UI/NoDataImage';
+import ServiceListScreen from './ServiceList.screen';
 
-const { Bg1, Bg2, IconHighPriority, IconLowPriority, IconRefresh } = assetsPng;
+type LayoutMeasurement = {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+};
 
-type Props = {}
-type renderCardType = {
-    item: ServiceCallListType,
-    containerStyle: ViewStyle,
-    onPress: () => void
-}
-const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
+const serviceCall_tabs = [{ id: 1, label: "Pending" }, { id: 0, label: "Completed" },]
+const serviceCall_tabs_withRef = serviceCall_tabs.map((val) => ({ ...val, ref: React.createRef<TouchableOpacity>() }))
 
+const TabIndicator = ({ measureLayout, scrollX }: { measureLayout: LayoutMeasurement[], scrollX: Animated.Value }) => {
+    const inputRange = serviceCall_tabs_withRef.map((_, i) => i * SIZES.width)
+    const tabIndicatorWidth = scrollX.interpolate({
+        inputRange,
+        outputRange: measureLayout.map(measure => measure.width)
+    })
+
+    const translateX = scrollX.interpolate({
+        inputRange,
+        outputRange: measureLayout.map(measure => measure.x)
+    })
     return (
-        <TouchableOpacity
-            onPress={onPress}
-            style={{ height: 100, width: 200, ...containerStyle, position: 'relative' }}>
-            <Image
-                source={item.status === Status.Pending ? Bg1 : Bg2}
-                resizeMode='cover'
-                style={{
-                    width: "100%",
-                    height: "100%",
-                    borderRadius: SIZES.radius
-                }}
-            />
-
-            <View style={{
+        <Animated.View
+            style={{
                 position: 'absolute',
-                bottom: 10,
-                left: 10
-            }}>
-                <View style={{ flexDirection: "row", alignItems: 'center', marginBottom: SIZES.base }}>
-                    <View style={{
-                        width: 60, borderRadius: SIZES.base,
-                        backgroundColor: item.priority === 'High' ? COLORS.red : COLORS.orange
-                    }}>
-                        <Text style={{ ...FONTS.h5, color: COLORS.white, textAlign: 'center' }}>{item.priority}</Text>
-                    </View>
-                    <Text style={{ ...FONTS.h5, color: COLORS.white, marginLeft: SIZES.base }} numberOfLines={1}>{item.store_name}</Text>
-                </View>
-                <Text style={{ ...FONTS.h4, color: COLORS.white, }} numberOfLines={1}>{item.store_address}</Text>
-                <Text style={{ ...FONTS.h3, color: COLORS.white, maxWidth: 310 }} numberOfLines={1}>{item.id}</Text>
-                {/* <Text style={{ ...FONTS.body4, color: COLORS.white, maxWidth: 90 }} numberOfLines={1}>{item.tech_id}</Text> */}
-            </View>
-
-            <View style={{
-                position: 'absolute',
-                bottom: 10,
-                right: 10,
-                alignItems: 'center'
-            }}>
-                <Text style={{ ...FONTS.body5, color: item.status === Status.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius }}>{item.status === Status.Completed ? Status.Completed : Status.Pending}</Text>
-            </View>
-        </TouchableOpacity>
+                bottom: 0,
+                height: 5,
+                width: tabIndicatorWidth,
+                borderRadius: SIZES.radius,
+                backgroundColor: COLORS.primary,
+                transform: [{
+                    translateX
+                }]
+            }}
+        />
     )
+
 }
 
+const Tabs = ({ scrollX, onTabPress }: { scrollX: Animated.Value, onTabPress: (val: number) => void }) => {
 
-const ServiceCallScreen = (props: Props) => {
-    const dispatch = useDispatch();
-    const isFocused = useIsFocused();
-    const navigation = useNavigation<NavigationProp>();
-
-    const [isLoading, setIsLoarding] = useState<boolean>(false)
-    const [serviceCallData, setServiceCallData] = useState<ServiceCallListType[]>()
-
-    const fetchData = async () => {
-        setIsLoarding(true);
-        const fetchArray = await getServiceCallList(dispatch)
-        if (fetchArray) setServiceCallData(fetchArray)
-        setIsLoarding(false);
-    };
+    const [measureLayout, setMeasureLayout] = useState<LayoutMeasurement[]>([]);
+    const containerRef = useRef<View>(null);
 
     useEffect(() => {
-        if (isFocused) fetchData();
-    }, [isFocused])
+        const ml: LayoutMeasurement[] = [];
+        serviceCall_tabs_withRef.forEach((val) => {
+            if (val?.ref?.current && containerRef.current) {
+                val?.ref?.current?.measureLayout(
+                    containerRef.current,
+                    (x, y, width, height) => {
+                        ml.push({
+                            x, y, width, height
+                        })
+                        if (ml.length === serviceCall_tabs_withRef.length) {
+                            setMeasureLayout(ml)
+                        }
+                    }
+                )
+            }
+        })
+    }, [containerRef.current])
 
-    const onPressItem = (item: ServiceCallListType) => {
-        navigation.navigate('ServiceCallView', item)
-    }
+    return (
+        <View
+            ref={containerRef}
+            style={{ flex: 1, flexDirection: 'row', backgroundColor: COLORS.primary20 }}
+        >
 
-    if (!isLoading && serviceCallData?.length === 0) return (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-            <NoDataImage />
-            <Text style={{ ...FONTS.body2 }}>No Service Calls Available</Text>
+            {measureLayout.length > 0 && <TabIndicator measureLayout={measureLayout} scrollX={scrollX} />}
+            {serviceCall_tabs_withRef.map((item, index) => {
+                return (
+                    <TouchableOpacity
+                        key={`Tab-${index}`}
+                        ref={item.ref}
+                        style={{
+                            flex: 1,
+                            paddingHorizontal: 15,
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            // backgroundColor: COLORS.primary10
+                        }}
+                        onPress={() => {
+                            Keyboard.dismiss()
+                            onTabPress(index)
+                        }}
+                    >
+                        <Text style={{ ...FONTS.h3, fontSize: SIZES.height > 800 ? 16 : 15 }}>{item.label}</Text>
+                    </TouchableOpacity>
+                )
+            })}
         </View>
     )
+}
+
+const ServiceCallScreen = () => {
+    const scrollX = useRef(new Animated.Value(0)).current;
+    const flatListRef = useRef<FlatList<any>>(null);
+
+    const onTabPress = useCallback((tabIndex: number) => {
+        flatListRef?.current?.scrollToOffset({
+            offset: tabIndex * SIZES.width,
+        });
+    }, [])
 
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.white }}>
             <StatusBar backgroundColor={COLORS.white} />
-            {isLoading && <Loading />}
-            <View style={{ display: 'flex', alignItems: 'flex-end', marginRight: SIZES.base * 2 }}>
-                <TouchableOpacity onPress={() => fetchData()}>
-                    <Image
-                        source={IconRefresh}
-                        style={{ width: 30, height: 30, }}
-                    />
-                </TouchableOpacity>
+
+            {/* Tabs */}
+            <View style={{ height: 60 }}>
+                <Tabs scrollX={scrollX} onTabPress={onTabPress} />
             </View>
 
-            <View style={{ flex: 1, }}>
-                <FlatList
-                    data={serviceCallData}
-                    // numColumns={2}
-                    scrollEnabled={true}
-                    keyExtractor={item => `location-${item.id}`}
-                    contentContainerStyle={{
-                        // marginTop: SIZES.radius,
-                        paddingBottom: SIZES.padding
-                    }}
-                    renderItem={({ item, index }) => (
-                        renderCard({
-                            item,
-                            containerStyle: {
-                                // height: 90,
-                                width: SIZES.width - (SIZES.radius * 2), // - SIZES.radius),
-                                marginTop: SIZES.radius,
-                                marginHorizontal: SIZES.radius // : SIZES.padding
-                            },
-                            onPress: () => onPressItem(item)
-                        })
-                    )}
-                />
-            </View>
-        </View>
+            <Animated.FlatList
+                ref={flatListRef}
+                horizontal
+                pagingEnabled
+                snapToAlignment={'center'}
+                snapToInterval={SIZES.width}
+                decelerationRate={"fast"}
+                keyboardDismissMode={"on-drag"}
+                showsHorizontalScrollIndicator={false}
+                data={serviceCall_tabs_withRef}
+                keyExtractor={item => `serviceCallTab-${item.id}`}
+                onScroll={Animated.event([
+                    { nativeEvent: { contentOffset: { x: scrollX } } }
+                ], {
+                    useNativeDriver: false
+                })}
+                renderItem={({ item, index }) => {
+                    return (
+                        <View style={{ width: SIZES.width }}>
+                            {index == 0 && <ServiceListScreen status={Status.Pending} />}
+                            {index == 1 && <ServiceListScreen status={Status.Completed} />}
+                        </View>
+                    )
+                }}
+            />
+        </View >
     )
 }
 

@@ -27,8 +27,8 @@ import { getLocationService, getRoutesService } from "../../../services/survey/r
 // }
 
 export enum Status {
-    Pending = 'pending',
-    Completed = 'completed'
+    Pending = 'Pending',
+    Completed = 'Completed'
 }
 
 interface Route {

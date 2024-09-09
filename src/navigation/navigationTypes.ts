@@ -16,7 +16,7 @@ export type RootStackParamList = {
     PdfReader: { invoice_link: string },
     LocationList: { ro_loc_id: number };
     StoreList: undefined;
-    InvoiceSubItems: undefined;
+    InvoiceSubItems: { source: string };
     StoreLicense: undefined;
     ATG_I: undefined;
     ATG_S: undefined;
@@ -55,4 +55,5 @@ export type PdfReaderRouteProp = RouteProp<RootStackParamList, 'PdfReader'>
 export type StoreListProp = RouteProp<RootStackParamList, 'StoreList'>
 export type ServiceCallViewProp = RouteProp<RootStackParamList, 'ServiceCallView'>
 export type ServiceCallHistoryProp = RouteProp<RootStackParamList, 'ServiceCall_Histroy'>
+export type InvoiceSubItemsProp = RouteProp<RootStackParamList, 'InvoiceSubItems'>
 

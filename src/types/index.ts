@@ -28,6 +28,6 @@ export type AuthActionTypes =
   | LogoutRequestAction;
 
 export enum Status {
-  Pending = 'pending',
-  Completed = 'completed'
+  Pending = 'Pending',
+  Completed = 'Completed'
 }

@@ -152,21 +152,39 @@ const ServiceCallViewScreen = () => {
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                     <Text style={{ ...FONTS.h3 }}>Update</Text>
-                    <TextButton
-                        label="History ➡️"
-                        contentContainerStyle={{
-                            padding: SIZES.base - 5,
-                            paddingHorizontal: SIZES.base,
-                            borderRadius: SIZES.radius,
-                            backgroundColor: COLORS.transparentPrimray,
-                        }}
-                        labelStyle={{
-                            ...FONTS.h3,
-                            color: COLORS.primary,
-                            textDecorationLine: 'underline',
-                        }}
-                        onPress={() => navigation.navigate('ServiceCall_Histroy', { work_order_id: params.id })}
-                    />
+                    <View style={{ flexDirection: 'row', gap: 10 }}>
+                        {params.status === Status.Completed && <TextButton
+                            label="Invoice 💼"
+                            contentContainerStyle={{
+                                padding: SIZES.base - 5,
+                                paddingHorizontal: SIZES.base,
+                                borderRadius: SIZES.radius,
+                                backgroundColor: COLORS.transparentBlack1,
+                            }}
+                            labelStyle={{
+                                ...FONTS.h3,
+                                color: COLORS.darkGray,
+                                textDecorationLine: 'underline',
+                            }}
+                            onPress={() => navigation.navigate('InvoiceSubItems', { source: "Service Call" })}
+                        />}
+                        <TextButton
+                            label="History ➡️"
+                            contentContainerStyle={{
+                                padding: SIZES.base - 5,
+                                paddingHorizontal: SIZES.base,
+                                borderRadius: SIZES.radius,
+                                backgroundColor: COLORS.transparentPrimray,
+                            }}
+                            labelStyle={{
+                                ...FONTS.h3,
+                                color: COLORS.primary,
+                                textDecorationLine: 'underline',
+                            }}
+                            onPress={() => navigation.navigate('ServiceCall_Histroy', { work_order_id: params.id })}
+                        />
+                    </View>
+
                 </View>
 
                 <FormInput

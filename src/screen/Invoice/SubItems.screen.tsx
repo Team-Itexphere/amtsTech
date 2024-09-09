@@ -8,8 +8,8 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { LineDivider } from '../../components/UI';
 import { useDispatch, useSelector } from 'react-redux';
 import { save_SubItems } from '../../store/actions/survey/invoiceAction';
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '../../navigation/navigationTypes';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { InvoiceSubItemsProp, NavigationProp } from '../../navigation/navigationTypes';
 import { getAmount, postInvoiceInfo, postInvoiceReqBody } from '../../store/actions/survey/surveyAction';
 import { RootState } from '../../store/store';
 
@@ -160,7 +160,9 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
 
 const SubItemsScreen = () => {
     const dispatch = useDispatch();
+    const route = useRoute<InvoiceSubItemsProp>();
     const navigation = useNavigation<NavigationProp>();
+    const { source } = route.params;
 
     const { location: { ro_loc_id, cus_id, list_id } } = useSelector((state: RootState) => state.routeReducer);
 
@@ -181,7 +183,18 @@ const SubItemsScreen = () => {
 
     useEffect(() => {
         if (ro_loc_id) fetchData(ro_loc_id);
-    }, [])
+        if (source.includes("Service Call")) {
+            setForms([
+                {
+                    description: "",
+                    category: "Service Call",
+                    location: "",
+                    qty: 0,
+                    rate: 0
+                }
+            ])
+        }
+    }, [source])
 
     const addForm = () => {
         setForms([...forms, { description: '', category: '', location: '', qty: 0, rate: 0 }]);
