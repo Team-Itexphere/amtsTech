@@ -7,7 +7,7 @@ import TextButton from '../../components/UI/TextButton'
 import { useNavigation, useRoute } from '@react-navigation/native'
 import { InvoiceGenerateRouteProp, NavigationProp, PaymentOptionRouteProp } from '../../navigation/navigationTypes'
 import { useDispatch, useSelector } from 'react-redux'
-import { postPaymentInfo, postPaymentReqBody } from '../../store/actions/survey/surveyAction'
+import { postInvoice_from_ServiceCall_ReqPaymentBody, postInvoiceInfo_From_ServiceCall, postPaymentInfo, postPaymentReqBody } from '../../store/actions/survey/surveyAction'
 import Loading from '../../components/UI/Loading'
 
 import assetsPng from '../../assets/pngs'
@@ -56,8 +56,10 @@ const PaymentOption = () => {
     const dispatch = useDispatch();
     const route = useRoute<PaymentOptionRouteProp>();
     const navigation = useNavigation<NavigationProp>();
-    // const { amount, descript, unique_id } = route.params;
-    const { res_Amount, invoice, location } = useSelector((state: RootState) => state.routeReducer);
+
+    const { res_Amount, invoice, location,
+        serviceCall: { source, customer_id }
+    } = useSelector((state: RootState) => state.routeReducer);
 
     const [formData, setFormData] = useState<formDataType>({
         selectedCheckBox: 'Cash',
@@ -77,26 +79,41 @@ const PaymentOption = () => {
     }
 
     const submitData = async () => {
-        if (!res_Amount || !location.list_id || !location.cus_id) return console.warn("res_Amount or list_id or cus_id -> null ");
-        if ((formData.selectedCheckBox === 'Check' || formData.selectedCheckBox === 'MO') && !formData.number) return
         setIsLoarding(true)
+        if ((formData.selectedCheckBox === 'Check' || formData.selectedCheckBox === 'MO') && !formData.number) return
 
-        const form: postPaymentReqBody = {
-            list_id: location.list_id,
-            cus_id: location.cus_id,
-            pay_opt: formData.selectedCheckBox,
-            check_no: formData.selectedCheckBox === 'Check' ? formData.number : null,
-            mo_no: formData.selectedCheckBox === 'MO' ? formData.number : null,
-            // descript: invoice.descript,
-            amount: parseInt(res_Amount),
-            items: invoice.items
+        if (source.includes("Service Call")) {
+            const form: postInvoice_from_ServiceCall_ReqPaymentBody = {
+                check_no: formData.selectedCheckBox === 'Check' ? formData.number : null,
+                mo_no: formData.selectedCheckBox === 'MO' ? formData.number : null,
+                pay_opt: formData.selectedCheckBox,
+                customer_id: customer_id!,
+                items: invoice.items
+            }
+
+            const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
+            setIsLoarding(false)
+            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
+
+        } else {
+            if (!res_Amount || !location.list_id || !location.cus_id) return console.warn("res_Amount or list_id or cus_id -> null ");
+            const form: postPaymentReqBody = {
+                list_id: location.list_id,
+                cus_id: location.cus_id,
+                pay_opt: formData.selectedCheckBox,
+                check_no: formData.selectedCheckBox === 'Check' ? formData.number : null,
+                mo_no: formData.selectedCheckBox === 'MO' ? formData.number : null,
+                // descript: invoice.descript,
+                amount: parseInt(res_Amount),
+                items: invoice.items
+            }
+
+            const postData = await postPaymentInfo(dispatch, form);
+            setIsLoarding(false)
+
+            // if (postData) setIsSuccess({ invoice_link: postData.invoice_link })
+            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
         }
-
-        const postData = await postPaymentInfo(dispatch, form);
-        setIsLoarding(false)
-
-        // if (postData) setIsSuccess({ invoice_link: postData.invoice_link })
-        if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
     }
 
     return (

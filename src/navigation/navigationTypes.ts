@@ -16,7 +16,7 @@ export type RootStackParamList = {
     PdfReader: { invoice_link: string },
     LocationList: { ro_loc_id: number };
     StoreList: undefined;
-    InvoiceSubItems: { source: string };
+    InvoiceSubItems: { source: string, customer_id?: number };
     StoreLicense: undefined;
     ATG_I: undefined;
     ATG_S: undefined;

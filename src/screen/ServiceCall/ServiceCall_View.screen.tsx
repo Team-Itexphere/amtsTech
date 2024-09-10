@@ -166,7 +166,7 @@ const ServiceCallViewScreen = () => {
                                 color: COLORS.darkGray,
                                 textDecorationLine: 'underline',
                             }}
-                            onPress={() => navigation.navigate('InvoiceSubItems', { source: "Service Call" })}
+                            onPress={() => navigation.navigate('InvoiceSubItems', { source: "Service Call", customer_id: params.customer_id })}
                         />}
                         <TextButton
                             label="History ➡️"

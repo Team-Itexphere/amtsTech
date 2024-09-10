@@ -17,6 +17,10 @@ export interface RouteState {
         list_id: number | null
         notes: LocationItem['notes'],
         status: LocationItem['status']
+    },
+    serviceCall: {
+        source: string,
+        customer_id: number | null
     }
 }
 
@@ -34,7 +38,12 @@ const initialState: RouteState = {
     invoice: {
         // descript: '',
         items: []
+    },
+    serviceCall: {
+        source: "",
+        customer_id: null
     }
+
 }
 
 function routeReducer(state = initialState, action: any): RouteState {
@@ -73,6 +82,21 @@ function routeReducer(state = initialState, action: any): RouteState {
                     notes: action.payload.notes,
                     status: action.payload.status,
                 }
+            }
+        case "SAVE_DATA_FROM_SERVICECALL_TO_INVOICE":
+            return {
+                ...state,
+                serviceCall: {
+                    ...state.serviceCall,
+                    source: action.payload.source,
+                    customer_id: action.payload.customer_id,
+                }
+            }
+        case "CLEAR_SERVICE_CALL_DATA":
+            console.info("CLEAR all serviceCall reducer ::");
+            return {
+                ...state,
+                serviceCall: initialState.serviceCall
             }
         case "CLEAR_ALL":
             console.info("CLEAR all Route reducer ::");

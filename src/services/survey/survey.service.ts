@@ -1,7 +1,7 @@
-import { getUniqueId_Apiqueryparams, postInvoiceReqBody, postPaymentReqBody } from "../../store/actions/survey/surveyAction";
+import { getUniqueId_Apiqueryparams, postInvoice_from_ServiceCall_ReqBody, postInvoice_from_ServiceCall_ReqPaymentBody, postInvoiceReqBody, postPaymentReqBody } from "../../store/actions/survey/surveyAction";
 import { responseHandlerType } from "../api/responseHandler";
 import { METHODS, client } from "../api/restClient"
-import { GET_AMOUNT, GET_SUBMITED_SURVEY_ANSWERS, GET_SURVEY, POST_ANSW, POST_PAYMENTINFO, POST_UNIQUEID } from "../urls"
+import { GET_AMOUNT, GET_SUBMITED_SURVEY_ANSWERS, GET_SURVEY, POST_ANSW, POST_INVOICE_BY_SERVICE_CALL, POST_PAYMENTINFO, POST_UNIQUEID } from "../urls"
 
 export const getSurveyListService = async () => {
     return await client.API(
@@ -60,6 +60,18 @@ export const postPaymentInfoService = async (formData: postPaymentReqBody | post
     return await client.API(
         METHODS.POST,
         POST_PAYMENTINFO,
+        formData,
+        headerConfig
+    ) as responseHandlerType;
+}
+
+export const postInvoiceInfo_From_ServiceCall_Service = async (formData: postInvoice_from_ServiceCall_ReqBody | postInvoice_from_ServiceCall_ReqPaymentBody) => {
+    let headerConfig = {
+        'content-Type': 'application/json',
+    };
+    return await client.API(
+        METHODS.POST,
+        POST_INVOICE_BY_SERVICE_CALL,
         formData,
         headerConfig
     ) as responseHandlerType;

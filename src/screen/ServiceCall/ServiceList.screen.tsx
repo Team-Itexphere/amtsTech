@@ -9,6 +9,8 @@ import NoDataImage from '../../components/UI/NoDataImage';
 import Loading from '../../components/UI/Loading';
 import assetsPng from "../../assets/pngs"
 import { Status } from '../../types';
+import { clearServiceCallData } from '../../store/actions/ServiceCall/ServiceCallStateAction';
+
 type renderCardType = {
     item: ServiceCallListType,
     containerStyle: ViewStyle,
@@ -79,6 +81,7 @@ const ServiceListScreen = ({ status }: { status: Status }) => {
 
     useEffect(() => {
         fetchData();
+        dispatch(clearServiceCallData());
     }, [])
 
     const onPressItem = (item: ServiceCallListType) => {

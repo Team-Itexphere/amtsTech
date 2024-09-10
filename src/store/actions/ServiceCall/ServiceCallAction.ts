@@ -20,6 +20,7 @@ export type ServiceCallListType = {
     updated_at: string;
     store_address: string | null;
     store_name: string | null;
+    ro_loc_id: number | null;
 };
 
 export type ExtendedFormDataType = Omit<FormDataType, 'images'> & {
