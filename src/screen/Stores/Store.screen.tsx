@@ -45,7 +45,7 @@ const StoreScreen = (props: Props) => {
                 break;
             case 'Invoice':
                 // navigation.navigate('InvoiceGenerate');
-                navigation.navigate('InvoiceSubItems');
+                navigation.navigate('InvoiceSubItems', { source: "store" });
                 break;
             case 'Store Licenses':
                 navigation.navigate('StoreLicense');

@@ -1,4 +1,4 @@
-export const BASE_URL = 'https://amtstx.com/';
+export const BASE_URL = 'https://staging.amtstx.com/';
 
 
 export const USER_LOGIN = 'api/login'
@@ -11,11 +11,12 @@ export const POST_UNIQUEID = 'api/testing/create'
 export const POST_ANSW = 'api/testing/fill'
 export const GET_AMOUNT = '/api/testing/amount'
 export const POST_PAYMENTINFO = '/api/testing/invoice'
+export const POST_INVOICE_BY_SERVICE_CALL = '/api/invoice'
 export const POST_IMAGE_CAPTURED = '/api/img-upload'
 export const GET_ALL_IMAGE_LIST = '/api/img-upload'
 export const GET_STORE_LICENSE = 'api/license/'
 export const GET_SITE_INFO = 'api/site-info/'
-export const GET_SERVICE_CALL = 'api/pend-wo'
+export const GET_SERVICE_CALL = '/api/work-orders'// 'api/pend-wo'
 export const POST_SERVICE_CALL_UPDATE = 'api/update-wo'
 export const POST_SERVICE_CALL_HISTORY = 'api/service-calls/history'
 export const GET_MAINTAINS_LOGS = 'api/maintain_logs'

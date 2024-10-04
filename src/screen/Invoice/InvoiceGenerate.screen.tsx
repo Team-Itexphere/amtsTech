@@ -51,7 +51,7 @@ const InvoiceGenerate = (props: Props) => {
         dispatch(save_Amount(formData.amount));
 
         if (formData.isAddSubSelected) {
-            return navigation.navigate('InvoiceSubItems')
+            return navigation.navigate('InvoiceSubItems', { source: "not_using" })
         } else {
             return navigation.navigate('PaymentOption')
         }

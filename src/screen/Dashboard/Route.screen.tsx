@@ -114,7 +114,7 @@ const RouteScreen = (props: Props) => {
           left: 10
         }}>
           <Text style={{ ...FONTS.h4, color: COLORS.white, }}>{item.name}</Text>
-          <Text style={{ ...FONTS.body4, color: COLORS.white, maxWidth: 90 }} numberOfLines={1}>{item.tech_id}</Text>
+          <Text style={{ ...FONTS.body4, color: COLORS.white, maxWidth: 90 }} numberOfLines={1}>{item.str_count}</Text>
         </View>
 
         <View style={{

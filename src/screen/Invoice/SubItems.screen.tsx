@@ -8,10 +8,11 @@ import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view
 import { LineDivider } from '../../components/UI';
 import { useDispatch, useSelector } from 'react-redux';
 import { save_SubItems } from '../../store/actions/survey/invoiceAction';
-import { useNavigation } from '@react-navigation/native';
-import { NavigationProp } from '../../navigation/navigationTypes';
-import { getAmount, postInvoiceInfo, postInvoiceReqBody } from '../../store/actions/survey/surveyAction';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { InvoiceSubItemsProp, NavigationProp } from '../../navigation/navigationTypes';
+import { getAmount, postInvoice_from_ServiceCall_ReqBody, postInvoiceInfo, postInvoiceInfo_From_ServiceCall, postInvoiceReqBody } from '../../store/actions/survey/surveyAction';
 import { RootState } from '../../store/store';
+import { saveDataFrom_ServiceCallTo_Invoice } from '../../store/actions/ServiceCall/ServiceCallStateAction';
 
 interface FormComponentProps {
     id: number;
@@ -28,6 +29,7 @@ export interface InvoiceSubItem {
     qty: number;
     rate: number;
     amount?: number;
+    des_problem?: string
 }
 export interface GeneralInvoiceSubItemWithAmount {
     description: string;
@@ -43,9 +45,13 @@ export type MonthlyInspectionInvoiceSubItemWithAmount = Omit<
     'location' | 'qty' | 'rate'
 >;
 
+export interface ServiceCall_Invoice_SubItem_withAmount extends GeneralInvoiceSubItemWithAmount {
+    des_problem: InvoiceSubItem["des_problem"];
+}
+
 export type InvoiceSubItemWithAmount =
     | GeneralInvoiceSubItemWithAmount
-    | MonthlyInspectionInvoiceSubItemWithAmount;
+    | MonthlyInspectionInvoiceSubItemWithAmount | ServiceCall_Invoice_SubItem_withAmount;
 
 function renderAbsoluteButton(handleSubmit: () => void) {
     return (
@@ -75,14 +81,25 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
     const CategoryOptions = ["Monthly Inspection", "Parts", "Calibration", "Calibration", "Service Call"];
 
     const isMonthlyInspection = data.category === "Monthly Inspection"
+    const isServiceCall = data.category === "Service Call"
+
+    const calculatedAmount = isMonthlyInspection ? data.amount : data.qty * data.rate
 
     useEffect(() => {
-        if (isMonthlyInspection) {
-            onChange(id, 'amount', fetchedAmount)
-            onChange(id, 'description', "Monthly Inspection")
-        } else {
-            onChange(id, 'amount', 0)
-            onChange(id, 'description', "")
+        switch (data.category) {
+            case "Monthly Inspection":
+                onChange(id, 'amount', fetchedAmount)
+                onChange(id, 'description', "Monthly Inspection")
+                break;
+            case "Service Call":
+                onChange(id, 'amount', 0)
+                onChange(id, 'des_problem', "")
+                break;
+            default:
+                onChange(id, 'amount', 0)
+                onChange(id, 'description', "")
+                onChange(id, 'des_problem', "")
+                break;
         }
     }, [data.category])
 
@@ -121,6 +138,15 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                         placeholder="Description"
                         contentContainerStyle={{ marginTop: SIZES.base, }}
                     />
+                    {isServiceCall &&
+                        <FormInput
+                            value={data.des_problem!}
+                            placeholder="Problem Description"
+                            keyboardType='default'
+                            onChange={(value) => onChange(id, "des_problem", value)}
+                            containerStyle={{ marginTop: SIZES.base, }}
+                        />
+                    }
                     <FormInput
                         value={data.location}
                         placeholder="Location"
@@ -147,7 +173,7 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
             )}
 
 
-            <Text style={{ ...FONTS.body2, margin: SIZES.base, textAlign: "right" }}>Amount : {isMonthlyInspection ? data.amount : data.qty * data.rate}</Text>
+            <Text style={{ ...FONTS.body2, margin: SIZES.base, textAlign: "right" }}>Amount : ${calculatedAmount}</Text>
 
             <TouchableOpacity onPress={onDelete} style={{ marginTop: SIZES.base }}>
                 <Text style={{ color: COLORS.red, textAlign: 'right' }}>Delete</Text>
@@ -160,7 +186,9 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
 
 const SubItemsScreen = () => {
     const dispatch = useDispatch();
+    const route = useRoute<InvoiceSubItemsProp>();
     const navigation = useNavigation<NavigationProp>();
+    const { source, customer_id } = route.params;
 
     const { location: { ro_loc_id, cus_id, list_id } } = useSelector((state: RootState) => state.routeReducer);
 
@@ -181,7 +209,21 @@ const SubItemsScreen = () => {
 
     useEffect(() => {
         if (ro_loc_id) fetchData(ro_loc_id);
-    }, [])
+
+        if (source.includes("Service Call")) {
+            dispatch(saveDataFrom_ServiceCallTo_Invoice({ source: "Service Call", customer_id: customer_id! }));
+            setForms([
+                {
+                    description: "",
+                    des_problem: "",
+                    category: "Service Call",
+                    location: "",
+                    qty: 0,
+                    rate: 0
+                }
+            ])
+        }
+    }, [source])
 
     const addForm = () => {
         setForms([...forms, { description: '', category: '', location: '', qty: 0, rate: 0 }]);
@@ -213,52 +255,88 @@ const SubItemsScreen = () => {
                 Alert.alert("Please fill all required fields in every form.");
                 return;
             }
-            if (form.category !== "Monthly Inspection") {
+            if (form.category === "Monthly Inspection") {
+                if (!form.amount || form.amount <= 0) {
+                    Alert.alert("Please enter a valid Amount for Monthly Inspection.");
+                    return;
+                }
+
+            } else if (form.category === "Service Call") {
+                if (form.des_problem === "") {
+                    Alert.alert("Please enter valid des_problem for Service Call.");
+                    return;
+                }
                 if (form.qty <= 0 || form.rate <= 0) {
                     Alert.alert("Please enter valid Quantity and Rate in every form.");
                     return;
                 }
             } else {
-                if (!form.amount || form.amount <= 0) {
-                    Alert.alert("Please enter a valid Amount for Monthly Inspection.");
+                if (form.qty <= 0 || form.rate <= 0) {
+                    Alert.alert("Please enter valid Quantity and Rate in every form.");
                     return;
                 }
             }
         }
 
         const formsWithAmount: InvoiceSubItemWithAmount[] = forms.map(form => {
-            if (form.category === "Monthly Inspection") {
-                return {
-                    description: form.description,
-                    category: form.category,
-                    amount: form.amount!,
-                } as MonthlyInspectionInvoiceSubItemWithAmount;
-            } else {
-                return {
-                    description: form.description,
-                    category: form.category,
-                    location: form.location,
-                    qty: form.qty,
-                    rate: form.rate,
-                    amount: form.qty * form.rate,
-                } as GeneralInvoiceSubItemWithAmount;
+            switch (form.category) {
+                case "Monthly Inspection":
+                    return {
+                        description: form.description,
+                        category: form.category,
+                        amount: form.amount!,
+                    } as MonthlyInspectionInvoiceSubItemWithAmount;
+                case "Service Call":
+                    return {
+                        description: form.description,
+                        category: form.category,
+                        location: form.location,
+                        qty: form.qty,
+                        rate: form.rate,
+                        amount: form.qty * form.rate,
+                        des_problem: form.des_problem
+                    } as ServiceCall_Invoice_SubItem_withAmount;
+                default:
+                    return {
+                        description: form.description,
+                        category: form.category,
+                        location: form.location,
+                        qty: form.qty,
+                        rate: form.rate,
+                        amount: form.qty * form.rate,
+                    } as GeneralInvoiceSubItemWithAmount;
             }
         });
 
         dispatch(save_SubItems(formsWithAmount));
-        if (!list_id || !cus_id) console.warn("list_id | cus_id -> null");
-        const form: postInvoiceReqBody = {
-            list_id: list_id!,
-            cus_id: cus_id!,
-            amount: fetchedAmount,
-            items: formsWithAmount
+
+        if (source.includes("Service Call")) {
+            const form: postInvoice_from_ServiceCall_ReqBody = {
+                customer_id: customer_id!,
+                items: formsWithAmount
+            }
+
+            setIsLoarding(true)
+            const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
+            setIsLoarding(false)
+            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
+        } else {
+
+            if (!list_id || !cus_id) return console.warn("list_id | cus_id -> null");
+            const form: postInvoiceReqBody = {
+                list_id: list_id!,
+                cus_id: cus_id!,
+                amount: fetchedAmount,
+                items: formsWithAmount
+            }
+
+            setIsLoarding(true)
+            const postData = await postInvoiceInfo(dispatch, form);
+            setIsLoarding(false)
+            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
+            // navigation.navigate('PaymentOption');
         }
 
-        setIsLoarding(true)
-        const postData = await postInvoiceInfo(dispatch, form);
-        setIsLoarding(false)
-        if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
-        // navigation.navigate('PaymentOption');
     };
 
     return (

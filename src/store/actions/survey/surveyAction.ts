@@ -1,5 +1,5 @@
 import { Dispatch } from "redux";
-import { getAmountService, getSubmitedAnswersService, getSurveyListService, getUniqueIdService, postAnswerService, postPaymentInfoService } from "../../../services/survey/survey.service";
+import { getAmountService, getSubmitedAnswersService, getSurveyListService, getUniqueIdService, postAnswerService, postInvoiceInfo_From_ServiceCall_Service, postPaymentInfoService } from "../../../services/survey/survey.service";
 import { Status } from "./routesAction";
 import { InvoiceSubItemWithAmount } from "../../../screen/Invoice/SubItems.screen";
 import { save_Amount } from "./invoiceAction";
@@ -71,6 +71,13 @@ export interface postPaymentReqBody {
 }
 
 export type postInvoiceReqBody = Omit<postPaymentReqBody, 'pay_opt' | 'check_no' | 'mo_no'>;
+export type postInvoice_from_ServiceCall_ReqBody = Omit<postPaymentReqBody, 'pay_opt' | 'check_no' | 'mo_no' | 'list_id' | 'cus_id' | 'amount'> & {
+    customer_id: number
+}
+export type postInvoice_from_ServiceCall_ReqPaymentBody = Omit<postPaymentReqBody, 'list_id' | 'cus_id' | 'amount'> & {
+    customer_id: number
+}
+
 
 type TestResultType = {
     id: number;
@@ -281,6 +288,25 @@ export const postInvoiceInfo = async (dispatch: Dispatch, formData: postInvoiceR
         }
     } catch (error) {
         console.warn('catch error postPaymentInfo ::', error);
+        return null
+    }
+}
+
+export const postInvoiceInfo_From_ServiceCall = async (dispatch: Dispatch, formData: postInvoice_from_ServiceCall_ReqBody | postInvoice_from_ServiceCall_ReqPaymentBody): Promise<postPaymentInfo_res | null> => {
+    try {
+        const response = await postInvoiceInfo_From_ServiceCall_Service(formData)
+        // console.log("postInvoiceInfo_From_ServiceCall res::", response);
+        if (response.hasError) {
+            console.warn(
+                'has error::-> postInvoiceInfo_From_ServiceCall_Service ::',
+                response.errorMessage,
+            );
+            return null;
+        } else {
+            return response.data
+        }
+    } catch (error) {
+        console.warn('catch error postInvoiceInfo_From_ServiceCall ::', error);
         return null
     }
 }
