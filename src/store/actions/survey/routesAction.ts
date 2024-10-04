@@ -27,8 +27,8 @@ import { getLocationService, getRoutesService } from "../../../services/survey/r
 // }
 
 export enum Status {
-    Pending = 'pending',
-    Completed = 'completed'
+    Pending = 'Pending',
+    Completed = 'Completed'
 }
 
 interface Route {
@@ -77,6 +77,7 @@ export interface RouteItem {
     updated_at: string;
     no: string;
     name: string;
+    str_count: number;
     route: Route;
 }
 
@@ -91,6 +92,7 @@ export type NoteType = {
 };
 
 export interface LocationItem {
+    route_no: string;
     id: number;
     route_id: number;
     cus_id: number;
@@ -156,7 +158,7 @@ export const SaveLocationPressData = (
     status: LocationItem['status'],
 ) => ({
     type: 'LOCATION_PRESS_DATA',
-    payload: { ro_loc_id, cus_id, list_id, notes, status },
+    payload: { ro_loc_id, cus_id, list_id, notes, status},
 });
 
 export const ClearAllRouteData = () => ({ type: 'CLEAR_ALL' });

@@ -37,6 +37,14 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
 
             <View style={{
                 position: 'absolute',
+                top: 10,
+                left: 10
+            }}>
+                <Text style={{ ...FONTS.h3, color: COLORS.white, }} numberOfLines={1}>Route # {item.route_no}</Text>
+            </View>
+            
+            <View style={{
+                position: 'absolute',
                 bottom: 10,
                 left: 10
             }}>
