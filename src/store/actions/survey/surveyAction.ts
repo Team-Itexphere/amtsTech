@@ -217,7 +217,7 @@ export const getUniqueId = async (dispatch: Dispatch, queryparams: getUniqueId_A
 
 export const getAmount = async (dispatch: Dispatch, ro_loc_id: number): Promise<string | null> => {
     try {
-        const response = await getAmountService(ro_loc_id)
+        const response = await getAmountService(ro_loc_id);
         if (response.hasError) {
             console.warn(
                 'has error::-> getAmountService ::',

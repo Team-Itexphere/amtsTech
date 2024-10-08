@@ -30,6 +30,8 @@ import IconSuccessLetter from './Icon_success_Letter.png'
 
 import Bg1 from './bg_1.png'
 import Bg2 from './bg_2.png'
+import Bg3 from './bg_3.jpg'
+import Bg4 from './bg_4.jpg'
 
 export default {
     IconMenu,
@@ -48,6 +50,8 @@ export default {
     IconNext,
     Bg1,
     Bg2,
+    Bg3,
+    Bg4,
     IconSuccessLetter,
     IconCheckmark,
     IconMO,

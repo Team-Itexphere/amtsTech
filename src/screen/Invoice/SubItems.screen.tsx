@@ -76,6 +76,29 @@ function renderAbsoluteButton(handleSubmit: () => void) {
     );
 }
 
+function renderSaveButton(handleSubmit: () => void) {
+    return (
+        <TouchableOpacity
+            onPress={() => handleSubmit()}
+            style={{
+                padding: 10,
+                borderRadius: 20,
+                backgroundColor: COLORS.primary,
+            }}>
+            <Image
+                alt="save"
+                source={require('../../assets/pngs/save.png')}
+                resizeMode="contain"
+                style={{
+                    width: 20,
+                    height: 20,
+                    tintColor: COLORS.white,
+                }}
+            />
+        </TouchableOpacity>
+    );
+}
+
 const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComponentProps) => {
     const DescriptionOptions = ['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker', "Calibration"];
     const CategoryOptions = ["Monthly Inspection", "Parts", "Calibration", "Calibration", "Service Call"];
@@ -356,8 +379,13 @@ const SubItemsScreen = () => {
                 />
             ))}
             <Button title="+ Add Form" onPress={addForm} color={COLORS.lightOrange} />
-            <View style={{ display: "flex", alignItems: "flex-end", margin: SIZES.base }}>
-                {renderAbsoluteButton(handleSubmit)}
+            <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", margin: SIZES.base }}>
+                <View style={{ margin: SIZES.base }}>
+                    {renderSaveButton(handleSubmit)}
+                </View>
+                <View style={{ margin: SIZES.base }}>
+                    {renderAbsoluteButton(handleSubmit)}
+                </View>
             </View>
         </KeyboardAwareScrollView>
     );

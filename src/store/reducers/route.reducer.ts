@@ -12,11 +12,12 @@ export interface RouteState {
         items: InvoiceSubItemWithAmount[]
     },
     location: {
-        ro_loc_id: number | null
-        cus_id: number | null
-        list_id: number | null
+        ro_loc_id: number | null,
+        cus_id: number | null,
+        list_id: number | null,
         notes: LocationItem['notes'],
-        status: LocationItem['status']
+        status: LocationItem['status'],
+        cus_name: string | null
     },
     serviceCall: {
         source: string,
@@ -32,7 +33,8 @@ const initialState: RouteState = {
         cus_id: null,
         list_id: null,
         notes: [],
-        status: Status.Pending
+        status: Status.Pending,
+        cus_name: null,
     },
     surveyItemArray: [],
     invoice: {
@@ -81,6 +83,7 @@ function routeReducer(state = initialState, action: any): RouteState {
                     ro_loc_id: action.payload.ro_loc_id,
                     notes: action.payload.notes,
                     status: action.payload.status,
+                    cus_name: action.payload.cus_name,
                 }
             }
         case "SAVE_DATA_FROM_SERVICECALL_TO_INVOICE":

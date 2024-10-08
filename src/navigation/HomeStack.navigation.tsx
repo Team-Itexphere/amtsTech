@@ -7,6 +7,8 @@ import ScreenWrapper from './ScreenWrapper';
 import Loading from '../components/UI/Loading';
 import { Screens } from '../config/app';
 import { RouteProp } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 
 const DashboardScreen = lazy(() => import('../screen/Dashboard/Dashboard.screen'));
 const SettingsScreen = lazy(() => import('../screen/Dashboard/settings.screen'));
@@ -45,6 +47,7 @@ export enum HeaderName {
   License = 'License',
   Pictures = 'Pictures',
   Invoice = 'Invoice',
+  RouteInvoice = 'Route Invoice',
   Locations = 'Locations',
   Stores = 'Stores',
   ATG_Inventory = 'ATG Inventory',
@@ -64,7 +67,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 const HomeStackNavigator = () => {
   const [selectedTab, setSelectedTab] = useState<ScreenName>("Dashboard");
 
-  const renderScreen = (Component: React.FC<any>, ScreenName?: HeaderName) => (props: any) => (
+  const renderScreen = (Component: React.FC<any>, ScreenName?: any) => (props: any) => (
     <ScreenWrapper selectedTab={selectedTab} setSelectedTab={setSelectedTab} ScreenName={ScreenName || selectedTab}>
       <Suspense fallback={<Loading />}>
         <Component {...props} />
@@ -79,6 +82,7 @@ const HomeStackNavigator = () => {
     // blur: () => { console.log('Screen is blurred', route.name) },
     // beforeRemove: (e: any) => { if () {e.preventDefault()}},
   });
+  const { location: { cus_name } } = useSelector((state: RootState) => state.routeReducer);
 
   const getListeners = (tabName: ScreenName) => ({ navigation, route }: BaseListenerProps) =>
     createCustomListeners({ navigation, route, tabName });
@@ -100,9 +104,9 @@ const HomeStackNavigator = () => {
       <Stack.Screen name="PaymentOption" component={renderScreen(PaymentOption)} listeners={getListeners("Route")} />
       <Stack.Screen name="PdfReader" component={renderScreen(PdfReader)} listeners={getListeners("Route")} />
       <Stack.Screen name="LocationList" component={renderScreen(LocationScreen, HeaderName.Locations)} listeners={getListeners("Route")} />
-      <Stack.Screen name="StoreList" component={renderScreen(StoreScreen, HeaderName.Stores)} listeners={getListeners("Route")} />
+      <Stack.Screen name="StoreList" component={renderScreen(StoreScreen, cus_name)} listeners={getListeners("Route")} />
       <Stack.Screen name="ImageView" component={renderScreen(ImageViewScreen, HeaderName.Pictures)} listeners={getListeners("Route")} />
-      <Stack.Screen name="InvoiceSubItems" component={renderScreen(SubItemsScreen)} listeners={getListeners("Route")} />
+      <Stack.Screen name="InvoiceSubItems" component={renderScreen(SubItemsScreen, HeaderName.RouteInvoice)} listeners={getListeners("Route")} />
       <Stack.Screen name="StoreLicense" component={renderScreen(LicenseScreen, HeaderName.License)} listeners={getListeners("Route")} />
       <Stack.Screen name="ATG_I" component={renderScreen(AtgiScreen, HeaderName.ATG_Inventory)} listeners={getListeners("Route")} />
       <Stack.Screen name="ATG_S" component={renderScreen(AtgsScreen, HeaderName.ATG_Sensor)} listeners={getListeners("Route")} />

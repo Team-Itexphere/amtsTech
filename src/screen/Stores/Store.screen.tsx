@@ -21,7 +21,7 @@ const StoreScreen = (props: Props) => {
         { title: 'Store Licenses', icon: '🏪' },
         { title: 'Invoice', icon: '💼' },
         { title: 'Pictures', icon: '📷' },
-        { title: 'Maintenanc e Log', icon: '⚙️' },
+        { title: 'Maintainance Log', icon: '⚙️' },
         { title: 'Rectifier Log', icon: '📝' },
         { title: 'Site Info', icon: '🏷️' },
         { title: 'Notes', icon: '🗒️' }
@@ -57,7 +57,7 @@ const StoreScreen = (props: Props) => {
             case 'Notes':
                 navigation.navigate('Notes');
                 break;
-            case 'Maintenanc e Log':
+            case 'Maintainance Log':
                 navigation.navigate('MaintainsLogs');
                 break;
             default:

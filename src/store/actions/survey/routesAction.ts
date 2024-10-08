@@ -66,13 +66,14 @@ interface Customer {
 }
 
 export interface RouteItem {
+    initiated: boolean;
     id: number;
     route_id: number;
     tech_id: number;
     insp_type: string | null;
     start_date: string;
     comp_date: string | null;
-    status: Status;
+    status: string;
     created_at: string;
     updated_at: string;
     no: string;
@@ -156,9 +157,10 @@ export const SaveLocationPressData = (
     ro_loc_id: number, cus_id: number, list_id: number,
     notes: LocationItem['notes'],
     status: LocationItem['status'],
+    cus_name: string,
 ) => ({
     type: 'LOCATION_PRESS_DATA',
-    payload: { ro_loc_id, cus_id, list_id, notes, status},
+    payload: { ro_loc_id, cus_id, list_id, notes, status, cus_name},
 });
 
 export const ClearAllRouteData = () => ({ type: 'CLEAR_ALL' });

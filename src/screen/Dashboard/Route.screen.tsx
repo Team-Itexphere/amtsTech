@@ -12,7 +12,7 @@ import { formatDateWithHyphen } from '../../utils/dateFormatter'
 import Loading from '../../components/UI/Loading'
 import ResponseModal from '../../components/UI/Modals/ResponseModal'
 
-const { Bg1, Bg2, IconWarning, IconRefresh } = assetsPng;
+const { Bg1, Bg2, Bg3, Bg4, IconWarning, IconRefresh } = assetsPng;
 type Props = {}
 type renderCardType = {
   item: RouteItem,
@@ -99,7 +99,7 @@ const RouteScreen = (props: Props) => {
         onPress={onPress}
         style={{ height: 150, width: 200, ...containerStyle, position: 'relative' }}>
         <Image
-          source={item.status === Status.Pending ? Bg1 : Bg2}
+          source={item.status === 'completed' ? Bg2 : (item.initiated ? Bg4 : Bg3)}
           resizeMode='cover'
           style={{
             width: "100%",
@@ -111,7 +111,7 @@ const RouteScreen = (props: Props) => {
         <View style={{
           position: 'absolute',
           bottom: 10,
-          left: 10
+          left: 10,
         }}>
           <Text style={{ ...FONTS.h4, color: COLORS.white, }}>{item.name}</Text>
           <Text style={{ ...FONTS.body4, color: COLORS.white, maxWidth: 90 }} numberOfLines={1}>{item.str_count}</Text>

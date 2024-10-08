@@ -101,9 +101,10 @@ const LocationScreen = (props: Props) => {
         list_id: number,
         status: LocationItem['status'],
         notes: LocationItem['notes'],
+        cus_name: string,
     ) => {
 
-        dispatch(SaveLocationPressData(ro_loc_id, cus_id, list_id, notes, status));
+        dispatch(SaveLocationPressData(ro_loc_id, cus_id, list_id, notes, status, cus_name));
         navigation.navigate('StoreList')
 
     }
@@ -144,7 +145,7 @@ const LocationScreen = (props: Props) => {
                                 marginTop: SIZES.radius,
                                 marginHorizontal: SIZES.radius // : SIZES.padding
                             },
-                            onPress: () => onPressItem(item.id, item.cus_id, item.list_id, item.status, item.notes)
+                            onPress: () => onPressItem(item.id, item.cus_id, item.list_id, item.status, item.notes, item.cus_name)
                         })
                     )}
                     refreshControl={
