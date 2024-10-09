@@ -67,7 +67,7 @@ const Stack = createStackNavigator<RootStackParamList>();
 const HomeStackNavigator = () => {
   const [selectedTab, setSelectedTab] = useState<ScreenName>("Dashboard");
 
-  const renderScreen = (Component: React.FC<any>, ScreenName?: any) => (props: any) => (
+  const renderScreen = (Component: React.FC<any>, ScreenName?: ScreenName) => (props: any) => (
     <ScreenWrapper selectedTab={selectedTab} setSelectedTab={setSelectedTab} ScreenName={ScreenName || selectedTab}>
       <Suspense fallback={<Loading />}>
         <Component {...props} />
@@ -82,7 +82,7 @@ const HomeStackNavigator = () => {
     // blur: () => { console.log('Screen is blurred', route.name) },
     // beforeRemove: (e: any) => { if () {e.preventDefault()}},
   });
-  const { location: { cus_name } } = useSelector((state: RootState) => state.routeReducer);
+  // (solving sore to invoice scrn issue) const { location: { cus_name } } = useSelector((state: RootState) => state.routeReducer);
 
   const getListeners = (tabName: ScreenName) => ({ navigation, route }: BaseListenerProps) =>
     createCustomListeners({ navigation, route, tabName });
@@ -104,7 +104,7 @@ const HomeStackNavigator = () => {
       <Stack.Screen name="PaymentOption" component={renderScreen(PaymentOption)} listeners={getListeners("Route")} />
       <Stack.Screen name="PdfReader" component={renderScreen(PdfReader)} listeners={getListeners("Route")} />
       <Stack.Screen name="LocationList" component={renderScreen(LocationScreen, HeaderName.Locations)} listeners={getListeners("Route")} />
-      <Stack.Screen name="StoreList" component={renderScreen(StoreScreen, cus_name)} listeners={getListeners("Route")} />
+      <Stack.Screen name="StoreList" component={renderScreen(StoreScreen, HeaderName.Stores)} listeners={getListeners("Route")} />
       <Stack.Screen name="ImageView" component={renderScreen(ImageViewScreen, HeaderName.Pictures)} listeners={getListeners("Route")} />
       <Stack.Screen name="InvoiceSubItems" component={renderScreen(SubItemsScreen, HeaderName.RouteInvoice)} listeners={getListeners("Route")} />
       <Stack.Screen name="StoreLicense" component={renderScreen(LicenseScreen, HeaderName.License)} listeners={getListeners("Route")} />
