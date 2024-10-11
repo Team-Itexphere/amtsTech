@@ -110,7 +110,7 @@ export const getSurvey = async (dispatch: Dispatch): Promise<ExtendedSurveyItem[
         } else {
             const res: ExtendedSurveyItem[] = response.data.map((item: SurveyItem) => ({
                 ...item,
-                answ: 2,
+                // answ: 2,
                 description: '',
                 image: { hasImg: false, imguri: '' }
             }));
