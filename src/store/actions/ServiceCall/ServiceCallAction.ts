@@ -14,6 +14,7 @@ export type ServiceCallListType = {
     start_date: string | null;
     comp_date: string | null;
     time: string | null;
+    comp_time: string | null;
     priority: "High" | "Low";
     comment: string;
     created_at: string;

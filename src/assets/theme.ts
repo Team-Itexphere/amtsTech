@@ -57,6 +57,8 @@ export const COLORS = {
 };
 export const SIZES = {
     // global sizes
+    none: 0,
+    small: 5,
     base: 8,
     font: 14,
     radius: 12,

@@ -71,6 +71,7 @@ const ServiceCallViewScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<ServiceCallViewProp>();
     const params = route.params;
+    const comments = params.comment ?? [];
 
     const [isShowImage, setIsShowImage] = useState<{ isVisible: boolean, imgIndex: number }>({ isVisible: false, imgIndex: 0 })
     const [isLoading, setIsLoarding] = useState<boolean>(false)
@@ -143,10 +144,11 @@ const ServiceCallViewScreen = () => {
         <View style={{ flex: 1 }}>
             {isLoading && <Loading />}
             <View style={{ padding: SIZES.base }}>
+                {comments && comments.length > 0 ? <Text style={{ ...FONTS.h3 }}>Comment By { comments[0][2] }</Text> : ''}
                 <FormInput
                     containerStyle={{ marginVertical: SIZES.base * 2 }}
                     placeholder="Comment"
-                    value={params.comment}
+                    value={comments && comments.length > 0 ? comments[0][0] : ''}
                     editable={false}
                 />
 

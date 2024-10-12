@@ -10,6 +10,8 @@ import Loading from '../../components/UI/Loading';
 import assetsPng from "../../assets/pngs"
 import { Status } from '../../types';
 import { clearServiceCallData } from '../../store/actions/ServiceCall/ServiceCallStateAction';
+import { formatDateWithHyphen } from '../../utils/dateFormatter';
+import { format, parse } from 'date-fns';
 
 type renderCardType = {
     item: ServiceCallListType,
@@ -18,11 +20,17 @@ type renderCardType = {
 }
 const { Bg1, Bg2, IconRefresh } = assetsPng;
 
+const formatTimeWithAmPm = (timeString: string) => {
+    const parsedTime = parse(timeString, 'HH:mm', new Date());
+
+    return format(parsedTime, 'hh:mm a');
+};
+
 const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
     return (
         <TouchableOpacity
             onPress={onPress}
-            style={{ height: 100, width: 200, ...containerStyle, position: 'relative' }}>
+            style={{ height: 120, width: 200, ...containerStyle, position: 'relative' }}>
             <Image
                 source={item.status === Status.Pending ? Bg1 : Bg2}
                 resizeMode='cover'
@@ -49,6 +57,10 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
                 </View>
                 <Text style={{ ...FONTS.h4, color: COLORS.white, }} numberOfLines={1}>{item.store_address}</Text>
                 <Text style={{ ...FONTS.h3, color: COLORS.white, maxWidth: 310 }} numberOfLines={1}>{item.id}</Text>
+                <Text style={{ ...FONTS.h4, color: COLORS.white, maxWidth: 310 }} numberOfLines={1}>
+                    Date: {item.status === Status.Pending && item.date ? formatDateWithHyphen(item.date, 'DD-MM-YYYY') : (item.status === Status.Completed && item.comp_date ? formatDateWithHyphen(item.comp_date, 'DD-MM-YYYY') : 'N/A')}
+                    , Time: {item.status === Status.Pending && item.time  ? formatTimeWithAmPm(item.time) : (item.status === Status.Completed && item.comp_time ? formatTimeWithAmPm(item.comp_time) : 'N/A')}
+                </Text>
                 {/* <Text style={{ ...FONTS.body4, color: COLORS.white, maxWidth: 90 }} numberOfLines={1}>{item.tech_id}</Text> */}
             </View>
 

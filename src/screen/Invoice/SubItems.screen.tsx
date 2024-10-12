@@ -221,6 +221,8 @@ const SubItemsScreen = () => {
         { description: '', category: '', location: '', qty: 0, rate: 0 },
     ]);
 
+    const [totalAmount, setTotalAmount] = useState(0);
+
     const fetchData = async (ro_loc_id: number) => {
         setIsLoarding(true);
         const res_Amount = await getAmount(dispatch, ro_loc_id)
@@ -247,6 +249,27 @@ const SubItemsScreen = () => {
             ])
         }
     }, [source])
+
+    useEffect(() => {
+        const total = forms.reduce((acc, form) => {
+            let amount = 0;
+            
+            switch (form.category) {
+                case "Monthly Inspection":
+                    amount = typeof form.amount === 'string' ? parseFloat(form.amount) : form.amount || 0;
+                    break;
+                default:
+                    const qty = typeof form.qty === 'string' ? parseFloat(form.qty) : form.qty || 0;
+                    const rate = typeof form.rate === 'string' ? parseFloat(form.rate) : form.rate || 0;
+                    amount = qty * rate;
+                    break;
+            }
+        
+            return acc + amount;
+        }, 0);
+
+        setTotalAmount(total);
+    }, [forms]);
 
     const addForm = () => {
         setForms([...forms, { description: '', category: '', location: '', qty: 0, rate: 0 }]);
@@ -379,6 +402,7 @@ const SubItemsScreen = () => {
                 />
             ))}
             <Button title="+ Add Form" onPress={addForm} color={COLORS.lightOrange} />
+            <Text style={{ ...FONTS.body2, margin: SIZES.base, marginBottom: SIZES.none, textAlign: "right" }}>Total Amount : ${totalAmount}</Text>
             <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", margin: SIZES.base }}>
                 <View style={{ margin: SIZES.base }}>
                     {renderSaveButton(handleSubmit)}
