@@ -10,6 +10,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NavigationProp, RootStackParamList } from './navigationTypes';
+import { HeaderName } from './HomeStack.navigation';
 const { IconHome, IconFleet, IconWorkOrder, IconSettings, IconSignOut } = assetsPng
 
 type ScreenName = keyof Screens;
@@ -22,6 +23,8 @@ const ScreenWrapper = ({ children, selectedTab, setSelectedTab, ScreenName }: an
     const isFocused = (label: any) => selectedTab === label;
     const user = useSelector((state: RootState) => state.authReducer.user);
 
+    const locationData = useSelector((state: RootState) => state.routeReducer.location);
+    const cus_name = locationData.cus_name || null;
 
     const handleNavigate = (name: ScreenName) => {
         setSelectedTab(name)
@@ -51,7 +54,7 @@ const ScreenWrapper = ({ children, selectedTab, setSelectedTab, ScreenName }: an
             {/* Header */}
             <Header
                 containerStyles={{ paddingHorizontal: SIZES.padding, alignItems: 'center' }}
-                title={ScreenName}
+                title={`${cus_name && ScreenName == HeaderName.Stores  ? cus_name : ScreenName}`}
                 leftComponent={!Object.values(appConfig.screens).includes(ScreenName) ? true : false}
                 rightComponent={
                     <TouchableOpacity

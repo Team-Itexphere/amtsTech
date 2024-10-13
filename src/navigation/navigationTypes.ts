@@ -35,6 +35,7 @@ export type RootStackParamList = {
         comp_time: string | null;
         priority: string;
         comment: string;
+        store_name: string;
         created_at: string;
         updated_at: string;
     };

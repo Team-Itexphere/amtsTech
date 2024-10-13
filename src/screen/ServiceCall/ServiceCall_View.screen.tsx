@@ -144,6 +144,7 @@ const ServiceCallViewScreen = () => {
         <View style={{ flex: 1 }}>
             {isLoading && <Loading />}
             <View style={{ padding: SIZES.base }}>
+                <Text style={{ ...FONTS.h3, textAlign:'center', margin: SIZES.padding, marginTop: SIZES.none, color: COLORS.primary }}>{params.store_name}</Text>
                 {comments && comments.length > 0 ? <Text style={{ ...FONTS.h3 }}>Comment By { comments[0][2] }</Text> : ''}
                 <FormInput
                     containerStyle={{ marginVertical: SIZES.base * 2 }}

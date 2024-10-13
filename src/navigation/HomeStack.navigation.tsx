@@ -43,22 +43,22 @@ type CustomListenerProps = BaseListenerProps & {
   tabName: ScreenName;
 };
 
-export enum HeaderName {
-  License = 'License',
-  Pictures = 'Pictures',
-  Invoice = 'Invoice',
-  RouteInvoice = 'Route Invoice',
-  Locations = 'Locations',
-  Stores = 'Stores',
-  ATG_Inventory = 'ATG Inventory',
-  ATG_Sensor = 'ATG Sensor',
-  Mounthly_Inspection_Report = 'Monthly inspection',
-  Site_Info = 'Site Info',
-  ServiceCall_View = 'Service Call',
-  ServiceCall_History = 'Service History',
-  Notes = 'Notes',
-  MaintainsLogs = 'Maintains Logs'
-}
+export const HeaderName: any = {
+  License: 'License',
+  Pictures: 'Pictures',
+  Invoice: 'Invoice',
+  RouteInvoice: 'Route Invoice',
+  Locations: 'Locations',
+  Stores: 'Stores',
+  ATG_Inventory: 'ATG Inventory',
+  ATG_Sensor: 'ATG Sensor',
+  Mounthly_Inspection_Report: 'Monthly inspection',
+  Site_Info: 'Site Info',
+  ServiceCall_View: 'Service Call',
+  ServiceCall_History: 'Service History',
+  Notes: 'Notes',
+  MaintainsLogs: 'Maintains Logs'
+};
 
 type ScreenName = keyof Screens;
 const Stack = createStackNavigator<RootStackParamList>();
