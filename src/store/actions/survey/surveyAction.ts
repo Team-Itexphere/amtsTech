@@ -9,9 +9,10 @@ export interface SurveyItem {
     question: string;
 }
 export interface ExtendedSurveyItem extends SurveyItem {
-    answ: 1 | 2 | 3,
+    answ: 1 | 2 | 3 | null | '',
     description: string,
-    image: { hasImg: boolean, imguri: string | undefined }
+    image: { hasImg: boolean, imguri: string | undefined },
+    gen_comment: string | null
 }
 
 export interface UniqueIdVal {
@@ -43,7 +44,8 @@ export type postAnswer_ApiBody = {
     ques_id: number,
     answer: Answer,
     desc: string,
-    file: string
+    file: string,
+    gen_comment: string | null
 }
 
 export interface postAnswer_res {
@@ -51,6 +53,7 @@ export interface postAnswer_res {
     created_at: string;
     desc: string;
     file?: string;
+    gen_comment: string | null;
     id: number;
     ques_id: number;
     testing_id: number;
@@ -83,9 +86,10 @@ type TestResultType = {
     id: number;
     testing_id: number;
     ques_id: number;
-    answer: Answer;
+    answer: Answer | null;
     desc: string | null;
     file: string | null;
+    gen_comment: string | null;
     created_at: string;
     updated_at: string;
 };
@@ -111,8 +115,10 @@ export const getSurvey = async (dispatch: Dispatch): Promise<ExtendedSurveyItem[
             const res: ExtendedSurveyItem[] = response.data.map((item: SurveyItem) => ({
                 ...item,
                 // answ: 2,
+                answ: '',
                 description: '',
-                image: { hasImg: false, imguri: '' }
+                image: { hasImg: false, imguri: '' },
+                gen_comment: '',
             }));
 
             return res;
@@ -145,7 +151,8 @@ export const getSubmitedSurvey = async (dispatch: Dispatch, list_id: number, cus
                     image: {
                         hasImg: !!answer.file,
                         imguri: answer.file || undefined,
-                    }
+                    },
+                    gen_comment: answer.gen_comment || ""
                 } as ExtendedSurveyItem
 
 
@@ -276,7 +283,7 @@ export const postPaymentInfo = async (dispatch: Dispatch, formData: postPaymentR
 export const postInvoiceInfo = async (dispatch: Dispatch, formData: postInvoiceReqBody): Promise<postPaymentInfo_res | null> => {
     try {
         const response = await postPaymentInfoService(formData)
-        // console.log("postPaymentInfo res::", response);
+        console.log("postPaymentInfo res::", formData);
         if (response.hasError) {
             console.warn(
                 'has error::-> postPaymentInfoService ::',

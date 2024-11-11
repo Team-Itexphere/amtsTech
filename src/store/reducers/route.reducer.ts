@@ -17,7 +17,8 @@ export interface RouteState {
         list_id: number | null,
         notes: LocationItem['notes'],
         status: LocationItem['status'],
-        cus_name: string | null
+        cus_name: string | null,
+        rec_logs: string | number | null
     },
     serviceCall: {
         source: string,
@@ -35,6 +36,7 @@ const initialState: RouteState = {
         notes: [],
         status: Status.Pending,
         cus_name: null,
+        rec_logs: null,
     },
     surveyItemArray: [],
     invoice: {
@@ -84,6 +86,7 @@ function routeReducer(state = initialState, action: any): RouteState {
                     notes: action.payload.notes,
                     status: action.payload.status,
                     cus_name: action.payload.cus_name,
+                    rec_logs: action.payload.rec_logs,
                 }
             }
         case "SAVE_DATA_FROM_SERVICECALL_TO_INVOICE":

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NavigationProp, StoreListProp } from '../../navigation/navigationTypes';
 import { useSelector } from 'react-redux';
@@ -12,8 +12,13 @@ const StoreScreen = (props: Props) => {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<StoreListProp>();
 
-    const { location: { ro_loc_id, cus_id, list_id } } = useSelector((state: RootState) => state.routeReducer);
-
+    const { location: { ro_loc_id, cus_id, list_id, rec_logs } } = useSelector((state: RootState) => state.routeReducer);
+    useEffect(() => {
+        console.log("Route Location ID:", ro_loc_id);
+        console.log("Customer ID:", cus_id);
+        console.log("List ID:", list_id);
+        console.log("Rec Logs:", rec_logs);
+      }, [rec_logs]);
     const buttons = [
         { title: 'Monthly Inspection', icon: '📅' },
         { title: 'Sensor/CSLD Tickets', icon: '📊' },
@@ -71,7 +76,7 @@ const StoreScreen = (props: Props) => {
                 {buttons.map((button, index) => (
                     <TouchableOpacity
                         key={index}
-                        style={/*button.title === "Rectifier Log" ? { display: 'none' } :*/ styles.button} //[styles.button, { backgroundColor: COLORS.lightGray1 }] 
+                        style={rec_logs == "1" && button.title === "Rectifier Log" ? styles.button : (button.title !== "Rectifier Log" ? styles.button : { display: 'none' })} //[styles.button, { backgroundColor: COLORS.lightGray1 }] 
                         onPress={() => handleButtonPress(button.title)}
                     >
                         <Text style={styles.icon}>{button.icon}</Text>

@@ -184,7 +184,8 @@ const Survey = (props: Props) => {
             ques_id: currentanw + 1,
             answer: a(anws.answ),
             desc: anws.description,
-            file: base64Image ? base64Image : ''
+            file: base64Image ? base64Image : '',
+            gen_comment: anws.gen_comment
         }
 
         const postData = await postAnswer(dispatch, asw);
@@ -212,7 +213,8 @@ const Survey = (props: Props) => {
                     ques_id: index + 1,
                     answer: a(anws.answ),
                     desc: anws.description,
-                    file: ''
+                    file: '',
+                    gen_comment: anws.gen_comment
                 }
 
                 if (anws.image.hasImg) {
@@ -326,6 +328,19 @@ const Survey = (props: Props) => {
         })
     }
 
+    const onChangeComment = (text: string) => {
+        setSurveyItemArray((prevItems) => {
+            const newItems = [...prevItems];
+            for (let i = 0; i < newItems.length; i++) {
+                if (newItems[i].id === 18) {
+                    newItems[i] = { ...newItems[i], gen_comment: text };
+                    break;
+                }
+            }console.log
+            return newItems;
+        })
+    }
+
     const getBase64ImageSizeInMB = (base64String: String) => {
 
         const stringLength = base64String.length;
@@ -414,113 +429,123 @@ const Survey = (props: Props) => {
     const renderView = () => {
         if (isToggleMode) {
             return (
-                <View style={{ height: 400, }}>
-                    <View style={{ flex: 1 }}>
-                        <FlatList
-                            ref={containerRef}
-                            horizontal
-                            pagingEnabled
-                            scrollEnabled={false}
-                            snapToAlignment='center'
-                            snapToInterval={SIZES.width}
-                            decelerationRate="fast"
-                            showsHorizontalScrollIndicator={false}
-                            data={surveyItemArray}
-                            keyExtractor={(item, index) => `container ${item.id}${index}`}
-                            renderItem={({ item, index }) => {
-                                return (
-                                    // same element use in else block in below
-                                    <View style={{ backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.padding, width: SIZES.width, }}>
-                                        {/* <View style={{ marginVertical: 'auto' }}> */}
+                // <View style={{ height: 400, }}>
+                //     <View style={{ flex: 1 }}>
+                //         <FlatList
+                //             ref={containerRef}
+                //             horizontal
+                //             pagingEnabled
+                //             scrollEnabled={false}
+                //             snapToAlignment='center'
+                //             snapToInterval={SIZES.width}
+                //             decelerationRate="fast"
+                //             showsHorizontalScrollIndicator={false}
+                //             data={surveyItemArray}
+                //             keyExtractor={(item, index) => `container ${item.id}${index}`}
+                //             renderItem={({ item, index }) => {
+                //                 return (
+                //                     // same element use in else block in below
+                //                     <View style={{ backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.padding, width: SIZES.width, }}>
+                //                         {/* <View style={{ marginVertical: 'auto' }}> */}
 
 
-                                        <Text style={[FONTS.h3,]}>{item.id}: {item.question}</Text>
-                                        {renderAnswerButtons({ item, isDisabled, onPressAnswButton })}
-                                        <LineDivider />
+                //                         <Text style={[FONTS.h3,]}>{item.id}: {item.question}</Text>
+                //                         {renderAnswerButtons({ item, isDisabled, onPressAnswButton })}
+                //                         <LineDivider />
 
 
-                                        <FormInput
-                                            containerStyle={{
-                                                borderRadius: SIZES.radius,
-                                                marginVertical: SIZES.base * 2
-                                                // backgroundColor: COLORS.error,
-                                            }}
-                                            // inputContainerStyle={}
-                                            placeholder="Description"
-                                            value={item.description}
-                                            onChange={(text: string) => onChangeDescText(text)}
-                                            editable={!isDisabled()}
-                                        />
+                //                         <FormInput
+                //                             containerStyle={{
+                //                                 borderRadius: SIZES.radius,
+                //                                 marginVertical: SIZES.base * 2
+                //                                 // backgroundColor: COLORS.error,
+                //                             }}
+                //                             // inputContainerStyle={}
+                //                             placeholder="Description"
+                //                             value={item.description}
+                //                             onChange={(text: string) => onChangeDescText(text)}
+                //                             editable={!isDisabled()}
+                //                         />
 
 
-                                        <View style={{ flex: 1 }} />
-                                        <LineDivider />
-                                        <View style={{ flexDirection: 'row', marginTop: SIZES.radius }}>
-                                            <IconLabelButton
-                                                iconStyle={{ tintColor: COLORS.secondary }}
-                                                icon={IconAddPhoto} label='Camera'
-                                                containerStyle={{ flex: 1 }}
-                                                onPress={() => handleCamera()} />
-                                            <IconLabelButton
-                                                iconStyle={{ tintColor: COLORS.secondary }}
-                                                icon={IconGallery} label='Gallery'
-                                                containerStyle={{ flex: 1 }}
-                                                onPress={() => handleImagePick()} />
-                                            {item.image.hasImg ?
-                                                <IconLabelButton
-                                                    iconStyle={{ tintColor: COLORS.secondary }}
-                                                    icon={IconEye} label='view image'
-                                                    containerStyle={{ flex: 1 }}
-                                                    onPress={() => {
-                                                        setimgurl(item.image.imguri)
-                                                        setIsVisible({ modalName: 'view_image', isVisible: true })
-                                                    }}
-                                                /> :
-                                                <View style={{ flex: 1 }} />
-                                            }
-                                        </View>
-                                        {/* </View> */}
+                //                         <View style={{ flex: 1 }} />
+                //                         <LineDivider />
+                //                         <View style={{ flexDirection: 'row', marginTop: SIZES.radius }}>
+                //                             <IconLabelButton
+                //                                 iconStyle={{ tintColor: COLORS.secondary }}
+                //                                 icon={IconAddPhoto} label='Camera'
+                //                                 containerStyle={{ flex: 1 }}
+                //                                 onPress={() => handleCamera()} />
+                //                             <IconLabelButton
+                //                                 iconStyle={{ tintColor: COLORS.secondary }}
+                //                                 icon={IconGallery} label='Gallery'
+                //                                 containerStyle={{ flex: 1 }}
+                //                                 onPress={() => handleImagePick()} />
+                //                             {item.image.hasImg ?
+                //                                 <IconLabelButton
+                //                                     iconStyle={{ tintColor: COLORS.secondary }}
+                //                                     icon={IconEye} label='view image'
+                //                                     containerStyle={{ flex: 1 }}
+                //                                     onPress={() => {
+                //                                         setimgurl(item.image.imguri)
+                //                                         setIsVisible({ modalName: 'view_image', isVisible: true })
+                //                                     }}
+                //                                 /> :
+                //                                 <View style={{ flex: 1 }} />
+                //                             }
+                //                         </View>
+                //                         {/* </View> */}
 
-                                    </View>
+                //                     </View>
 
-                                )
-                            }}
-                        />
-                    </View>
-                    {/* This only use in their */}
-                    <View style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: isFirstQuestion() ? 'flex-end' : 'space-between',
-                        backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.base, marginTop: SIZES.base * 2,
-                    }}>
+                //                 )
+                //             }}
+                //         />
+                //     </View>
+                //     {/* This only use in their */}
+                //     <View style={{
+                //         display: 'flex',
+                //         flexDirection: 'row',
+                //         justifyContent: isFirstQuestion() ? 'flex-end' : 'space-between',
+                //         backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.base, marginTop: SIZES.base * 2,
+                //     }}>
 
-                        {!isFirstQuestion() && <IconLabelButton
-                            labelStyle={{ marginRight: SIZES.base }}
-                            iconStyle={{ tintColor: COLORS.dark60 }}
-                            containerStyle={{
-                                backgroundColor: COLORS.lightGrey,
-                                padding: SIZES.base,
-                                borderRadius: SIZES.radius,
-                            }}
-                            icon={IconNext}
-                            label="Prev"
-                            onPress={handlePrevPress}
-                            disabled={isDisabled()}
-                        />}
+                //         {!isFirstQuestion() && <IconLabelButton
+                //             labelStyle={{ marginRight: SIZES.base }}
+                //             iconStyle={{ tintColor: COLORS.dark60 }}
+                //             containerStyle={{
+                //                 backgroundColor: COLORS.lightGrey,
+                //                 padding: SIZES.base,
+                //                 borderRadius: SIZES.radius,
+                //             }}
+                //             icon={IconNext}
+                //             label="Prev"
+                //             onPress={handlePrevPress}
+                //             disabled={isDisabled()}
+                //         />}
 
-                        <IconLabelButton
-                            labelStyle={{ marginRight: SIZES.base }}
-                            iconStyle={{ tintColor: COLORS.dark60 }}
-                            icon={IconNext}
-                            label={(isLoading && !!base64Image) ? 'Image is uploading...' : isLoading ? 'Loading...' : isLastItem ? 'Submit' : 'Next'}
-                            containerStyle={{ flexDirection: 'row-reverse', backgroundColor: isLastItem ? COLORS.lightOrange : COLORS.lightGrey, padding: SIZES.base, borderRadius: SIZES.radius }}
-                            onPress={handleNextPress}
-                            disabled={isDisabled()}
-                        />
-                    </View>
-                </View>
-            );
+                //         {isLastItem && <FormInput
+                //             containerStyle={{
+                //                 borderRadius: SIZES.radius,
+                //                 marginVertical: SIZES.base * 2
+                //             }}
+                //             placeholder="General Comments"
+                //             value=""
+                //             onChange={(text: string) => onChangeComment(text)}
+                //         />}
+
+                //         <IconLabelButton
+                //             labelStyle={{ marginRight: SIZES.base }}
+                //             iconStyle={{ tintColor: COLORS.dark60 }}
+                //             icon={IconNext}
+                //             label={(isLoading && !!base64Image) ? 'Image is uploading...' : isLoading ? 'Loading...' : isLastItem ? 'Submit' : 'Next'}
+                //             containerStyle={{ flexDirection: 'row-reverse', backgroundColor: isLastItem ? COLORS.lightOrange : COLORS.lightGrey, padding: SIZES.base, borderRadius: SIZES.radius }}
+                //             onPress={handleNextPress}
+                //             disabled={isDisabled()}
+                //         />
+                //     </View>
+                // </View>
+            '');
         } else {
             return (
                 <View style={{ flex: 1 }}>
@@ -528,38 +553,50 @@ const Survey = (props: Props) => {
                     <FlatList
                         data={surveyItemArray}
                         keyExtractor={(item, index) => `container ${item.id}${index}`}
-                        ListFooterComponent={<View
-                            style={{
-                                flexDirection: 'row',
-                                margin: SIZES.base,
-                                marginBottom: SIZES.radius
-                            }}>
-                            <IconLabelButton
-                                labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
-                                iconStyle={{ tintColor: COLORS.white }}
-                                icon={IconNext}
-                                label={'Save'}
+                        ListFooterComponent={
+                        <View>
+                            <FormInput
                                 containerStyle={{
-                                    flex: 1, marginRight: 4,
-                                    flexDirection: 'row-reverse',
-                                    backgroundColor: COLORS.secondary, padding: SIZES.radius, borderRadius: SIZES.radius
+                                borderRadius: SIZES.radius,
+                                margin: SIZES.base
                                 }}
-                                onPress={() => submitAll()}
-                                disabled={isDisabled()}
+                                placeholder="General Comments"
+                                value={surveyItemArray.find(item => item.id === 18)?.gen_comment || ''}
+                                onChange={(text: string) => onChangeComment(text)}
                             />
-                            <IconLabelButton
-                                labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
-                                iconStyle={{ tintColor: COLORS.white }}
-                                icon={IconNext}
-                                label={'Submit'}
-                                containerStyle={{
-                                    flex: 1,
-                                    flexDirection: 'row-reverse',
-                                    backgroundColor: COLORS.lightOrange, padding: SIZES.radius, borderRadius: SIZES.radius
-                                }}
-                                onPress={() => submitAll()}
-                                disabled={isDisabled()}
-                            />
+                            <View
+                                style={{
+                                    flexDirection: 'row',
+                                    margin: SIZES.base,
+                                    marginBottom: SIZES.radius
+                                }}>
+                                <IconLabelButton
+                                    labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
+                                    iconStyle={{ tintColor: COLORS.white }}
+                                    icon={IconNext}
+                                    label={'Save'}
+                                    containerStyle={{
+                                        flex: 1, marginRight: 4,
+                                        flexDirection: 'row-reverse',
+                                        backgroundColor: COLORS.secondary, padding: SIZES.radius, borderRadius: SIZES.radius
+                                    }}
+                                    onPress={() => submitAll()}
+                                    disabled={isDisabled()}
+                                />
+                                <IconLabelButton
+                                    labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
+                                    iconStyle={{ tintColor: COLORS.white }}
+                                    icon={IconNext}
+                                    label={'Submit'}
+                                    containerStyle={{
+                                        flex: 1,
+                                        flexDirection: 'row-reverse',
+                                        backgroundColor: COLORS.lightOrange, padding: SIZES.radius, borderRadius: SIZES.radius
+                                    }}
+                                    onPress={() => submitAll()}
+                                    disabled={isDisabled()}
+                                />
+                            </View>
                         </View>}
                         renderItem={({ item, index }) => {
                             return (
@@ -629,7 +666,7 @@ const Survey = (props: Props) => {
             display: 'flex', justifyContent: 'center', alignItems: 'center'
         }}>
             <StatusBar backgroundColor={COLORS.white} />
-            <View style={{ flexDirection: "row", alignItems: "center", margin: SIZES.base }}>
+            {/* <View style={{ flexDirection: "row", alignItems: "center", margin: SIZES.base }}>
                 <Switch
                     value={isToggleMode}
                     onValueChange={() => setIsToggleMode((prev) => !prev)}
@@ -637,7 +674,7 @@ const Survey = (props: Props) => {
                     thumbColor={COLORS.secondary}
                 />
                 <Text style={{ ...FONTS.body3 }}>Toggle View</Text>
-            </View>
+            </View> */}
 
             {renderView()}
 
