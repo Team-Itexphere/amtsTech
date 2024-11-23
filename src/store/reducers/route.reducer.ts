@@ -1,5 +1,5 @@
 import { InvoiceSubItemWithAmount } from "../../screen/Invoice/SubItems.screen";
-import { Status } from "../../types";
+import { ServeyStatus, Status } from "../../types";
 import { LocationItem } from "../actions/survey/routesAction";
 import { ExtendedSurveyItem } from "../actions/survey/surveyAction";
 
@@ -8,6 +8,8 @@ export interface RouteState {
     res_Amount: string | null,
     surveyItemArray: ExtendedSurveyItem[],
     invoice: {
+        service: string | null;
+        comment: string | null;
         // descript: string,
         items: InvoiceSubItemWithAmount[]
     },
@@ -34,14 +36,16 @@ const initialState: RouteState = {
         cus_id: null,
         list_id: null,
         notes: [],
-        status: Status.Pending,
+        status: ServeyStatus.Pending,
         cus_name: null,
         rec_logs: null,
     },
     surveyItemArray: [],
     invoice: {
         // descript: '',
-        items: []
+        items: [],
+        comment: null,
+        service: null
     },
     serviceCall: {
         source: "",

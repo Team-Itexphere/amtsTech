@@ -21,6 +21,7 @@ const LocationScreen = lazy(() => import('../screen/Locations/Location.screen'))
 const Survey = lazy(() => import('../screen/Survey/Survey.screen'));
 const PdfReader = lazy(() => import('../screen/Invoice/PdfReader.screen'));
 const PaymentOption = lazy(() => import('../screen/Invoice/PaymentOption.screen'));
+const StoreInvoicesScreen = lazy(() => import('../screen/Invoice/StoreInvoices.screen'));
 const InvoiceGenerate = lazy(() => import('../screen/Invoice/InvoiceGenerate.screen'));
 const ImageViewScreen = lazy(() => import('../screen/ImageView/ImageView.screen'));
 const SubItemsScreen = lazy(() => import('../screen/Invoice/SubItems.screen'));
@@ -48,6 +49,7 @@ export const HeaderName: any = {
   Pictures: 'Pictures',
   Invoice: 'Invoice',
   RouteInvoice: 'Route Invoice',
+  RouteInvoices: 'Previous Invoices',
   Locations: 'Locations',
   Stores: 'Stores',
   ATG_Inventory: 'ATG Inventory',
@@ -102,11 +104,12 @@ const HomeStackNavigator = () => {
       <Stack.Screen name="Survey" component={renderScreen(Survey, HeaderName.Mounthly_Inspection_Report)} listeners={getListeners("Route")} />
       <Stack.Screen name="InvoiceGenerate" component={renderScreen(InvoiceGenerate, HeaderName.Invoice)} listeners={getListeners("Route")} />
       <Stack.Screen name="PaymentOption" component={renderScreen(PaymentOption)} listeners={getListeners("Route")} />
-      <Stack.Screen name="PdfReader" component={renderScreen(PdfReader)} listeners={getListeners("Route")} />
+      <Stack.Screen name="PdfReader" component={renderScreen(PdfReader, HeaderName.Stores)} listeners={getListeners("Route")} />
       <Stack.Screen name="LocationList" component={renderScreen(LocationScreen, HeaderName.Locations)} listeners={getListeners("Route")} />
       <Stack.Screen name="StoreList" component={renderScreen(StoreScreen, HeaderName.Stores)} listeners={getListeners("Route")} />
       <Stack.Screen name="ImageView" component={renderScreen(ImageViewScreen, HeaderName.Pictures)} listeners={getListeners("Route")} />
       <Stack.Screen name="InvoiceSubItems" component={renderScreen(SubItemsScreen, HeaderName.RouteInvoice)} listeners={getListeners("Route")} />
+      <Stack.Screen name="StoreInvoices" component={renderScreen(StoreInvoicesScreen, HeaderName.RouteInvoices)} listeners={getListeners("Route")} />
       <Stack.Screen name="StoreLicense" component={renderScreen(LicenseScreen, HeaderName.License)} listeners={getListeners("Route")} />
       <Stack.Screen name="ATG_I" component={renderScreen(AtgiScreen, HeaderName.ATG_Inventory)} listeners={getListeners("Route")} />
       <Stack.Screen name="ATG_S" component={renderScreen(AtgsScreen, HeaderName.ATG_Sensor)} listeners={getListeners("Route")} />

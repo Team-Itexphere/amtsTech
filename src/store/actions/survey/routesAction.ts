@@ -1,5 +1,6 @@
 import { Dispatch } from "redux";
 import { getLocationService, getRoutesService } from "../../../services/survey/routes.service";
+import { ServeyStatus } from "../../../types";
 
 // type Location = {
 //     cus_id: string;
@@ -103,7 +104,7 @@ export interface LocationItem {
     updated_at: string;
     cus_name: string;
     cus_fac_id: string;
-    status: Status;
+    status: ServeyStatus;
     customer: Customer;
     list_id: number;
     notes: NoteType[]

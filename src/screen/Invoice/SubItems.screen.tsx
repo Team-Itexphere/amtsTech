@@ -190,7 +190,7 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                         value={data.rate === 0 ? '' : data.rate.toString()}
                         placeholder="Rate"
                         keyboardType='numeric'
-                        onChange={(value) => onChange(id, 'rate', Number(value))}
+                        onChange={(value) => onChange(id, 'rate', value)}
                     />
                 </>
             )}
@@ -211,17 +211,21 @@ const SubItemsScreen = () => {
     const dispatch = useDispatch();
     const route = useRoute<InvoiceSubItemsProp>();
     const navigation = useNavigation<NavigationProp>();
-    const { source, customer_id } = route.params;
+    const { source, customer_id, invoice } = route.params;
 
     const { location: { ro_loc_id, cus_id, list_id } } = useSelector((state: RootState) => state.routeReducer);
 
     const [isLoading, setIsLoarding] = useState<boolean>(false);
     const [fetchedAmount, setFetchedAmount] = useState<number>(0);
-    const [forms, setForms] = useState<InvoiceSubItem[]>([
+    const [forms, setForms] = useState<InvoiceSubItem[]>(!invoice ? [
         { description: '', category: '', location: '', qty: 0, rate: 0 },
-    ]);
+    ] : []);
 
     const [totalAmount, setTotalAmount] = useState(0);
+    const [sales_tax, setSalesTax] = useState(0);
+    const [comment, setComment] = useState<string>('');
+    const [service, setService] = useState<string | null>(null);
+    const [inv_id, setInvId] = useState<number | null>(null);
 
     const fetchData = async (ro_loc_id: number) => {
         setIsLoarding(true);
@@ -248,7 +252,17 @@ const SubItemsScreen = () => {
                 }
             ])
         }
-    }, [source])
+
+        if(invoice) { 
+            const newInvoiceArr = invoice.invoice_items.map((item) =>
+                { return { description: item.descript ?? '', category: item.category ?? '', location: item.location ?? '', qty: item.qty ?? 0, rate: parseFloat(item.rate) ?? 0 } }
+            );
+            setForms(newInvoiceArr);
+            setInvId(invoice.id)
+        }
+    }, [source, invoice])
+
+    const sales_tax_perc = 8.25/100; // Sales Tax Percentage
 
     useEffect(() => {
         const total = forms.reduce((acc, form) => {
@@ -257,7 +271,10 @@ const SubItemsScreen = () => {
             switch (form.category) {
                 case "Monthly Inspection":
                     amount = typeof form.amount === 'string' ? parseFloat(form.amount) : form.amount || 0;
+                    setService("Monthly Inspection");
                     break;
+                case "Service Call":
+                    setService("Service Call");
                 default:
                     const qty = typeof form.qty === 'string' ? parseFloat(form.qty) : form.qty || 0;
                     const rate = typeof form.rate === 'string' ? parseFloat(form.rate) : form.rate || 0;
@@ -268,7 +285,10 @@ const SubItemsScreen = () => {
             return acc + amount;
         }, 0);
 
-        setTotalAmount(total);
+        const tax = total * sales_tax_perc;
+
+        setSalesTax(parseFloat(tax.toFixed(2)));
+        setTotalAmount(parseFloat((total + tax).toFixed(2)));        
     }, [forms]);
 
     const addForm = () => {
@@ -359,7 +379,10 @@ const SubItemsScreen = () => {
         if (source.includes("Service Call")) {
             const form: postInvoice_from_ServiceCall_ReqBody = {
                 customer_id: customer_id!,
-                items: formsWithAmount
+                items: formsWithAmount,
+                addi_comments: comment,
+                service: service,
+                id: inv_id
             }
 
             setIsLoarding(true)
@@ -373,7 +396,10 @@ const SubItemsScreen = () => {
                 list_id: list_id!,
                 cus_id: cus_id!,
                 amount: fetchedAmount,
-                items: formsWithAmount
+                items: formsWithAmount,
+                addi_comments: comment,
+                service: service,
+                id: inv_id
             }
 
             setIsLoarding(true)
@@ -391,6 +417,16 @@ const SubItemsScreen = () => {
             contentContainerStyle={{ paddingBottom: 20 }}
             keyboardShouldPersistTaps="handled"
         >
+            <Button 
+                title="📝 View Previous Invoices" 
+                onPress={() => {
+                    navigation.navigate('StoreInvoices', { source: "store" });
+                }} 
+                color={COLORS.lightOrange} 
+            />            
+            {invoice && (
+                <Text style={{ ...FONTS.body3, margin: SIZES.base, marginBottom: SIZES.base, textAlign: "center", fontWeight: 700, color: 'green' }}>Edit Invoice #{invoice.invoice_no}</Text>
+            )}            
             {forms.map((form, index) => (
                 <FormComponent
                     key={index}
@@ -402,7 +438,15 @@ const SubItemsScreen = () => {
                 />
             ))}
             <Button title="+ Add Form" onPress={addForm} color={COLORS.lightOrange} />
-            <Text style={{ ...FONTS.body2, margin: SIZES.base, marginBottom: SIZES.none, textAlign: "right" }}>Total Amount : ${totalAmount}</Text>
+            <FormInput
+                value={comment}
+                placeholder="Comment"
+                keyboardType='default'
+                containerStyle={{ marginTop: SIZES.base, }}
+                onChange={(value) => setComment(value)}
+            />
+            <Text style={{ ...FONTS.body2, margin: SIZES.base, marginBottom: SIZES.none, textAlign: "right" }}>Sales Tax : ${sales_tax}</Text>
+            <Text style={{ ...FONTS.body2, margin: SIZES.base, marginBottom: SIZES.none, textAlign: "right", fontWeight: 700 }}>Total Amount : ${totalAmount}</Text>
             <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", margin: SIZES.base }}>
                 <View style={{ margin: SIZES.base }}>
                     {renderSaveButton(handleSubmit)}

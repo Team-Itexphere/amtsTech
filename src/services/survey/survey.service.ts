@@ -41,6 +41,13 @@ export const getAmountService = async (ro_loc_id: number) => {
     ) as responseHandlerType;
 }
 
+export const getInvoicesService = async (cus_id: number | null) => {
+    return await client.API(
+        METHODS.GET,
+        `${POST_INVOICE_BY_SERVICE_CALL}?cus_id=${cus_id}`
+    ) as responseHandlerType;
+}
+
 export const postAnswerService = async (formData: any) => {
     let headerConfig = {
         'content-Type': 'application/json',

@@ -9,6 +9,7 @@ import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 import { ClearAllRouteData, getLocations, LocationItem, SaveLocationPressData, Status } from '../../store/actions/survey/routesAction'
 import assetsPng from '../../assets/pngs'
 import Loading from '../../components/UI/Loading'
+import { ServeyStatus } from '../../types'
 
 const { Bg1, Bg2, IconWarning } = assetsPng;
 
@@ -26,7 +27,7 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
             onPress={onPress}
             style={{ height: 150, width: 200, ...containerStyle, position: 'relative' }}>
             <Image
-                source={item.status === Status.Pending ? Bg1 : Bg2}
+                source={item.status === ServeyStatus.Pending ? Bg1 : Bg2}
                 resizeMode='cover'
                 style={{
                     width: "100%",
@@ -58,7 +59,7 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
                 bottom: 10,
                 right: 10
             }}>
-                <Text style={{ ...FONTS.body5, color: item.status === Status.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius }}>{item.status ? item.status : 'pending'}</Text>
+                <Text style={{ ...FONTS.body5, color: item.status === ServeyStatus.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius }}>{item.status ? item.status : 'pending'}</Text>
             </View>
         </TouchableOpacity>
     )

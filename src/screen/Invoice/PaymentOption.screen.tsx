@@ -105,7 +105,9 @@ const PaymentOption = () => {
                 mo_no: formData.selectedCheckBox === 'MO' ? formData.number : null,
                 // descript: invoice.descript,
                 amount: parseInt(res_Amount),
-                items: invoice.items
+                items: invoice.items,
+                addi_comments: invoice.comment,
+                service: invoice.service
             }
 
             const postData = await postPaymentInfo(dispatch, form);

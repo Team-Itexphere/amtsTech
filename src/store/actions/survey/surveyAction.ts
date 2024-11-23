@@ -1,5 +1,5 @@
 import { Dispatch } from "redux";
-import { getAmountService, getSubmitedAnswersService, getSurveyListService, getUniqueIdService, postAnswerService, postInvoiceInfo_From_ServiceCall_Service, postPaymentInfoService } from "../../../services/survey/survey.service";
+import { getAmountService, getInvoicesService, getSubmitedAnswersService, getSurveyListService, getUniqueIdService, postAnswerService, postInvoiceInfo_From_ServiceCall_Service, postPaymentInfoService } from "../../../services/survey/survey.service";
 import { Status } from "./routesAction";
 import { InvoiceSubItemWithAmount } from "../../../screen/Invoice/SubItems.screen";
 import { save_Amount } from "./invoiceAction";
@@ -17,7 +17,7 @@ export interface ExtendedSurveyItem extends SurveyItem {
 
 export interface UniqueIdVal {
     // unique_id: number;
-    cus_id: string;
+    cus_id: number;
     tech_id: number;
     updated_at: string; // ISO 8601 date string
     created_at: string; // ISO 8601 date string
@@ -37,7 +37,8 @@ export type getUniqueId_Apiqueryparams = { unique_id: number, ro_loc_id: number,
 export enum Answer {
     Yes = "Yes",
     No = "No",
-    NA = "N/A"
+    NA = "N/A",
+    NULL = "",
 }
 export type postAnswer_ApiBody = {
     unique_id: number,
@@ -70,14 +71,17 @@ export interface postPaymentReqBody {
     amount: number;
     items: InvoiceSubItemWithAmount[];
     list_id: number;
-    cus_id: number
+    cus_id: number;
+    addi_comments: string | null;
+    service: string | null;
+    id: number | null;
 }
 
 export type postInvoiceReqBody = Omit<postPaymentReqBody, 'pay_opt' | 'check_no' | 'mo_no'>;
 export type postInvoice_from_ServiceCall_ReqBody = Omit<postPaymentReqBody, 'pay_opt' | 'check_no' | 'mo_no' | 'list_id' | 'cus_id' | 'amount'> & {
     customer_id: number
 }
-export type postInvoice_from_ServiceCall_ReqPaymentBody = Omit<postPaymentReqBody, 'list_id' | 'cus_id' | 'amount'> & {
+export type postInvoice_from_ServiceCall_ReqPaymentBody = Omit<postPaymentReqBody, 'list_id' | 'cus_id' | 'amount' | 'addi_comments' | 'service'> & {
     customer_id: number
 }
 
@@ -241,6 +245,24 @@ export const getAmount = async (dispatch: Dispatch, ro_loc_id: number): Promise<
     }
 }
 
+export const getInvoices = async (dispatch: Dispatch, cus_id: number | null): Promise<any[] | null> => {
+    try {
+        const response = await getInvoicesService(cus_id);
+        if (response.hasError) {
+            console.warn(
+                'has error::-> getInvoicesService ::',
+                response.errorMessage,
+            );
+            return null
+        } else {
+            return response.data
+        }
+    } catch (error) {
+        console.warn('catch error getInvoices ::', error);
+        return null
+    }
+}
+
 export const postAnswer = async (dispatch: Dispatch, formData: postAnswer_ApiBody): Promise<postAnswer_res> => {
     try {
         const response = await postAnswerService(formData)
@@ -283,7 +305,7 @@ export const postPaymentInfo = async (dispatch: Dispatch, formData: postPaymentR
 export const postInvoiceInfo = async (dispatch: Dispatch, formData: postInvoiceReqBody): Promise<postPaymentInfo_res | null> => {
     try {
         const response = await postPaymentInfoService(formData)
-        console.log("postPaymentInfo res::", formData);
+        console.log("postPaymentInfo res::", response);
         if (response.hasError) {
             console.warn(
                 'has error::-> postPaymentInfoService ::',

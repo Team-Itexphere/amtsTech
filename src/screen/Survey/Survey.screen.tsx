@@ -16,10 +16,10 @@ import SurveyImgModal from '../../components/UI/Modals/surveyImgModal'
 import ResponseModal from '../../components/UI/Modals/ResponseModal'
 import Loading from '../../components/UI/Loading'
 import { Image as ImageCompressor } from 'react-native-compressor';
-import { Status } from '../../types'
+import { ServeyStatus, Status } from '../../types'
 const { IconEye, IconGallery, IconNext, IconSuccessLetter, IconAddPhoto } = assetsPng
 type Props = {}
-type ButtonId = 1 | 2 | 3;
+type ButtonId = 1 | 2 | 3 | null | '';
 
 type visibleSurveyState = {
     modalName: "view_image" | "submit_form" | ""
@@ -121,7 +121,7 @@ const Survey = (props: Props) => {
             // trying to again edit the survey
             setSurveyItemArray(surveyItemArrayFromRedux)
             setUniqueIdData({ id: unique_id })
-        } else if (status === Status.Completed) {
+        } else if (status === ServeyStatus.Completed) {
             getSurveyToUpdate()
         } else {
             fetchData();
@@ -168,6 +168,8 @@ const Survey = (props: Props) => {
                 return Answer.No
             case 3:
                 return Answer.NA
+            default:
+                return Answer.NA;
         }
     }
     const sendAnswer = async (currentanw: number) => {

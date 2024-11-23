@@ -1,6 +1,6 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { Status } from '../types';
+import { Status, Invoice } from '../types';
 
 export type RootStackParamList = {
     Dashboard: undefined;
@@ -16,7 +16,8 @@ export type RootStackParamList = {
     PdfReader: { invoice_link: string },
     LocationList: { ro_loc_id: number };
     StoreList: undefined;
-    InvoiceSubItems: { source: string, customer_id?: number };
+    InvoiceSubItems: { source: string, customer_id?: number, invoice?: Invoice };
+    StoreInvoices: { source: string, customer_id?: number }; 
     StoreLicense: undefined;
     ATG_I: undefined;
     ATG_S: undefined;
