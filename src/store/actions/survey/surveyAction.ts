@@ -1,5 +1,5 @@
 import { Dispatch } from "redux";
-import { getAmountService, getInvoicesService, getSubmitedAnswersService, getSurveyListService, getUniqueIdService, postAnswerService, postInvoiceInfo_From_ServiceCall_Service, postPaymentInfoService } from "../../../services/survey/survey.service";
+import { getAmountService, getInvoicesService, getSubmitedAnswersService, getSurveyListService, getSurveysService, getUniqueIdService, postAnswerService, postInvoiceInfo_From_ServiceCall_Service, postPaymentInfoService } from "../../../services/survey/survey.service";
 import { Status } from "./routesAction";
 import { InvoiceSubItemWithAmount } from "../../../screen/Invoice/SubItems.screen";
 import { save_Amount } from "./invoiceAction";
@@ -12,7 +12,7 @@ export interface ExtendedSurveyItem extends SurveyItem {
     answ: 1 | 2 | 3 | null | '',
     description: string,
     image: { hasImg: boolean, imguri: string | undefined },
-    gen_comment: string | null
+    gen_comment: string
 }
 
 export interface UniqueIdVal {
@@ -101,10 +101,14 @@ type TestResultType = {
 interface getSubmitedSurveyResult {
     extendedSurveyItem: ExtendedSurveyItem[];
     uniqueID: number;
+    gen_comment: string | null
 }
 
 
-interface postPaymentInfo_res { invoice_link: string }
+interface postPaymentInfo_res { 
+    id: number;
+    invoice_link: string;
+}
 
 export const getSurvey = async (dispatch: Dispatch): Promise<ExtendedSurveyItem[]> => {
     try {
@@ -156,7 +160,7 @@ export const getSubmitedSurvey = async (dispatch: Dispatch, list_id: number, cus
                         hasImg: !!answer.file,
                         imguri: answer.file || undefined,
                     },
-                    gen_comment: answer.gen_comment || ""
+                    gen_comment: answer.ques_id ===  18 ? apiAnswers[17].gen_comment : ""
                 } as ExtendedSurveyItem
 
 
@@ -175,6 +179,7 @@ export const getSubmitedSurvey = async (dispatch: Dispatch, list_id: number, cus
         return {
             extendedSurveyItem: extendedSurveyResults,
             uniqueID: apiAnswers[0].testing_id,
+            gen_comment: apiAnswers[17]?.gen_comment
         };
 
     } catch (error) {
@@ -248,6 +253,24 @@ export const getAmount = async (dispatch: Dispatch, ro_loc_id: number): Promise<
 export const getInvoices = async (dispatch: Dispatch, cus_id: number | null): Promise<any[] | null> => {
     try {
         const response = await getInvoicesService(cus_id);
+        if (response.hasError) {
+            console.warn(
+                'has error::-> getInvoicesService ::',
+                response.errorMessage,
+            );
+            return null
+        } else {
+            return response.data
+        }
+    } catch (error) {
+        console.warn('catch error getInvoices ::', error);
+        return null
+    }
+}
+
+export const getSurveys = async (dispatch: Dispatch, cus_id: number | null): Promise<any[] | null> => {
+    try {
+        const response = await getSurveysService(cus_id);
         if (response.hasError) {
             console.warn(
                 'has error::-> getInvoicesService ::',

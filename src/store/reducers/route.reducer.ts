@@ -26,6 +26,7 @@ export interface RouteState {
         source: string,
         customer_id: number | null
     }
+    cus_id: number | null
 }
 
 const initialState: RouteState = {
@@ -50,8 +51,8 @@ const initialState: RouteState = {
     serviceCall: {
         source: "",
         customer_id: null
-    }
-
+    },
+    cus_id: null
 }
 
 function routeReducer(state = initialState, action: any): RouteState {

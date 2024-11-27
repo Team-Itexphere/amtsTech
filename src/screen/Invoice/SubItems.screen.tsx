@@ -53,28 +53,28 @@ export type InvoiceSubItemWithAmount =
     | GeneralInvoiceSubItemWithAmount
     | MonthlyInspectionInvoiceSubItemWithAmount | ServiceCall_Invoice_SubItem_withAmount;
 
-function renderAbsoluteButton(handleSubmit: () => void) {
-    return (
-        <TouchableOpacity
-            onPress={() => handleSubmit()}
-            style={{
-                padding: 10,
-                borderRadius: 20,
-                backgroundColor: COLORS.primary,
-            }}>
-            <Image
-                alt="home"
-                source={require('../../assets/pngs/Icon-Checkmark.png')}
-                resizeMode="contain"
-                style={{
-                    width: 20,
-                    height: 20,
-                    tintColor: COLORS.white,
-                }}
-            />
-        </TouchableOpacity>
-    );
-}
+// function renderAbsoluteButton(handleSubmit: () => void) {
+//     return (
+//         <TouchableOpacity
+//             onPress={() => handleSubmit()}
+//             style={{
+//                 padding: 10,
+//                 borderRadius: 20,
+//                 backgroundColor: COLORS.primary,
+//             }}>
+//             <Image
+//                 alt="home"
+//                 source={require('../../assets/pngs/Icon-Checkmark.png')}
+//                 resizeMode="contain"
+//                 style={{
+//                     width: 20,
+//                     height: 20,
+//                     tintColor: COLORS.white,
+//                 }}
+//             />
+//         </TouchableOpacity>
+//     );
+// }
 
 function renderSaveButton(handleSubmit: () => void) {
     return (
@@ -100,14 +100,17 @@ function renderSaveButton(handleSubmit: () => void) {
 }
 
 const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComponentProps) => {
+
     const DescriptionOptions = ['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker', "Calibration"];
     const CategoryOptions = ["Monthly Inspection", "Parts", "Calibration", "Service Call"];
 
     const isMonthlyInspection = data.category === "Monthly Inspection"
     const isServiceCall = data.category === "Service Call"
-
-    const calculatedAmount = isMonthlyInspection ? data.amount : data.qty * data.rate
-
+    const dataAmount = typeof data.amount === "number" ? data.amount.toFixed(2) : '0';
+    
+    const [inspAmount, setInspAmount] = useState<string>(dataAmount)
+    const calculatedAmount = isMonthlyInspection ? inspAmount : (data.qty * data.rate).toFixed(2)
+    // console.log('amnt',dataAmount,  'calAmnt',calculatedAmount, 'data.amount',data.amount)
     useEffect(() => {
         switch (data.category) {
             case "Monthly Inspection":
@@ -144,10 +147,13 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                         containerStyle={{ marginTop: SIZES.base, }}
                     />
                     <FormInput
-                        value={data.amount ? data.amount?.toString() : ''}
+                        value={inspAmount || ''}
                         placeholder="Amount"
                         keyboardType='numeric'
-                        onChange={(value) => onChange(id, 'amount', value)}
+                        onChange={(value) => {
+                            setInspAmount(value);
+                            onChange(id, 'amount', value);                            
+                        }}
                         containerStyle={{ marginTop: SIZES.base, }}
                     />
 
@@ -263,6 +269,7 @@ const SubItemsScreen = () => {
     }, [source, invoice])
 
     const sales_tax_perc = 8.25/100; // Sales Tax Percentage
+    let inspect_total = 0;
 
     useEffect(() => {
         const total = forms.reduce((acc, form) => {
@@ -271,21 +278,31 @@ const SubItemsScreen = () => {
             switch (form.category) {
                 case "Monthly Inspection":
                     amount = typeof form.amount === 'string' ? parseFloat(form.amount) : form.amount || 0;
-                    setService("Monthly Inspection");
+                    inspect_total =+ amount;
                     break;
-                case "Service Call":
-                    setService("Service Call");
                 default:
                     const qty = typeof form.qty === 'string' ? parseFloat(form.qty) : form.qty || 0;
                     const rate = typeof form.rate === 'string' ? parseFloat(form.rate) : form.rate || 0;
                     amount = qty * rate;
                     break;
             }
+
+            switch (form.category) {
+                case "Monthly Inspection":
+                    setService("Monthly Inspection");
+                    break;
+                case "Calibration":
+                    setService("Calibration");
+                    break;
+                default:
+                    setService("Service Call");
+                    break;
+            }
         
             return acc + amount;
         }, 0);
 
-        const tax = total * sales_tax_perc;
+        const tax = (total - inspect_total) * sales_tax_perc;
 
         setSalesTax(parseFloat(tax.toFixed(2)));
         setTotalAmount(parseFloat((total + tax).toFixed(2)));        
@@ -388,7 +405,8 @@ const SubItemsScreen = () => {
             setIsLoarding(true)
             const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
             setIsLoarding(false)
-            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
+            
+            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link }));
         } else {
 
             if (!list_id || !cus_id) return console.warn("list_id | cus_id -> null");
@@ -405,7 +423,8 @@ const SubItemsScreen = () => {
             setIsLoarding(true)
             const postData = await postInvoiceInfo(dispatch, form);
             setIsLoarding(false)
-            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
+
+            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link }));
             // navigation.navigate('PaymentOption');
         }
 
@@ -451,9 +470,9 @@ const SubItemsScreen = () => {
                 <View style={{ margin: SIZES.base }}>
                     {renderSaveButton(handleSubmit)}
                 </View>
-                <View style={{ margin: SIZES.base }}>
+                {/* <View style={{ margin: SIZES.base }}>
                     {renderAbsoluteButton(handleSubmit)}
-                </View>
+                </View> */}
             </View>
         </KeyboardAwareScrollView>
     );

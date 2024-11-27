@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, Image, SafeAreaView, StatusBar, StyleSheet, Text, View, Switch, Alert } from 'react-native'
+import { ActivityIndicator, FlatList, Image, SafeAreaView, StatusBar, StyleSheet, Text, View, Switch, Alert, Button } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { COLORS, FONTS, SIZES } from '../../assets/theme'
 import TextButton from '../../components/UI/TextButton'
@@ -115,6 +115,8 @@ const Survey = (props: Props) => {
         isVisible: false
     })
 
+    const [genComment, setgenComment] = useState<string>('');
+
     useEffect(() => {
 
         if (surveyItemArrayFromRedux.length > 0 && unique_id) {
@@ -137,7 +139,10 @@ const Survey = (props: Props) => {
         if (SubmitedListRes) {
             setSurveyItemArray(SubmitedListRes.extendedSurveyItem)
             setUniqueIdData({ id: SubmitedListRes.uniqueID })
-        }
+
+            surveyItemArray[17] && setgenComment(surveyItemArray[17].gen_comment)
+        }        
+
         setIsLoarding(false)
     }
 
@@ -338,7 +343,9 @@ const Survey = (props: Props) => {
                     newItems[i] = { ...newItems[i], gen_comment: text };
                     break;
                 }
-            }console.log
+            }
+            
+            setgenComment(newItems[17].gen_comment)
             return newItems;
         })
     }
@@ -552,57 +559,19 @@ const Survey = (props: Props) => {
             return (
                 <View style={{ flex: 1 }}>
                     {isLoading && <Loading />}
+                    <Button 
+                        title="📝 View Previous Surveys" 
+                        onPress={() => {
+                            navigation.navigate('StoreSurveys');
+                        }} 
+                        color={COLORS.lightOrange} 
+                    />  
                     <FlatList
                         data={surveyItemArray}
                         keyExtractor={(item, index) => `container ${item.id}${index}`}
-                        ListFooterComponent={
-                        <View>
-                            <FormInput
-                                containerStyle={{
-                                borderRadius: SIZES.radius,
-                                margin: SIZES.base
-                                }}
-                                placeholder="General Comments"
-                                value={surveyItemArray.find(item => item.id === 18)?.gen_comment || ''}
-                                onChange={(text: string) => onChangeComment(text)}
-                            />
-                            <View
-                                style={{
-                                    flexDirection: 'row',
-                                    margin: SIZES.base,
-                                    marginBottom: SIZES.radius
-                                }}>
-                                <IconLabelButton
-                                    labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
-                                    iconStyle={{ tintColor: COLORS.white }}
-                                    icon={IconNext}
-                                    label={'Save'}
-                                    containerStyle={{
-                                        flex: 1, marginRight: 4,
-                                        flexDirection: 'row-reverse',
-                                        backgroundColor: COLORS.secondary, padding: SIZES.radius, borderRadius: SIZES.radius
-                                    }}
-                                    onPress={() => submitAll()}
-                                    disabled={isDisabled()}
-                                />
-                                <IconLabelButton
-                                    labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
-                                    iconStyle={{ tintColor: COLORS.white }}
-                                    icon={IconNext}
-                                    label={'Submit'}
-                                    containerStyle={{
-                                        flex: 1,
-                                        flexDirection: 'row-reverse',
-                                        backgroundColor: COLORS.lightOrange, padding: SIZES.radius, borderRadius: SIZES.radius
-                                    }}
-                                    onPress={() => submitAll()}
-                                    disabled={isDisabled()}
-                                />
-                            </View>
-                        </View>}
                         renderItem={({ item, index }) => {
                             return (
-                                <View style={{ backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.padding, margin: SIZES.base }}>
+                                <View style={{ backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.padding, margin: SIZES.base, marginBottom: item.id === 18 ? 100 : 0 }}>
                                     {/* <View style={{ marginVertical: 'auto' }}> */}
 
                                     <Text style={[FONTS.h3,]}>{item.id}: {item.question}</Text>
@@ -656,6 +625,58 @@ const Survey = (props: Props) => {
                             )
                         }}
                     />
+                    <View>
+                        {/* <Text 
+                            style={{
+                                textAlign: 'center',
+                                marginBottom: -25,
+                                position: 'relative',
+                                zIndex: 9
+                            }}
+                            >General Comments</Text> */}
+                        <FormInput
+                            containerStyle={{
+                                borderRadius: SIZES.radius,
+                                margin: SIZES.base
+                            }}
+                            placeholder="General Comments"
+                            value={genComment || surveyItemArray[17].gen_comment}
+                            onChange={(text: string) => onChangeComment(text)}
+                        />
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                margin: SIZES.base,
+                                marginBottom: SIZES.radius
+                            }}>
+                            <IconLabelButton
+                                labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
+                                iconStyle={{ tintColor: COLORS.white }}
+                                icon={IconNext}
+                                label={'Save'}
+                                containerStyle={{
+                                    flex: 1, marginRight: 4,
+                                    flexDirection: 'row-reverse',
+                                    backgroundColor: COLORS.secondary, padding: SIZES.radius, borderRadius: SIZES.radius
+                                }}
+                                onPress={() => submitAll()}
+                                disabled={isDisabled()}
+                            />
+                            <IconLabelButton
+                                labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
+                                iconStyle={{ tintColor: COLORS.white }}
+                                icon={IconNext}
+                                label={'Submit'}
+                                containerStyle={{
+                                    flex: 1,
+                                    flexDirection: 'row-reverse',
+                                    backgroundColor: COLORS.lightOrange, padding: SIZES.radius, borderRadius: SIZES.radius
+                                }}
+                                onPress={() => submitAll()}
+                                disabled={isDisabled()}
+                            />
+                        </View>
+                    </View> 
                 </View>
             );
         }

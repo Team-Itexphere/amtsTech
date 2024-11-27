@@ -76,7 +76,7 @@ const StoreScreen = (props: Props) => {
                 {buttons.map((button, index) => (
                     <TouchableOpacity
                         key={index}
-                        style={rec_logs == "1" && button.title === "Rectifier Log" ? styles.button : (button.title !== "Rectifier Log" ? styles.button : { display: 'none' })} //[styles.button, { backgroundColor: COLORS.lightGray1 }] 
+                        style={rec_logs == "1" && button.title === "Rectifier Log" ? styles.button : (button.title === "Rectifier Log" || (!list_id && button.title === "Monthly Inspection") ? { display: 'none' } : styles.button)} //[styles.button, { backgroundColor: COLORS.lightGray1 }] 
                         onPress={() => handleButtonPress(button.title)}
                     >
                         <Text style={styles.icon}>{button.icon}</Text>

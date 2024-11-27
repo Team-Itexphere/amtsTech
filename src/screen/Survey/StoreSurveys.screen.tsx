@@ -3,44 +3,38 @@ import React, { useEffect, useState } from 'react';
 import { COLORS, FONTS, SIZES } from '../../assets/theme';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import { InvoiceSubItemsProp, NavigationProp } from '../../navigation/navigationTypes';
-import { getInvoices } from '../../store/actions/survey/surveyAction';
+import { NavigationProp } from '../../navigation/navigationTypes';
+import { getSurveys } from '../../store/actions/survey/surveyAction';
 import { RootState } from '../../store/store';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { formatDateUS } from '../../utils/dateFormatter';
 
-const StoreInvoicesScreen = () => {
+const StoreSurveysScreen = () => {
     const dispatch = useDispatch();
-    const route = useRoute<InvoiceSubItemsProp>();
     const navigation = useNavigation<NavigationProp>();
-    const { source, customer_id } = route.params;
 
     const { location } = useSelector((state: RootState) => state.routeReducer);
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [invoices, setInvoices] = useState<any[]>([]);
+    const [surveys, setSurveys] = useState<any[]>([]);
 
     useEffect(() => {
-        const fetchInvoices = async () => {
+        const fetchSurveys = async () => {
             setIsLoading(true);
-            const invoices_arr = await getInvoices(dispatch, location.cus_id);
+            const surveys_arr = await getSurveys(dispatch, location.cus_id);
             setIsLoading(false);
-            if (!invoices_arr) {
-                console.warn('No invoices');
+            if (!surveys_arr) {
+                console.warn('No surveys');
             } else {
-                setInvoices(invoices_arr);
+                setSurveys(surveys_arr);
             }
         };
 
-        fetchInvoices();
+        fetchSurveys();
     }, [location.cus_id, dispatch]);
 
     const viewPDF = (pdf_link: string) => {
         navigation.navigate('PdfReader', { invoice_link: pdf_link });
-    };
-
-    const editInvoice = (id: number) => {
-        navigation.navigate('InvoiceSubItems', { source: "store", invoice: invoices.find(invoice => invoice.id === id) });
     };
 
     return (
@@ -51,10 +45,10 @@ const StoreInvoicesScreen = () => {
         >
             {isLoading ? (
                 <Text style={{ textAlign: 'center', marginTop: 200 }}>Loading...</Text>
-            ) : invoices.length === 0 ? (
-                <Text style={{ textAlign: 'center', marginTop: 200 }}>No invoices available</Text>
+            ) : surveys.length === 0 ? (
+                <Text style={{ textAlign: 'center', marginTop: 200 }}>No surveys available</Text>
             ) : (
-                invoices.map((invoice, index) => (
+                surveys.map((survey, index) => (
                     <View
                         key={index}
                         style={{
@@ -77,33 +71,14 @@ const StoreInvoicesScreen = () => {
                                     textAlign: 'right',
                                 }}
                             >
-                                #{invoice.invoice_no}
-                            </Text>
-                        </View>
-                        <View style={{ margin: SIZES.base }}>
-                            <Text
-                                style={{
-                                    ...FONTS.body3,
-                                    margin: SIZES.base,
-                                    marginBottom: SIZES.none,
-                                    textAlign: 'right',
-                                }}
-                            >
-                                {formatDateUS(invoice.date, 'MM-DD-YYYY')}
+                                {formatDateUS(survey.created_at, 'MM-DD-YYYY')} - {formatDateUS(survey.updated_at, 'MM-DD-YYYY')}
                             </Text>
                         </View>
                         <View style={{ margin: SIZES.base, display: 'flex', flexDirection: 'row', gap: 5, marginRight: 10 }}>
-                            {invoice.payment !== 'Paid' &&
-                            <Button
-                                title="Edit"
-                                onPress={() => editInvoice(invoice.id)}  // Pass pdf_link when clicked
-                                color={COLORS.lightOrange}
-                            />
-                            }
-                            <View style={{ marginLeft: invoice.payment == 'Paid' ? 50 : 0 }}>
+                            <View style={{ marginLeft: survey.payment == 'Paid' ? 50 : 0 }}>
                                 <Button
                                     title="View PDF"
-                                    onPress={() => viewPDF(invoice.pdf_link)} // Pass pdf_link when clicked
+                                    onPress={() => viewPDF(survey.pdf_link)}
                                     color={COLORS.lightOrange}
                                 />
                             </View>
@@ -115,4 +90,4 @@ const StoreInvoicesScreen = () => {
     );
 };
 
-export default StoreInvoicesScreen;
+export default StoreSurveysScreen;

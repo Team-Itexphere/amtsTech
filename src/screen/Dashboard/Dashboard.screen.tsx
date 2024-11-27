@@ -59,6 +59,21 @@ const DashboardScreen = (props: Props) => {
                 }}
                 onPress={() => navigation.navigate('ServiceCall')}
             />
+            <TextButton
+                label="Customers  ➡️"
+                contentContainerStyle={{
+                    width: "100%",
+                    height: 30,
+                    marginVertical: SIZES.base,
+                    borderRadius: SIZES.radius,
+                    backgroundColor: COLORS.primary
+                }}
+                labelStyle={{
+                    ...FONTS.h3,
+                    color: COLORS.white
+                }}
+                onPress={() => navigation.navigate('Customers')}
+            />
         </View>
     )
 }

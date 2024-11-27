@@ -1,12 +1,20 @@
 import { postImageCaptureReqBody, queryParam_GetImages } from "../../store/actions/survey/picturesAction"
 import { responseHandlerType } from "../api/responseHandler"
 import { METHODS, client } from "../api/restClient"
-import { GET_ALL_IMAGE_LIST, GET_LOCATIONS, GET_MAINTAINS_LOGS, GET_ROUTES, GET_SITE_INFO, GET_STORE_LICENSE, POST_IMAGE_CAPTURED } from "../urls"
+import { GET_ALL_IMAGE_LIST, GET_CUSTOMERS, GET_LOCATIONS, GET_MAINTAINS_LOGS, GET_ROUTES, GET_SITE_INFO, GET_STORE_LICENSE, POST_IMAGE_CAPTURED } from "../urls"
 
 export const getRoutesService = async (date: string) => {
     return await client.API(
         METHODS.GET,
         `${GET_ROUTES}?date=${date}`
+
+    ) as responseHandlerType
+}
+
+export const getCustomersService = async (searchParam: string) => {
+    return await client.API(
+        METHODS.GET,
+        `${GET_CUSTOMERS}?s=${searchParam}`
 
     ) as responseHandlerType
 }

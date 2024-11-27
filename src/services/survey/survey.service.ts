@@ -1,7 +1,7 @@
 import { getUniqueId_Apiqueryparams, postInvoice_from_ServiceCall_ReqBody, postInvoice_from_ServiceCall_ReqPaymentBody, postInvoiceReqBody, postPaymentReqBody } from "../../store/actions/survey/surveyAction";
 import { responseHandlerType } from "../api/responseHandler";
 import { METHODS, client } from "../api/restClient"
-import { GET_AMOUNT, GET_SUBMITED_SURVEY_ANSWERS, GET_SURVEY, POST_ANSW, POST_INVOICE_BY_SERVICE_CALL, POST_PAYMENTINFO, POST_UNIQUEID } from "../urls"
+import { GET_AMOUNT, GET_STORE_SURVEYS, GET_SUBMITED_SURVEY_ANSWERS, GET_SURVEY, POST_ANSW, POST_INVOICE_BY_SERVICE_CALL, POST_PAYMENTINFO, POST_UNIQUEID } from "../urls"
 
 export const getSurveyListService = async () => {
     return await client.API(
@@ -45,6 +45,13 @@ export const getInvoicesService = async (cus_id: number | null) => {
     return await client.API(
         METHODS.GET,
         `${POST_INVOICE_BY_SERVICE_CALL}?cus_id=${cus_id}`
+    ) as responseHandlerType;
+}
+
+export const getSurveysService = async (cus_id: number | null) => {
+    return await client.API(
+        METHODS.GET,
+        `${GET_STORE_SURVEYS}?cus_id=${cus_id}`
     ) as responseHandlerType;
 }
 

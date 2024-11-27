@@ -1,5 +1,5 @@
 import { Dispatch } from "redux";
-import { getLocationService, getRoutesService } from "../../../services/survey/routes.service";
+import { getCustomersService, getLocationService, getRoutesService } from "../../../services/survey/routes.service";
 import { ServeyStatus } from "../../../types";
 
 // type Location = {
@@ -135,6 +135,31 @@ export const getRoutes = async (dispatch: Dispatch, date: string): Promise<Route
     }
 }
 
+export const getCustomers = async (searchParam: string): Promise<any[]> => {
+    try {
+        const response = await getCustomersService(searchParam);
+
+        if (response.hasError) {
+            console.warn(
+                'has error::-> getCustomersService ::',
+                response.errorMessage,
+            );
+            return []
+        } else {
+            console.log('get getCustomers ::', response);
+            if (response.data.length > 0) {
+                return response.data
+            } else {
+                return []
+            }
+
+        }
+    } catch (error) {
+        console.warn('catch error getRoutes ::', error);
+        return []
+    }
+}
+
 export const getLocations = async (dispatch: Dispatch, id: number): Promise<LocationItem[]> => {
     try {
         const response = await getLocationService(id)
@@ -156,7 +181,7 @@ export const getLocations = async (dispatch: Dispatch, id: number): Promise<Loca
 }
 
 export const SaveLocationPressData = (
-ro_loc_id: number, cus_id: number, list_id: number, notes: LocationItem['notes'], status: LocationItem['status'], cus_name: string, rec_logs: string | number,
+ro_loc_id: number | null, cus_id: number, list_id: number | null, notes: LocationItem['notes'], status: LocationItem['status'] | null, cus_name: string, rec_logs: string | number | null,
 ) => ({
     type: 'LOCATION_PRESS_DATA',
     payload: { ro_loc_id, cus_id, list_id, notes, status, cus_name, rec_logs},

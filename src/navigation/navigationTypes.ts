@@ -4,12 +4,14 @@ import { Status, Invoice } from '../types';
 
 export type RootStackParamList = {
     Dashboard: undefined;
-    Route: undefined;
+    Route: undefined | any[];
     ServiceCall: undefined;
+    Customers: undefined;
     Fleet: undefined;
     Settings: undefined;
     ImageView: undefined;
     Survey: undefined;
+    StoreSurveys: undefined;
     Camera: undefined;
     InvoiceGenerate: undefined;
     PaymentOption: undefined;

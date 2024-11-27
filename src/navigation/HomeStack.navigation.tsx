@@ -11,6 +11,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 
 const DashboardScreen = lazy(() => import('../screen/Dashboard/Dashboard.screen'));
+const CustomersScreen = lazy(() => import('../screen/Dashboard/Customers.screen'));
 const SettingsScreen = lazy(() => import('../screen/Dashboard/settings.screen'));
 const FleetScreen = lazy(() => import('../screen/Dashboard/fleet.sceen'));
 const RouteScreen = lazy(() => import('../screen/Dashboard/Route.screen'));
@@ -19,6 +20,7 @@ const ServiceCallScreen = lazy(() => import('../screen/ServiceCall/ServiceCall.s
 const StoreScreen = lazy(() => import('../screen/Stores/Store.screen'));
 const LocationScreen = lazy(() => import('../screen/Locations/Location.screen'));
 const Survey = lazy(() => import('../screen/Survey/Survey.screen'));
+const StoreSurveysScreen = lazy(() => import('../screen/Survey/StoreSurveys.screen'));
 const PdfReader = lazy(() => import('../screen/Invoice/PdfReader.screen'));
 const PaymentOption = lazy(() => import('../screen/Invoice/PaymentOption.screen'));
 const StoreInvoicesScreen = lazy(() => import('../screen/Invoice/StoreInvoices.screen'));
@@ -48,18 +50,20 @@ export const HeaderName: any = {
   License: 'License',
   Pictures: 'Pictures',
   Invoice: 'Invoice',
-  RouteInvoice: 'Route Invoice',
+  RouteInvoice: 'Store Invoice',
   RouteInvoices: 'Previous Invoices',
   Locations: 'Locations',
-  Stores: 'Stores',
+  Stores: 'Store',
   ATG_Inventory: 'ATG Inventory',
   ATG_Sensor: 'ATG Sensor',
   Mounthly_Inspection_Report: 'Monthly inspection',
+  RouteSurveys: 'Previous Surveys',
   Site_Info: 'Site Info',
   ServiceCall_View: 'Service Call',
   ServiceCall_History: 'Service History',
   Notes: 'Notes',
-  MaintainsLogs: 'Maintains Logs'
+  MaintainsLogs: 'Maintains Logs',
+  Customers: 'Customers'
 };
 
 type ScreenName = keyof Screens;
@@ -98,10 +102,12 @@ const HomeStackNavigator = () => {
       <Stack.Screen name="Dashboard" component={renderScreen(DashboardScreen)} listeners={getListeners("Dashboard")} />
       <Stack.Screen name="Route" component={renderScreen(RouteScreen)} listeners={getListeners("Route")} />
       <Stack.Screen name="ServiceCall" component={renderScreen(ServiceCallScreen)} listeners={getListeners("ServiceCall")} />
+      <Stack.Screen name="Customers" component={renderScreen(CustomersScreen, HeaderName.Customers)} listeners={getListeners("Dashboard")} />
       <Stack.Screen name="Fleet" component={renderScreen(FleetScreen)} listeners={getListeners("fleet")} />
       <Stack.Screen name="Settings" component={renderScreen(SettingsScreen)} listeners={getListeners("Settings")} />
 
       <Stack.Screen name="Survey" component={renderScreen(Survey, HeaderName.Mounthly_Inspection_Report)} listeners={getListeners("Route")} />
+      <Stack.Screen name="StoreSurveys" component={renderScreen(StoreSurveysScreen, HeaderName.RouteSurveys)} listeners={getListeners("Route")} />
       <Stack.Screen name="InvoiceGenerate" component={renderScreen(InvoiceGenerate, HeaderName.Invoice)} listeners={getListeners("Route")} />
       <Stack.Screen name="PaymentOption" component={renderScreen(PaymentOption)} listeners={getListeners("Route")} />
       <Stack.Screen name="PdfReader" component={renderScreen(PdfReader, HeaderName.Stores)} listeners={getListeners("Route")} />
