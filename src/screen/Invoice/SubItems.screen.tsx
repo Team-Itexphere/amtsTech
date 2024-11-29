@@ -106,28 +106,36 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
 
     const isMonthlyInspection = data.category === "Monthly Inspection"
     const isServiceCall = data.category === "Service Call"
-    const dataAmount = typeof data.amount === "number" ? data.amount.toFixed(2) : '0';
+    const dataAmount = typeof data.amount === "number" ? +data.amount.toFixed(2) : 0;
     
-    const [inspAmount, setInspAmount] = useState<string>(dataAmount)
+    const [inspAmount, setInspAmount] = useState<number>(dataAmount) 
+
     const calculatedAmount = isMonthlyInspection ? inspAmount : (data.qty * data.rate).toFixed(2)
-    // console.log('amnt',dataAmount,  'calAmnt',calculatedAmount, 'data.amount',data.amount)
+    
     useEffect(() => {
         switch (data.category) {
             case "Monthly Inspection":
-                onChange(id, 'amount', fetchedAmount)
+                setInspAmount(dataAmount || fetchedAmount);
+                onChange(id, 'amount', dataAmount || fetchedAmount)
                 onChange(id, 'description', "Monthly Inspection")
                 break;
             case "Service Call":
-                onChange(id, 'amount', 0)
-                onChange(id, 'des_problem', "")
+                // onChange(id, 'amount', 0)
+                // onChange(id, 'des_problem', "")
                 break;
             default:
-                onChange(id, 'amount', 0)
-                onChange(id, 'description', "")
-                onChange(id, 'des_problem', "")
+                // onChange(id, 'rate', 0)
+                // onChange(id, 'qty', 0)
+                // onChange(id, 'amount', 0)
+                // onChange(id, 'description', "")
+                // onChange(id, 'des_problem', "")
                 break;
         }
     }, [data.category])
+
+    useEffect(() => {
+        setInspAmount(dataAmount || fetchedAmount);
+    }, [data.amount])
 
     return (
         <View style={{ marginVertical: SIZES.base, marginHorizontal: SIZES.base }}>
@@ -147,12 +155,12 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                         containerStyle={{ marginTop: SIZES.base, }}
                     />
                     <FormInput
-                        value={inspAmount || ''}
+                        value={inspAmount.toString() || ''}
                         placeholder="Amount"
                         keyboardType='numeric'
-                        onChange={(value) => {
-                            setInspAmount(value);
-                            onChange(id, 'amount', value);                            
+                        onChange={(value) => {console.log('vasl',+value)
+                            setInspAmount(+value);
+                            onChange(id, 'amount', +value);                            
                         }}
                         containerStyle={{ marginTop: SIZES.base, }}
                     />
@@ -261,7 +269,7 @@ const SubItemsScreen = () => {
 
         if(invoice) { 
             const newInvoiceArr = invoice.invoice_items.map((item) =>
-                { return { description: item.descript ?? '', category: item.category ?? '', location: item.location ?? '', qty: item.qty ?? 0, rate: parseFloat(item.rate) ?? 0 } }
+                { return { description: item.descript ?? '', category: item.category ?? '', location: item.location ?? '', qty: item.qty ?? 0, rate: parseFloat(item.rate) ?? 0, amount: parseFloat(item.amount) ?? 0 } }
             );
             setForms(newInvoiceArr);
             setInvId(invoice.id)
@@ -277,7 +285,7 @@ const SubItemsScreen = () => {
             
             switch (form.category) {
                 case "Monthly Inspection":
-                    amount = typeof form.amount === 'string' ? parseFloat(form.amount) : form.amount || 0;
+                    amount = typeof form.amount === 'number' ? form.amount : 0;
                     inspect_total =+ amount;
                     break;
                 default:

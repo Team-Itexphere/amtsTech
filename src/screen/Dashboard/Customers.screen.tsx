@@ -74,8 +74,7 @@ const CustomersScreen = () => {
           <FormInput
             value={searchParam}
             containerStyle={{
-              width: '72%',
-              marginRight: -10,
+              width: '69%',
               paddingRight: 0
             }}
             placeholder="Type here..."
