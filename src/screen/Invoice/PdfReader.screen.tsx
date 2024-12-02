@@ -12,7 +12,7 @@ type Props = {}
 const PdfReader = (props: Props) => {
     const route = useRoute<PdfReaderRouteProp>();
     const navigation = useNavigation<NavigationProp>();
-    const { invoice_link } = route.params;
+    const { invoice_link, istools } = route.params;
     const source = { uri: invoice_link, cache: true };
 
     const openPDF = async () => {
@@ -27,7 +27,7 @@ const PdfReader = (props: Props) => {
 
     return (
         <View style={styles.container}>
-            <View
+            {istools && (<View
                 style={{ position: 'absolute', zIndex: 1, flexDirection: 'row', top: 1, left: 10, backgroundColor: COLORS.primary60, padding: SIZES.base, borderRadius: SIZES.radius }}
 
             >
@@ -68,7 +68,7 @@ const PdfReader = (props: Props) => {
                     <Text style={{ ...FONTS.body5 }}>Payment Info</Text>
                 </TouchableOpacity> */}
 
-            </View>
+            </View>)}
             <Pdf
                 source={source}
                 onLoadComplete={(numberOfPages, filePath) => {

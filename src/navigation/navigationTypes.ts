@@ -15,7 +15,7 @@ export type RootStackParamList = {
     Camera: undefined;
     InvoiceGenerate: undefined;
     PaymentOption: undefined;
-    PdfReader: { invoice_link: string },
+    PdfReader: { invoice_link: string, istools: boolean },
     LocationList: { ro_loc_id: number };
     StoreList: undefined;
     InvoiceSubItems: { source: string, customer_id?: number, invoice?: Invoice };

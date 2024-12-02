@@ -36,7 +36,7 @@ const StoreInvoicesScreen = () => {
     }, [location.cus_id, dispatch]);
 
     const viewPDF = (pdf_link: string) => {
-        navigation.navigate('PdfReader', { invoice_link: pdf_link });
+        navigation.navigate('PdfReader', { invoice_link: pdf_link, istools: true });
     };
 
     const editInvoice = (id: number) => {

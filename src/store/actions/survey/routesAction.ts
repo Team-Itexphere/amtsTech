@@ -94,6 +94,7 @@ export type NoteType = {
 };
 
 export interface LocationItem {
+    hasInvoice: boolean;
     rec_logs: string | number;
     route_no: string;
     id: number;

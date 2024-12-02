@@ -1,4 +1,4 @@
-import { View, Text, Button, FlatList, KeyboardAvoidingViewComponent, KeyboardAvoidingView, TouchableOpacity, Image, Alert } from 'react-native';
+import { View, Text, Button, FlatList, KeyboardAvoidingViewComponent, KeyboardAvoidingView, TouchableOpacity, Image, Alert, Linking } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { COLORS, FONTS, SIZES } from '../../assets/theme';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,7 +34,16 @@ const StoreSurveysScreen = () => {
     }, [location.cus_id, dispatch]);
 
     const viewPDF = (pdf_link: string) => {
-        navigation.navigate('PdfReader', { invoice_link: pdf_link });
+        navigation.navigate('PdfReader', { invoice_link: pdf_link, istools: false });
+    };
+
+    const openPDF = async (pdf_link: string) => {
+        try {
+            await Linking.openURL(pdf_link);
+        } catch (err) {
+            console.error("An error occurred", err);
+            Alert.alert("An error occurred while trying to open the PDF.");
+        }
     };
 
     return (
@@ -65,7 +74,7 @@ const StoreSurveysScreen = () => {
                         <View style={{ margin: SIZES.base }}>
                             <Text
                                 style={{
-                                    ...FONTS.body3,
+                                    ...FONTS.body4,
                                     margin: SIZES.base,
                                     marginBottom: SIZES.none,
                                     textAlign: 'right',
@@ -75,10 +84,17 @@ const StoreSurveysScreen = () => {
                             </Text>
                         </View>
                         <View style={{ margin: SIZES.base, display: 'flex', flexDirection: 'row', gap: 5, marginRight: 10 }}>
-                            <View style={{ marginLeft: survey.payment == 'Paid' ? 50 : 0 }}>
+                            <View style={{ /*marginLeft: survey.payment == 'Paid' ? 50 : 0*/ }}>
                                 <Button
-                                    title="View PDF"
+                                    title="View"
                                     onPress={() => viewPDF(survey.pdf_link)}
+                                    color={COLORS.lightOrange}
+                                />
+                            </View>
+                            <View>
+                                <Button
+                                    title="Download"
+                                    onPress={() => openPDF(survey.pdf_link)}
                                     color={COLORS.lightOrange}
                                 />
                             </View>

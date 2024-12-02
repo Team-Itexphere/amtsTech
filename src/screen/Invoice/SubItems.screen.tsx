@@ -282,9 +282,10 @@ const SubItemsScreen = () => {
     useEffect(() => {
         const total = forms.reduce((acc, form) => {
             let amount = 0;
-            
+
             switch (form.category) {
                 case "Monthly Inspection":
+                    setService("Monthly Inspection");
                     amount = typeof form.amount === 'number' ? form.amount : 0;
                     inspect_total =+ amount;
                     break;
@@ -294,7 +295,7 @@ const SubItemsScreen = () => {
                     amount = qty * rate;
                     break;
             }
-
+            
             switch (form.category) {
                 case "Monthly Inspection":
                     setService("Monthly Inspection");
@@ -309,6 +310,10 @@ const SubItemsScreen = () => {
         
             return acc + amount;
         }, 0);
+
+        if(!invoice && ro_loc_id){
+            setService("Monthly Inspection");
+        }        
 
         const tax = (total - inspect_total) * sales_tax_perc;
 
@@ -414,7 +419,7 @@ const SubItemsScreen = () => {
             const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
             setIsLoarding(false)
             
-            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link }));
+            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true }));
         } else {
 
             if (!list_id || !cus_id) return console.warn("list_id | cus_id -> null");
@@ -432,7 +437,7 @@ const SubItemsScreen = () => {
             const postData = await postInvoiceInfo(dispatch, form);
             setIsLoarding(false)
 
-            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link }));
+            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true }));
             // navigation.navigate('PaymentOption');
         }
 

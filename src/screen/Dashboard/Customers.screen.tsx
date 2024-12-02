@@ -108,6 +108,7 @@ const CustomersScreen = () => {
                   borderBottomWidth: 3,
                   borderColor: '#00800082',
                   backgroundColor: '#00000014',
+                  alignItems: 'center'
                 }}
               >
                 <View style={{ margin: SIZES.base }}>
@@ -116,12 +117,18 @@ const CustomersScreen = () => {
                       ...FONTS.body3,
                       margin: SIZES.base,
                       marginBottom: SIZES.none,
-                      textAlign: 'right',
+                      maxWidth: 180
                     }}
                   >
                     {customer.name}
                   </Text>
+                  <Text style={{ ...FONTS.body4, margin: SIZES.base, width: 180 }}>{customer.str_addr}</Text>
                 </View>
+
+                <View style={{ margin: SIZES.base }}>
+                  <Text style={{ ...FONTS.body4, margin: SIZES.base }}>{customer.fac_id}</Text>
+                </View>
+
                 <View style={{ margin: SIZES.base, display: 'flex', flexDirection: 'row', gap: 5, marginRight: 10 }}>
                   <View style={{ marginLeft: customer.payment == 'Paid' ? 50 : 0 }}>
                     <Button

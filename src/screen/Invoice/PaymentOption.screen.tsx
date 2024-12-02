@@ -93,7 +93,7 @@ const PaymentOption = () => {
 
             const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
             setIsLoarding(false)
-            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
+            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true })
 
         } else {
             if (!res_Amount || !location.list_id || !location.cus_id) return console.warn("res_Amount or list_id or cus_id -> null ");
@@ -114,7 +114,7 @@ const PaymentOption = () => {
             setIsLoarding(false)
 
             // if (postData) setIsSuccess({ invoice_link: postData.invoice_link })
-            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
+            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true })
         }
     }
 
@@ -196,7 +196,7 @@ const PaymentOption = () => {
                         />
                     } */}
                     <TextButton
-                        label={"View Invoice"}
+                        label={"Pay Invoice"}
                         contentContainerStyle={{
                             height: 55,
                             borderRadius: SIZES.radius,

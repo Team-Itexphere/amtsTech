@@ -57,9 +57,12 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
             <View style={{
                 position: 'absolute',
                 bottom: 10,
-                right: 10
+                right: 10,
+                display: "flex", 
+                flexDirection: "row"
             }}>
-                <Text style={{ ...FONTS.body5, color: item.status === ServeyStatus.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius }}>{item.status ? item.status : 'pending'}</Text>
+                <Text style={{ ...FONTS.body5, color: item.status === ServeyStatus.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginRight: 3 }}>{item.status ? item.status : 'pending'}</Text>
+                <Text style={{ ...FONTS.body5, color: item.hasInvoice ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius }}>{item.hasInvoice ? 'yes' : 'no'}</Text>
             </View>
         </TouchableOpacity>
     )
