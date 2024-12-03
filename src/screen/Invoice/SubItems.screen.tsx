@@ -419,7 +419,7 @@ const SubItemsScreen = () => {
             const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
             setIsLoarding(false)
             
-            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true }));
+            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id }));
         } else {
 
             if (!list_id || !cus_id) return console.warn("list_id | cus_id -> null");
@@ -437,7 +437,7 @@ const SubItemsScreen = () => {
             const postData = await postInvoiceInfo(dispatch, form);
             setIsLoarding(false)
 
-            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true }));
+            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id }));
             // navigation.navigate('PaymentOption');
         }
 

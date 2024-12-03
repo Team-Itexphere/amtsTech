@@ -11,7 +11,7 @@ import { RootState } from '../store/store';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NavigationProp, RootStackParamList } from './navigationTypes';
 import { HeaderName } from './HomeStack.navigation';
-const { IconHome, IconFleet, IconWorkOrder, IconSettings, IconSignOut } = assetsPng
+const { IconHome, IconFleet, IconWorkOrder, IconSettings, IconSignOut, IconUser } = assetsPng
 
 type ScreenName = keyof Screens;
 
@@ -31,6 +31,8 @@ const ScreenWrapper = ({ children, selectedTab, setSelectedTab, ScreenName }: an
         switch (name) {
             case appConfig.screens.Route:
                 return navigation.navigate('Route');
+            case appConfig.screens.Customer:
+                return navigation.navigate('Customers');
             case appConfig.screens.fleet:
                 return navigation.navigate('Fleet');
             case appConfig.screens.Settings:
@@ -111,6 +113,12 @@ const ScreenWrapper = ({ children, selectedTab, setSelectedTab, ScreenName }: an
                         icon={IconWorkOrder}
                         isFocused={isFocused('Route')}
                         onPress={() => handleNavigate('Route')}
+                    />
+                    <TabButton
+                        label={appConfig.screens.Customer}
+                        icon={IconUser}
+                        isFocused={isFocused('Customer')}
+                        onPress={() => handleNavigate('Customer')}
                     />
                     <TabButton
                         label={appConfig.screens.ServiceCall}

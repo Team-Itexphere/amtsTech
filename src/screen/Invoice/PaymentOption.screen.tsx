@@ -57,6 +57,7 @@ const PaymentOption = () => {
     const route = useRoute<PaymentOptionRouteProp>();
     const navigation = useNavigation<NavigationProp>();
 
+    const { inv_id } = route.params;
     const { res_Amount, invoice, location,
         serviceCall: { source, customer_id }
     } = useSelector((state: RootState) => state.routeReducer);
@@ -88,33 +89,46 @@ const PaymentOption = () => {
                 mo_no: formData.selectedCheckBox === 'MO' ? formData.number : null,
                 pay_opt: formData.selectedCheckBox,
                 customer_id: customer_id!,
-                items: invoice.items
+                items: invoice.items,
+                inv_id: inv_id
             }
 
             const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
             setIsLoarding(false)
-            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true })
+            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id })
 
         } else {
             if (!res_Amount || !location.list_id || !location.cus_id) return console.warn("res_Amount or list_id or cus_id -> null ");
-            const form: postPaymentReqBody = {
-                list_id: location.list_id,
-                cus_id: location.cus_id,
-                pay_opt: formData.selectedCheckBox,
+            // const form: postPaymentReqBody = {
+            //     list_id: location.list_id,
+            //     cus_id: location.cus_id,
+            //     pay_opt: formData.selectedCheckBox,
+            //     check_no: formData.selectedCheckBox === 'Check' ? formData.number : null,
+            //     mo_no: formData.selectedCheckBox === 'MO' ? formData.number : null,
+            //     // descript: invoice.descript,
+            //     amount: parseInt(res_Amount),
+            //     items: invoice.items,
+            //     addi_comments: invoice.comment,
+            //     service: invoice.service,
+            //     inv_id: inv_id
+            // }
+
+            // const postData = await postPaymentInfo(dispatch, form);
+
+            const form: postInvoice_from_ServiceCall_ReqPaymentBody = {
                 check_no: formData.selectedCheckBox === 'Check' ? formData.number : null,
                 mo_no: formData.selectedCheckBox === 'MO' ? formData.number : null,
-                // descript: invoice.descript,
-                amount: parseInt(res_Amount),
+                pay_opt: formData.selectedCheckBox,
+                customer_id: customer_id!,
                 items: invoice.items,
-                addi_comments: invoice.comment,
-                service: invoice.service
+                inv_id: inv_id
             }
 
-            const postData = await postPaymentInfo(dispatch, form);
+            const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
             setIsLoarding(false)
 
             // if (postData) setIsSuccess({ invoice_link: postData.invoice_link })
-            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true })
+            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id })
         }
     }
 

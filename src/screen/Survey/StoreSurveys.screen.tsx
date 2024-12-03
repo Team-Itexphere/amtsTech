@@ -34,7 +34,7 @@ const StoreSurveysScreen = () => {
     }, [location.cus_id, dispatch]);
 
     const viewPDF = (pdf_link: string) => {
-        navigation.navigate('PdfReader', { invoice_link: pdf_link, istools: false });
+        navigation.navigate('PdfReader', { invoice_link: pdf_link, istools: false, inv_id: null });
     };
 
     const openPDF = async (pdf_link: string) => {

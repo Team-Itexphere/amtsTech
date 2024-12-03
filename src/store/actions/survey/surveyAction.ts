@@ -75,6 +75,7 @@ export interface postPaymentReqBody {
     addi_comments: string | null;
     service: string | null;
     id: number | null;
+    inv_id: number | null;
 }
 
 export type postInvoiceReqBody = Omit<postPaymentReqBody, 'pay_opt' | 'check_no' | 'mo_no'>;
@@ -82,7 +83,8 @@ export type postInvoice_from_ServiceCall_ReqBody = Omit<postPaymentReqBody, 'pay
     customer_id: number
 }
 export type postInvoice_from_ServiceCall_ReqPaymentBody = Omit<postPaymentReqBody, 'list_id' | 'cus_id' | 'amount' | 'addi_comments' | 'service'> & {
-    customer_id: number
+    customer_id: number,
+    signature: string | null
 }
 
 

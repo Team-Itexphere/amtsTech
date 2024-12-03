@@ -56,13 +56,11 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
 
             <View style={{
                 position: 'absolute',
-                bottom: 10,
-                right: 10,
-                display: "flex", 
-                flexDirection: "row"
+                bottom: 5,
+                right: 5,
             }}>
-                <Text style={{ ...FONTS.body5, color: item.status === ServeyStatus.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginRight: 3 }}>{item.status ? item.status : 'pending'}</Text>
-                <Text style={{ ...FONTS.body5, color: item.hasInvoice ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius }}>{item.hasInvoice ? 'yes' : 'no'}</Text>
+                <Text style={{ ...FONTS.body5, color: item.status === ServeyStatus.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginBottom: 3, width: 160, textAlign: 'center' }}>Inspection: {item.status === ServeyStatus.Completed ? 'Completed' : 'Pending'}</Text>
+                <Text style={{ ...FONTS.body5, color: item.hasInvoice ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, width: 160, textAlign: 'center' }}>Invoiced: {item.hasInvoice ? 'Yes' : 'No'}</Text>
             </View>
         </TouchableOpacity>
     )

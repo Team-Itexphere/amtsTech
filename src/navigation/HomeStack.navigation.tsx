@@ -102,7 +102,7 @@ const HomeStackNavigator = () => {
       <Stack.Screen name="Dashboard" component={renderScreen(DashboardScreen)} listeners={getListeners("Dashboard")} />
       <Stack.Screen name="Route" component={renderScreen(RouteScreen)} listeners={getListeners("Route")} />
       <Stack.Screen name="ServiceCall" component={renderScreen(ServiceCallScreen)} listeners={getListeners("ServiceCall")} />
-      <Stack.Screen name="Customers" component={renderScreen(CustomersScreen, HeaderName.Customers)} listeners={getListeners("Dashboard")} />
+      <Stack.Screen name="Customers" component={renderScreen(CustomersScreen, HeaderName.Customers)} listeners={getListeners("Customer")} />
       <Stack.Screen name="Fleet" component={renderScreen(FleetScreen)} listeners={getListeners("fleet")} />
       <Stack.Screen name="Settings" component={renderScreen(SettingsScreen)} listeners={getListeners("Settings")} />
 
@@ -112,7 +112,7 @@ const HomeStackNavigator = () => {
       <Stack.Screen name="PaymentOption" component={renderScreen(PaymentOption)} listeners={getListeners("Route")} />
       <Stack.Screen name="PdfReader" component={renderScreen(PdfReader, HeaderName.Stores)} listeners={getListeners("Route")} />
       <Stack.Screen name="LocationList" component={renderScreen(LocationScreen, HeaderName.Locations)} listeners={getListeners("Route")} />
-      <Stack.Screen name="StoreList" component={renderScreen(StoreScreen, HeaderName.Stores)} listeners={getListeners("Route")} />
+      <Stack.Screen name="StoreList" component={renderScreen(StoreScreen, HeaderName.Stores)} listeners={getListeners("Customer")} />
       <Stack.Screen name="ImageView" component={renderScreen(ImageViewScreen, HeaderName.Pictures)} listeners={getListeners("Route")} />
       <Stack.Screen name="InvoiceSubItems" component={renderScreen(SubItemsScreen, HeaderName.RouteInvoice)} listeners={getListeners("Route")} />
       <Stack.Screen name="StoreInvoices" component={renderScreen(StoreInvoicesScreen, HeaderName.RouteInvoices)} listeners={getListeners("Route")} />
