@@ -17,10 +17,11 @@ type Props = {}
 type renderCardType = {
     item: LocationItem,
     containerStyle: ViewStyle,
-    onPress: () => void
+    onPress: () => void,
+    index: number
 }
 
-const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
+const renderCard = ({ item, containerStyle, onPress, index }: renderCardType) => {
 
     return (
         <TouchableOpacity
@@ -42,6 +43,21 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
                 left: 10
             }}>
                 <Text style={{ ...FONTS.h3, color: COLORS.white, }} numberOfLines={1}>Route # {item.route_no}</Text>
+            </View>
+
+            <View style={{
+                position: 'absolute',
+                top: 10,
+                right: 10,
+                backgroundColor: COLORS.dark60, 
+                width: 30, 
+                height: 30, 
+                borderRadius: 7,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}>
+                <Text style={{ ...FONTS.h3, color: COLORS.white }} numberOfLines={1}>{index + 1}</Text>
             </View>
             
             <View style={{
@@ -105,9 +121,10 @@ const LocationScreen = (props: Props) => {
         notes: LocationItem['notes'],        
         cus_name: string,
         rec_logs: number | string,
+        hasInvoice: boolean | undefined
     ) => {
 
-        dispatch(SaveLocationPressData(ro_loc_id, cus_id, list_id, notes, status, cus_name, rec_logs));
+        dispatch(SaveLocationPressData(ro_loc_id, cus_id, list_id, notes, status, cus_name, rec_logs, hasInvoice));
         navigation.navigate('StoreList')
 
     }
@@ -148,7 +165,8 @@ const LocationScreen = (props: Props) => {
                                 marginTop: SIZES.radius,
                                 marginHorizontal: SIZES.radius // : SIZES.padding
                             },
-                            onPress: () => onPressItem(item.id, item.cus_id, item.list_id, item.status, item.notes, item.cus_name, item.rec_logs)
+                            onPress: () => onPressItem(item.id, item.cus_id, item.list_id, item.status, item.notes, item.cus_name, item.rec_logs, item.hasInvoice),
+                            index
                         })
                     )}
                     refreshControl={

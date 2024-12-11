@@ -156,7 +156,7 @@ export const getSubmitedSurvey = async (dispatch: Dispatch, list_id: number, cus
             if (answer) {
                 return {
                     ...survey,
-                    answ: answer.answer === "Yes" ? 1 : answer.answer === "No" ? 2 : 3,
+                    answ: answer.answer === "Yes" ? 1 : answer.answer === "No" ? 2 : answer.answer === "N/A" ? 3 : '',
                     description: answer.desc || "",
                     image: {
                         hasImg: !!answer.file,
@@ -293,17 +293,17 @@ export const postAnswer = async (dispatch: Dispatch, formData: postAnswer_ApiBod
         const response = await postAnswerService(formData)
         console.log("postAnswer response ::", response);
         if (response.hasError) {
-            console.warn(
-                'has error::-> postAnswerService ::',
-                response.errorMessage,
-            );
+            // console.warn(
+            //     'has error::-> postAnswerService ::',
+            //     response.errorMessage,
+            // );
             throw new Error(response.errorMessage);
         } else {
             return response.data
         }
 
     } catch (error) {
-        console.warn('catch error postAnswer ::', error);
+        // console.warn('catch error postAnswer ::', error);
         throw error;
     }
 }

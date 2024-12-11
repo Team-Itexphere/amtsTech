@@ -13,6 +13,7 @@ import { InvoiceSubItemsProp, NavigationProp } from '../../navigation/navigation
 import { getAmount, postInvoice_from_ServiceCall_ReqBody, postInvoiceInfo, postInvoiceInfo_From_ServiceCall, postInvoiceReqBody } from '../../store/actions/survey/surveyAction';
 import { RootState } from '../../store/store';
 import { saveDataFrom_ServiceCallTo_Invoice } from '../../store/actions/ServiceCall/ServiceCallStateAction';
+import { ServeyStatus } from '../../types';
 
 interface FormComponentProps {
     id: number;
@@ -101,8 +102,11 @@ function renderSaveButton(handleSubmit: () => void) {
 
 const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComponentProps) => {
 
+    const { location: { ro_loc_id, cus_id, list_id, status, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
+
     const DescriptionOptions = ['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker', "Calibration"];
-    const CategoryOptions = ["Monthly Inspection", "Parts", "Calibration", "Service Call"];
+    const CategoryOptions = ["Parts", "Calibration", "Service Call"];
+    !hasInvoice && CategoryOptions.unshift("Monthly Inspection");
 
     const isMonthlyInspection = data.category === "Monthly Inspection"
     const isServiceCall = data.category === "Service Call"
@@ -227,7 +231,7 @@ const SubItemsScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const { source, customer_id, invoice } = route.params;
 
-    const { location: { ro_loc_id, cus_id, list_id } } = useSelector((state: RootState) => state.routeReducer);
+    const { location: { ro_loc_id, cus_id, list_id, status, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
 
     const [isLoading, setIsLoarding] = useState<boolean>(false);
     const [fetchedAmount, setFetchedAmount] = useState<number>(0);
@@ -280,12 +284,12 @@ const SubItemsScreen = () => {
     let inspect_total = 0;
 
     useEffect(() => {
+        let monthlyIns = false;
         const total = forms.reduce((acc, form) => {
             let amount = 0;
 
             switch (form.category) {
                 case "Monthly Inspection":
-                    setService("Monthly Inspection");
                     amount = typeof form.amount === 'number' ? form.amount : 0;
                     inspect_total =+ amount;
                     break;
@@ -298,7 +302,7 @@ const SubItemsScreen = () => {
             
             switch (form.category) {
                 case "Monthly Inspection":
-                    setService("Monthly Inspection");
+                    monthlyIns = true;
                     break;
                 case "Calibration":
                     setService("Calibration");
@@ -311,7 +315,7 @@ const SubItemsScreen = () => {
             return acc + amount;
         }, 0);
 
-        if(!invoice && ro_loc_id){
+        if(!invoice && ro_loc_id && !hasInvoice && monthlyIns){
             setService("Monthly Inspection");
         }        
 
@@ -346,6 +350,11 @@ const SubItemsScreen = () => {
 
     const handleSubmit = async () => {
         // validate 
+        if (!invoice && status !== ServeyStatus.Completed) {
+            Alert.alert("Can not create an invoice until Inspection completed.");
+            return;
+        }
+
         for (const form of forms) {
             if (!form.description || !form.category) {
                 Alert.alert("Please fill all required fields in every form.");
@@ -456,9 +465,11 @@ const SubItemsScreen = () => {
                 }} 
                 color={COLORS.lightOrange} 
             />            
-            {invoice && (
+            {invoice ? (
                 <Text style={{ ...FONTS.body3, margin: SIZES.base, marginBottom: SIZES.base, textAlign: "center", fontWeight: 700, color: 'green' }}>Edit Invoice #{invoice.invoice_no}</Text>
-            )}            
+            ) : status !== ServeyStatus.Completed && (
+                <Text style={{ ...FONTS.body4, margin: SIZES.base, marginBottom: SIZES.base, textAlign: "center", fontWeight: 700, color: 'red' }}>Can not create an invoice until Inspection completed.</Text>
+            )}
             {forms.map((form, index) => (
                 <FormComponent
                     key={index}

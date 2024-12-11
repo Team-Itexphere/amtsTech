@@ -20,7 +20,8 @@ export interface RouteState {
         notes: LocationItem['notes'],
         status: LocationItem['status'],
         cus_name: string | null,
-        rec_logs: string | number | null
+        rec_logs: string | number | null,
+        hasInvoice?: boolean | undefined
     },
     serviceCall: {
         source: string,
@@ -92,6 +93,7 @@ function routeReducer(state = initialState, action: any): RouteState {
                     status: action.payload.status,
                     cus_name: action.payload.cus_name,
                     rec_logs: action.payload.rec_logs,
+                    hasInvoice: action.payload.hasInvoice,
                 }
             }
         case "SAVE_DATA_FROM_SERVICECALL_TO_INVOICE":

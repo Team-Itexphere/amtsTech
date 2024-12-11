@@ -5,6 +5,7 @@ import { NavigationProp, StoreListProp } from '../../navigation/navigationTypes'
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { COLORS, SIZES } from '../../assets/theme';
+import { ServeyStatus } from '../../types';
 
 type Props = {}
 
@@ -12,12 +13,13 @@ const StoreScreen = (props: Props) => {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<StoreListProp>();
 
-    const { location: { ro_loc_id, cus_id, list_id, rec_logs } } = useSelector((state: RootState) => state.routeReducer);
+    const { location: { ro_loc_id, cus_id, list_id, rec_logs, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
     useEffect(() => {
         console.log("Route Location ID:", ro_loc_id);
         console.log("Customer ID:", cus_id);
         console.log("List ID:", list_id);
         console.log("Rec Logs:", rec_logs);
+        console.log("HasInvoice:", hasInvoice);
       }, [rec_logs]);
     const buttons = [
         { title: 'Monthly Inspection', icon: '📅' },

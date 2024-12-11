@@ -174,7 +174,7 @@ const Survey = (props: Props) => {
             case 3:
                 return Answer.NA
             default:
-                return Answer.NA;
+                return Answer.NULL;
         }
     }
     const sendAnswer = async (currentanw: number) => {
@@ -250,7 +250,8 @@ const Survey = (props: Props) => {
         if (allSuccess) {
             console.log('All answers were submitted successfully.');
             // setIsVisible({ isVisible: true, modalName: 'submit_form' })
-            navigateToBack();
+            //navigateToBack();
+            list_id && navigation.navigate('LocationList', { ro_loc_id: list_id });
         } else {
             Alert.alert("Some answers failed to submit.");
         }

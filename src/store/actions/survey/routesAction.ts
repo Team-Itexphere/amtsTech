@@ -94,7 +94,7 @@ export type NoteType = {
 };
 
 export interface LocationItem {
-    hasInvoice: boolean;
+    hasInvoice: boolean | undefined;
     rec_logs: string | number;
     route_no: string;
     id: number;
@@ -182,10 +182,10 @@ export const getLocations = async (dispatch: Dispatch, id: number): Promise<Loca
 }
 
 export const SaveLocationPressData = (
-ro_loc_id: number | null, cus_id: number, list_id: number | null, notes: LocationItem['notes'], status: LocationItem['status'] | null, cus_name: string, rec_logs: string | number | null,
+ro_loc_id: number | null, cus_id: number, list_id: number | null, notes: LocationItem['notes'], status: LocationItem['status'] | null, cus_name: string, rec_logs: string | number | null, hasInvoice?: boolean | undefined,
 ) => ({
     type: 'LOCATION_PRESS_DATA',
-    payload: { ro_loc_id, cus_id, list_id, notes, status, cus_name, rec_logs},
+    payload: { ro_loc_id, cus_id, list_id, notes, status, cus_name, rec_logs, hasInvoice},
 });
 
 export const ClearAllRouteData = () => ({ type: 'CLEAR_ALL' });

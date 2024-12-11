@@ -19,7 +19,7 @@ import assetsPng from '../../assets/pngs'
 import { postInvoice_from_ServiceCall_ReqPaymentBody, postInvoiceInfo_From_ServiceCall } from '../../store/actions/survey/surveyAction';
 import { useDispatch } from 'react-redux';
 
-const { IconCheque, IconDownload, IconPaymentOptions } = assetsPng;
+const { IconHome, IconCheque, IconDownload, IconPaymentOptions } = assetsPng;
 
 type Props = {};
 
@@ -83,6 +83,16 @@ const PdfReader = (props: Props) => {
                         borderRadius: SIZES.radius,
                     }}
                 >
+                    <TouchableOpacity
+                        onPress={() => navigation.navigate('StoreList')}
+                        style={{ padding: SIZES.base, borderRadius: 100, backgroundColor: COLORS.white, marginRight: 10 }}
+                    >
+                        <Image
+                            source={IconHome}
+                            style={{ width: 30, height: 30, tintColor: COLORS.primary }}
+                        />
+                    </TouchableOpacity>
+
                     <TouchableOpacity
                         onPress={() => openPDF()}
                         style={{

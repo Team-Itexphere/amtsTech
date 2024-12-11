@@ -35,8 +35,8 @@ const LabeledInput = ({
     editable = true,
     containerStyle,
 }: LabeledInputProps) => (
-    <View style={containerStyle}>
-        <Text style={styles.label}>{label}</Text>
+    <View style={[containerStyle, { padding: 10, borderWidth: 1, borderColor: 'gray', borderRadius: 10, marginTop: 5 }]}>
+        <Text style={[styles.label, { fontWeight: '700', fontSize: 16 }]}>{label}</Text>
         <FormInput
             value={String(value)}
             placeholder={placeholder}
@@ -125,13 +125,56 @@ const SiteInfoScreen = () => {
         </View>
     );
 
+    const fieldLabel = (key: string): string => {
+        switch (key) {
+            case 'id':
+                return 'Info ID';
+            case 'fu_brand':
+                return 'Fuel Brand';
+            case 'truck_stop':
+                return 'Truck stop';
+            case 'dis_brand':
+                return 'Dispenser Brand';
+            case 'dis_model':
+                return 'Dispenser Model';
+            case 'dis_sumps':
+                return 'Does it have sumps under dispenser?';
+            case 'dis_type':
+                return 'Sumps Type';
+            case 'vents_count':
+                return 'Number of Vents';
+            case 'h_many_3_0':
+                return 'Number of 3+0 Dispensers';
+            case 'h_many_3_1':
+                return 'Number of 3+1 Dispensers';
+            case 'h_many_h_flows':
+                return 'Number of High Flows Dispensers';
+            case 'tanks_count':
+                return 'Number of Tanks';
+            case 'atg_brand':
+                return 'ATG Brand';
+            case 'atg_sensors':
+                return 'ATG Sensors';
+            case 'relay_brand':
+                return 'Relay Brand';
+            case 'pos_system':
+                return 'POS System';
+            case 'lock':
+                return 'Site Info Locked?';
+            case 'customer_id':
+                return 'Customer ID';
+            default:
+                return 'Unknown';
+        }
+    };
+
     const renderSiteInfo = () => (
         siteInfo && Object.entries(siteInfo)
             .filter(([key]) => !excludedFields.includes(key))
             .map(([key, value]) => (
                 <LabeledInput
                     key={key}
-                    label={key.replace(/_/g, ' ')}
+                    label={fieldLabel(key)}
                     value={value as string | number}
                     placeholder={`Enter ${key.replace(/_/g, ' ')}`}
                     // keyboardType={typeof value === 'number' ? 'numeric' : 'default'}
