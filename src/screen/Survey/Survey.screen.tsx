@@ -97,7 +97,8 @@ const Survey = (props: Props) => {
             status,
             ro_loc_id,
             cus_id,
-            list_id
+            list_id,
+            cus_name
         }
     } = useSelector((state: RootState) => state.routeReducer);
 
@@ -251,7 +252,10 @@ const Survey = (props: Props) => {
             console.log('All answers were submitted successfully.');
             // setIsVisible({ isVisible: true, modalName: 'submit_form' })
             //navigateToBack();
-            list_id && navigation.navigate('LocationList', { ro_loc_id: list_id });
+
+            navigation.navigate('StoreList', { newStatus: ServeyStatus.Completed });
+            
+            //list_id && navigation.navigate('LocationList', { ro_loc_id: list_id });
         } else {
             Alert.alert("Some answers failed to submit.");
         }
@@ -560,6 +564,14 @@ const Survey = (props: Props) => {
             return (
                 <View style={{ flex: 1 }}>
                     {isLoading && <Loading />}
+                    <Text 
+                        style={{
+                            textAlign: 'center',
+                            paddingBottom: 5,
+                            fontWeight: 600,
+                            backgroundColor: COLORS.white
+                        }}
+                    >{cus_name}</Text>
                     <Button 
                         title="📝 View Previous Surveys" 
                         onPress={() => {

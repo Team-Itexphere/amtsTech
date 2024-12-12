@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-nati
 import React, { useEffect } from 'react';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { NavigationProp, StoreListProp } from '../../navigation/navigationTypes';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { COLORS, SIZES } from '../../assets/theme';
 import { ServeyStatus } from '../../types';
@@ -12,14 +12,27 @@ type Props = {}
 const StoreScreen = (props: Props) => {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<StoreListProp>();
+    const dispatch = useDispatch();
 
-    const { location: { ro_loc_id, cus_id, list_id, rec_logs, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
+    const currentLocation = useSelector((state: RootState) => state.routeReducer.location);
+    route.params && route.params.newStatus && currentLocation.status !== route.params.newStatus && (
+        dispatch({
+            type: "LOCATION_PRESS_DATA",
+            payload: {
+                ...currentLocation,
+                status: route.params?.newStatus,
+            },
+        })
+    );
+
+    const { location: { ro_loc_id, cus_id, list_id, rec_logs, hasInvoice, status } } = useSelector((state: RootState) => state.routeReducer);
     useEffect(() => {
         console.log("Route Location ID:", ro_loc_id);
         console.log("Customer ID:", cus_id);
         console.log("List ID:", list_id);
         console.log("Rec Logs:", rec_logs);
         console.log("HasInvoice:", hasInvoice);
+        console.log("Status:", status);
       }, [rec_logs]);
     const buttons = [
         { title: 'Monthly Inspection', icon: '📅' },

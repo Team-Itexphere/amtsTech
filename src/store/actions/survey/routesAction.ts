@@ -63,6 +63,7 @@ interface Customer {
     com_to_inv: string;
     role: number;
     login: string;
+    rec_logs: string | number;
     deleted: string | null;
 }
 
@@ -89,6 +90,7 @@ export type NoteType = {
     cus_id: number;
     list_id: number;
     note: string;
+    status: Status | null;
     created_at: string;
     updated_at: string;
 };

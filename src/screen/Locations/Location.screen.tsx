@@ -23,6 +23,8 @@ type renderCardType = {
 
 const renderCard = ({ item, containerStyle, onPress, index }: renderCardType) => {
 
+    const notesStatus = item.notes.length > 0 ? Status.Pending : Status.Completed;
+
     return (
         <TouchableOpacity
             onPress={onPress}
@@ -62,10 +64,10 @@ const renderCard = ({ item, containerStyle, onPress, index }: renderCardType) =>
             
             <View style={{
                 position: 'absolute',
-                bottom: 10,
+                bottom: 35,
                 left: 10
             }}>
-                <Text style={{ ...FONTS.h3, color: COLORS.white, }} numberOfLines={1}>{item.customer.str_addr}</Text>
+                <Text style={{ ...FONTS.h3, color: COLORS.white, }} numberOfLines={1}>{item.customer?.str_addr ?? ''}</Text>
                 <Text style={{ ...FONTS.h4, color: COLORS.white, }}>{item.cus_name}</Text>
                 <Text style={{ ...FONTS.body4, color: COLORS.white, maxWidth: 90 }} numberOfLines={1}>{item.cus_fac_id}</Text>
             </View>
@@ -76,6 +78,7 @@ const renderCard = ({ item, containerStyle, onPress, index }: renderCardType) =>
                 right: 5,
             }}>
                 <Text style={{ ...FONTS.body5, color: item.status === ServeyStatus.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginBottom: 3, width: 160, textAlign: 'center' }}>Inspection: {item.status === ServeyStatus.Completed ? 'Completed' : 'Pending'}</Text>
+                <Text style={{ ...FONTS.body5, color: notesStatus === Status.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginBottom: 3, width: 160, textAlign: 'center' }}>Notes: {notesStatus}</Text>
                 <Text style={{ ...FONTS.body5, color: item.hasInvoice ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, width: 160, textAlign: 'center' }}>Invoiced: {item.hasInvoice ? 'Yes' : 'No'}</Text>
             </View>
         </TouchableOpacity>
@@ -160,12 +163,12 @@ const LocationScreen = (props: Props) => {
                         renderCard({
                             item,
                             containerStyle: {
-                                height: 130,
+                                height: 145,
                                 width: SIZES.width - (SIZES.radius * 2), // - SIZES.radius),
                                 marginTop: SIZES.radius,
                                 marginHorizontal: SIZES.radius // : SIZES.padding
                             },
-                            onPress: () => onPressItem(item.id, item.cus_id, item.list_id, item.status, item.notes, item.cus_name, item.rec_logs, item.hasInvoice),
+                            onPress: () => onPressItem(item.id, item.cus_id, item.list_id, item.status, item.notes, item.cus_name, item.customer.rec_logs, item.hasInvoice),
                             index
                         })
                     )}
