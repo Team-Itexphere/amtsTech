@@ -231,6 +231,7 @@ const SubItemsScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const { source, customer_id, invoice } = route.params;
 
+    const currentLocation = useSelector((state: RootState) => state.routeReducer.location);
     const { location: { ro_loc_id, cus_id, list_id, status, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
 
     const [isLoading, setIsLoarding] = useState<boolean>(false);
@@ -347,6 +348,16 @@ const SubItemsScreen = () => {
         const newForms = forms.filter((_, index) => index !== id);
         setForms(newForms);
     };
+    
+    const setHasInvoice = (hasInvoice: boolean) => {
+        dispatch({
+            type: "LOCATION_PRESS_DATA",
+            payload: {
+                ...currentLocation,
+                hasInvoice: hasInvoice,
+            },
+        })
+    };
 
     const handleSubmit = async () => {
         // validate 
@@ -446,7 +457,11 @@ const SubItemsScreen = () => {
             const postData = await postInvoiceInfo(dispatch, form);
             setIsLoarding(false)
 
-            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id }));
+            postData && (
+                setInvId(postData.id), 
+                setHasInvoice(true), 
+                navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id })
+            );
             // navigation.navigate('PaymentOption');
         }
 

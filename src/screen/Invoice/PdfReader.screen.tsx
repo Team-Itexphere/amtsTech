@@ -164,7 +164,7 @@ const PdfReader = (props: Props) => {
                 animationType="slide"
                 onRequestClose={() => setSignatureVisible(false)}
             >
-                <View style={{ flex: 1, backgroundColor: COLORS.white }}>
+                <View style={{ flex: 1, backgroundColor: COLORS.white, width: '90%', margin: 'auto' }}>
                     <Signature
                         ref={signatureRef}
                         onOK={handleSignature}
