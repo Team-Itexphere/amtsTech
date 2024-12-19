@@ -214,39 +214,69 @@ const Survey = (props: Props) => {
         }
         setIsLoarding(true)
 
-        const results = await Promise.allSettled(
-            surveyItemArray.map(async (anws, index) => {
-                const asw = {
-                    unique_id: uniqueIdData?.id,
-                    ques_id: index + 1,
-                    answer: a(anws.answ),
-                    desc: anws.description,
-                    file: '',
-                    gen_comment: anws.gen_comment
-                }
+        const results: Array<any> = [];
 
-                if (anws.image.hasImg) {
-                    try {
-                        asw.file = await ImageCompressor.compress(anws.image.imguri!, {
-                            returnableOutputType: 'base64',
-                            compressionMethod: 'auto'
-                        });
-                    } catch (error) {
-                        console.error(`Error compressing image for question ${surveyItemArray[index].id}:`, error);
-                    }
+        let isTerminate = false;
+        for (let index = 0; index < surveyItemArray.length; index++) {
+            const anws = surveyItemArray[index];
+
+            const asw = {
+                unique_id: uniqueIdData?.id,
+                ques_id: index + 1,
+                answer: a(anws.answ),
+                desc: anws.description,
+                file: '',
+                gen_comment: anws.gen_comment
+            };
+
+            if (anws.image.hasImg) {
+                try {
+                    asw.file = await ImageCompressor.compress(anws.image.imguri!, {
+                        returnableOutputType: 'base64',
+                        compressionMethod: 'auto'
+                    });
+                } catch (error) {
+                    console.error(`Error compressing image for question ${index + 1}:`, error);
                 }
-                return await postAnswer(dispatch, asw);
-                // if (postData && postData.success) {
-                //     return true
-                // } else {
-                //     console.error(`Answer for question ${surveyItemArray[index].id} failed with error::`);
-                //     return false
-                // }
-            })
-        );
+            }
+
+            isTerminate = false;
+console.log('dsa', anws.answ)
+            switch (anws.answ) {
+                case 1: // Yes
+                    if ((index === 0 || index === 6 || index === 7 || index === 9) && !anws.image.hasImg) {
+                        Alert.alert("Picture is required for question " + (index + 1));
+                        isTerminate = true;
+                    }
+                    break;
+                case 2: // No
+                    if ((index !== 0 && index !== 6 && index !== 7 && index !== 9) && !anws.image.hasImg) {
+                        Alert.alert("Picture is required for question " + (index + 1));
+                        isTerminate = true;
+                    }
+                    break;
+                case '':
+                    Alert.alert("Answer is required for question " + (index + 1));
+                    isTerminate = true;
+                    break;
+            }
+
+            if (isTerminate) {
+                break;
+            }
+            
+            // Collect the result for further usage
+            const result = await postAnswer(dispatch, asw);
+            results.push(result);
+        }
+
         setIsLoarding(false)
 
-        const allSuccess = results.every(result => result.status === "fulfilled");
+        if (isTerminate) {
+            return;
+        }
+        
+        const allSuccess = results.every(result => result.success === true);
 
         if (allSuccess) {
             console.log('All answers were submitted successfully.');

@@ -63,6 +63,9 @@ const StoreScreen = (props: Props) => {
             case 'Inventory Tickets':
                 navigation.navigate('ATG_I');
                 break;
+            case 'Rectifier Log':
+                navigation.navigate('Rec_Log');
+                break;
             case 'Invoice':
                 // navigation.navigate('InvoiceGenerate');
                 navigation.navigate('InvoiceSubItems', { source: "store" });

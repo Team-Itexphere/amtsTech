@@ -30,6 +30,7 @@ const SubItemsScreen = lazy(() => import('../screen/Invoice/SubItems.screen'));
 const LicenseScreen = lazy(() => import('../screen/License/License.screen'));
 const AtgiScreen = lazy(() => import('../screen/ATG_Inventory/Atgi.screen'));
 const AtgsScreen = lazy(() => import('../screen/ATG_Sensor/Atgs.screen'));
+const Rec_LogScreen = lazy(() => import('../screen/Rec_Log/Rec_Log.screen'));
 const SiteInfoScreen = lazy(() => import('../screen/SiteInfo/SiteInfo.screen'));
 const NotesScreen = lazy(() => import('../screen/Rotes/Notes/Note.screen'));
 
@@ -55,6 +56,7 @@ export const HeaderName: any = {
   Locations: 'Locations',
   Stores: 'Store',
   ATG_Inventory: 'ATG Inventory',
+  Rec_Log: 'Rectifire Log', 
   ATG_Sensor: 'ATG Sensor',
   Mounthly_Inspection_Report: 'Monthly inspection',
   RouteSurveys: 'Previous Surveys',
@@ -118,6 +120,7 @@ const HomeStackNavigator = () => {
       <Stack.Screen name="StoreInvoices" component={renderScreen(StoreInvoicesScreen, HeaderName.RouteInvoices)} listeners={getListeners("Route")} />
       <Stack.Screen name="StoreLicense" component={renderScreen(LicenseScreen, HeaderName.License)} listeners={getListeners("Route")} />
       <Stack.Screen name="ATG_I" component={renderScreen(AtgiScreen, HeaderName.ATG_Inventory)} listeners={getListeners("Route")} />
+      <Stack.Screen name="Rec_Log" component={renderScreen(Rec_LogScreen, HeaderName.Rec_Log)} listeners={getListeners("Route")} />
       <Stack.Screen name="ATG_S" component={renderScreen(AtgsScreen, HeaderName.ATG_Sensor)} listeners={getListeners("Route")} />
       <Stack.Screen name="SiteInfo" component={renderScreen(SiteInfoScreen, HeaderName.Site_Info)} listeners={getListeners("Route")} />
       <Stack.Screen name="Notes" component={renderScreen(NotesScreen, HeaderName.Notes)} listeners={getListeners("Route")} />

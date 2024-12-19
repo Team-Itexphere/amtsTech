@@ -8,6 +8,8 @@ import {
     Modal,
     Alert,
     Linking,
+    Platform,
+    PermissionsAndroid,
 } from 'react-native';
 import Pdf from 'react-native-pdf';
 import Signature from 'react-native-signature-canvas';
@@ -18,8 +20,11 @@ import Loading from '../../components/UI/Loading';
 import assetsPng from '../../assets/pngs'
 import { postInvoice_from_ServiceCall_ReqPaymentBody, postInvoiceInfo_From_ServiceCall } from '../../store/actions/survey/surveyAction';
 import { useDispatch } from 'react-redux';
+import RNFetchBlob from 'rn-fetch-blob';
+import { BluetoothEscposPrinter, BluetoothManager } from 'react-native-bluetooth-printer';
+import PdfToImage from 'react-native-pdf-to-image';
 
-const { IconHome, IconCheque, IconDownload, IconPaymentOptions } = assetsPng;
+const { IconHome, IconCheque, IconDownload, IconPaymentOptions, IconPrint } = assetsPng;
 
 type Props = {};
 
@@ -66,6 +71,82 @@ const PdfReader = (props: Props) => {
     // Trigger the modal for capturing the signature
     const openSignatureModal = () => {
         setSignatureVisible(true);
+    };
+
+    const requestPermissions = async () => {
+        if (Platform.OS === 'android') {
+          try {
+            const granted = await PermissionsAndroid.requestMultiple([
+              PermissionsAndroid.PERMISSIONS.BLUETOOTH,
+              PermissionsAndroid.PERMISSIONS.BLUETOOTH_ADMIN,
+              PermissionsAndroid.PERMISSIONS.BLUETOOTH_CONNECT, // Android 12+
+              PermissionsAndroid.PERMISSIONS.BLUETOOTH_SCAN,   // Android 12+
+              PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION, // Required for Bluetooth scanning
+              PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+              PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
+            ]);
+      
+            const allGranted = Object.values(granted).every(
+              (permission) => permission === PermissionsAndroid.RESULTS.GRANTED
+            );
+      
+            if (!allGranted) {
+              Alert.alert('Permission Error', 'All permissions must be granted to use Bluetooth.');
+              return false;
+            }
+            return true;
+          } catch (err) {
+            console.warn(err);
+            Alert.alert('Permission Error', 'Failed to request permissions.');
+            return false;
+          }
+        }
+        return true;
+    };
+
+    const handlePrint = async () => {
+        try {
+          const hasPermission = await requestPermissions();
+          if (!hasPermission) {
+            return;
+          }
+      
+          // Step 1: Download the PDF
+          const pdfPath = await RNFetchBlob.config({ fileCache: true }).fetch('GET', invoice_link);
+          const pdfFilePath = pdfPath.path();
+      
+          // Step 2: Convert PDF to image
+          const { outputFiles } = await PdfToImage.convert(pdfFilePath);
+      
+          if (!outputFiles || outputFiles.length === 0) {
+            Alert.alert('Error', 'Failed to convert PDF to image.');
+            return;
+          }
+      
+          // Select the first page to print
+          const base64Image = await RNFetchBlob.fs.readFile(outputFiles[0], 'base64');
+      
+          // Step 3: Connect to the Bluetooth Printer
+          const devices = await BluetoothManager.scanDevices();
+          const printerAddress = devices.device[0]?.address;
+          if (!printerAddress) {
+            Alert.alert('Error', 'No Bluetooth printer found.');
+            return;
+          }
+      
+          await BluetoothManager.connect(printerAddress);
+      
+          // Step 4: Print the Image
+          await BluetoothEscposPrinter.printPic(base64Image, {
+            width: 720,
+            left: 0,
+          });
+      
+          Alert.alert('Success', 'PDF printed successfully!');
+        } catch (error) {
+          console.error('Error printing PDF:', error);
+          Alert.alert('Error', 'An error occurred while printing.');
+        }
     };
 
     return (
@@ -134,6 +215,21 @@ const PdfReader = (props: Props) => {
                     >
                         <Image
                             source={IconCheque}
+                            style={{ width: 30, height: 30 }}
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={handlePrint}
+                        style={{
+                            padding: SIZES.base,
+                            borderRadius: 100,
+                            backgroundColor: COLORS.white,
+                            marginRight: 10,
+                        }}
+                    >
+                        <Image
+                            source={IconPrint}
                             style={{ width: 30, height: 30 }}
                         />
                     </TouchableOpacity>

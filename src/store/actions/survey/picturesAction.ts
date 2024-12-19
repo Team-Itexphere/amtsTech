@@ -4,7 +4,8 @@ import { getAllImageListService, postImageCaptureService } from "../../../servic
 export enum ImageType {
     ATGS = "atgs",
     ATGI = "atgi",
-    PICTURE = "picture"
+    PICTURE = "picture",
+    REC_LOG = "rec_log"
 }
 
 export type postImageCaptureReqBody = {

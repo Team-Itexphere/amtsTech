@@ -3,6 +3,7 @@ import { getAmountService, getInvoicesService, getSubmitedAnswersService, getSur
 import { Status } from "./routesAction";
 import { InvoiceSubItemWithAmount } from "../../../screen/Invoice/SubItems.screen";
 import { save_Amount } from "./invoiceAction";
+import { BASE_URL } from "../../../services/urls";
 
 export interface SurveyItem {
     id: number;
@@ -64,18 +65,18 @@ export interface postAnswer_res {
 }
 
 export interface postPaymentReqBody {
-    pay_opt: 'Cash' | 'Check' | 'MO';
-    check_no: string | null;
-    mo_no: string | null;
+    pay_opt?: 'Cash' | 'Check' | 'MO';
+    check_no?: string | null;
+    mo_no?: string | null;
     // descript: string
-    amount: number;
-    items: InvoiceSubItemWithAmount[];
-    list_id: number;
-    cus_id: number;
-    addi_comments: string | null;
-    service: string | null;
-    id: number | null;
-    inv_id: number | null;
+    amount?: number;
+    items?: InvoiceSubItemWithAmount[];
+    list_id?: number;
+    cus_id?: number;
+    addi_comments?: string | null;
+    service?: string | null;
+    id?: number | null;
+    inv_id?: number | null;
 }
 
 export type postInvoiceReqBody = Omit<postPaymentReqBody, 'pay_opt' | 'check_no' | 'mo_no'>;
@@ -83,7 +84,7 @@ export type postInvoice_from_ServiceCall_ReqBody = Omit<postPaymentReqBody, 'pay
     customer_id: number
 }
 export type postInvoice_from_ServiceCall_ReqPaymentBody = Omit<postPaymentReqBody, 'list_id' | 'cus_id' | 'amount' | 'addi_comments' | 'service'> & {
-    customer_id: number,
+    customer_id?: number,
     signature: string | null
 }
 
@@ -160,7 +161,7 @@ export const getSubmitedSurvey = async (dispatch: Dispatch, list_id: number, cus
                     description: answer.desc || "",
                     image: {
                         hasImg: !!answer.file,
-                        imguri: answer.file || undefined,
+                        imguri: BASE_URL + answer.file || undefined,
                     },
                     gen_comment: answer.ques_id ===  18 ? apiAnswers[17].gen_comment : ""
                 } as ExtendedSurveyItem

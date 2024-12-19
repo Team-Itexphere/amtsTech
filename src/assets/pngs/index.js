@@ -24,6 +24,7 @@ import IconLowPriority from './Icon-Low-Priority.png'
 import IconHighPriority from './Icon-High-Priority.png'
 import IconRefresh from './Icon-Refresh.png'
 import IconPaymentOptions from './Icon-Payment-Options.png'
+import IconPrint from './Icon-Print.png'
 
 import IconSuccessLetter from './Icon_success_Letter.png'
 
@@ -63,5 +64,6 @@ export default {
     IconLowPriority,
     IconHighPriority,
     IconRefresh,
-    IconPaymentOptions
+    IconPaymentOptions,
+    IconPrint
 }

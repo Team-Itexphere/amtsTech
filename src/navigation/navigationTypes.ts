@@ -23,6 +23,7 @@ export type RootStackParamList = {
     StoreLicense: undefined;
     ATG_I: undefined;
     ATG_S: undefined;
+    Rec_Log: undefined;    
     SiteInfo: undefined;
     ServiceCallView: {
         id: number;

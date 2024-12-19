@@ -80,7 +80,7 @@ const StoreSurveysScreen = () => {
                                     textAlign: 'right',
                                 }}
                             >
-                                {formatDateUS(survey.created_at, 'MM-DD-YYYY')} - {formatDateUS(survey.updated_at, 'MM-DD-YYYY')}
+                                {formatDateUS(survey.created_at, 'MM-DD-YYYY')}
                             </Text>
                         </View>
                         <View style={{ margin: SIZES.base, display: 'flex', flexDirection: 'row', gap: 5, marginRight: 10 }}>

@@ -1,7 +1,8 @@
 import { postImageCaptureReqBody, queryParam_GetImages } from "../../store/actions/survey/picturesAction"
+import { Status } from "../../types"
 import { responseHandlerType } from "../api/responseHandler"
 import { METHODS, client } from "../api/restClient"
-import { GET_ALL_IMAGE_LIST, GET_CUSTOMERS, GET_LOCATIONS, GET_MAINTAINS_LOGS, GET_ROUTES, GET_SITE_INFO, GET_STORE_LICENSE, POST_IMAGE_CAPTURED } from "../urls"
+import { GET_ALL_IMAGE_LIST, GET_CUSTOMERS, GET_LOCATIONS, GET_MAINTAINS_LOGS, GET_ROUTES, GET_SITE_INFO, GET_STORE_LICENSE, POST_IMAGE_CAPTURED, UPDATE_NOTES } from "../urls"
 
 export const getRoutesService = async (date: string) => {
     return await client.API(
@@ -23,6 +24,19 @@ export const getLocationService = async (id: number) => {
     return await client.API(
         METHODS.GET,
         GET_LOCATIONS + id
+    ) as responseHandlerType
+}
+
+export const updateNotesService = async (status: Status, id: number) => {
+    let headerConfig = {
+        'content-Type': 'application/json',
+    };
+    
+    return await client.API(
+        METHODS.POST,
+        `${UPDATE_NOTES}?id=${id}`,
+        { status },
+        headerConfig
     ) as responseHandlerType
 }
 

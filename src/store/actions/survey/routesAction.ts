@@ -1,5 +1,5 @@
 import { Dispatch } from "redux";
-import { getCustomersService, getLocationService, getRoutesService } from "../../../services/survey/routes.service";
+import { getCustomersService, getLocationService, getRoutesService, updateNotesService } from "../../../services/survey/routes.service";
 import { ServeyStatus } from "../../../types";
 
 // type Location = {
@@ -183,8 +183,28 @@ export const getLocations = async (dispatch: Dispatch, id: number): Promise<Loca
     }
 }
 
+export const updateNotes = async (status: Status, id: number): Promise<NoteType[]> => {
+    try {
+        const response = await updateNotesService(status, id)
+
+        if (response.hasError) {
+            console.warn('has error::-> updateNotesService ::', response.errorMessage,);
+            return []
+        } else {
+            if (response.data.length > 0) {
+                return response.data
+            } else {
+                return []
+            }
+        }
+    } catch (error) {
+        console.warn("catch error updateNotes ::", error);
+        return []
+    }
+}
+
 export const SaveLocationPressData = (
-ro_loc_id: number | null, cus_id: number, list_id: number | null, notes: LocationItem['notes'], status: LocationItem['status'] | null, cus_name: string, rec_logs: string | number | null, hasInvoice?: boolean | undefined,
+ro_loc_id: number | null, cus_id: number | null, list_id: number | null, notes: LocationItem['notes'], status: LocationItem['status'] | null, cus_name: string | null, rec_logs: string | number | null, hasInvoice?: boolean | undefined,
 ) => ({
     type: 'LOCATION_PRESS_DATA',
     payload: { ro_loc_id, cus_id, list_id, notes, status, cus_name, rec_logs, hasInvoice},
