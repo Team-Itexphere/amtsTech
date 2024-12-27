@@ -26,7 +26,6 @@
     "react-native": "0.74.0",
     "react-native-ble-plx": "^3.2.0",
     "react-native-blob-util": "^0.19.9",
-    "react-native-bluetooth-printer": "^0.0.1",
     "react-native-compressor": "^1.8.24",
     "react-native-config": "^1.5.3",
     "react-native-date-picker": "^5.0.4",

@@ -71,7 +71,7 @@ const ServiceCallViewScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<ServiceCallViewProp>();
     const params = route.params;
-    const comments = params.comment ?? [];
+    const comments = typeof params.comment === 'string' ? JSON.parse(params.comment) : params.comment ?? [];
 
     const [isShowImage, setIsShowImage] = useState<{ isVisible: boolean, imgIndex: number }>({ isVisible: false, imgIndex: 0 })
     const [isLoading, setIsLoarding] = useState<boolean>(false)

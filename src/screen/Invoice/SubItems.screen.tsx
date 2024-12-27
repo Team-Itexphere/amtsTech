@@ -104,9 +104,13 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
 
     const { location: { ro_loc_id, cus_id, list_id, status, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
 
-    const DescriptionOptions = ['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker', "Calibration"];
+    const route = useRoute<InvoiceSubItemsProp>();
+    const { source } = route.params;
+
+    const DescriptionOptions = !source.includes("Service Call") ? ['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker', "Calibration"] : ["Calibration", "Service Call", "Labour"];
+
     const CategoryOptions = ["Parts", "Calibration", "Service Call"];
-    !hasInvoice && CategoryOptions.unshift("Monthly Inspection");
+    !hasInvoice && !source.includes("Service Call") && CategoryOptions.unshift("Monthly Inspection");
 
     const isMonthlyInspection = data.category === "Monthly Inspection"
     const isServiceCall = data.category === "Service Call"
@@ -361,7 +365,7 @@ const SubItemsScreen = () => {
 
     const handleSubmit = async () => {
         // validate 
-        if (!invoice && status !== ServeyStatus.Completed) {
+        if (!invoice && status !== ServeyStatus.Completed && !source.includes("Service Call")) {
             Alert.alert("Can not create an invoice until Inspection completed.");
             return;
         }
@@ -378,10 +382,6 @@ const SubItemsScreen = () => {
                 }
 
             } else if (form.category === "Service Call") {
-                if (form.des_problem === "") {
-                    Alert.alert("Please enter valid des_problem for Service Call.");
-                    return;
-                }
                 if (form.qty <= 0 || form.rate <= 0) {
                     Alert.alert("Please enter valid Quantity and Rate in every form.");
                     return;
@@ -482,7 +482,7 @@ const SubItemsScreen = () => {
             />            
             {invoice ? (
                 <Text style={{ ...FONTS.body3, margin: SIZES.base, marginBottom: SIZES.base, textAlign: "center", fontWeight: 700, color: 'green' }}>Edit Invoice #{invoice.invoice_no}</Text>
-            ) : status !== ServeyStatus.Completed && (
+            ) : status !== ServeyStatus.Completed && !source.includes("Service Call") && (
                 <Text style={{ ...FONTS.body4, margin: SIZES.base, marginBottom: SIZES.base, textAlign: "center", fontWeight: 700, color: 'red' }}>Can not create an invoice until Inspection completed.</Text>
             )}
             {forms.map((form, index) => (

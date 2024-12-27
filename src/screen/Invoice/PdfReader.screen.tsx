@@ -21,8 +21,9 @@ import assetsPng from '../../assets/pngs'
 import { postInvoice_from_ServiceCall_ReqPaymentBody, postInvoiceInfo_From_ServiceCall } from '../../store/actions/survey/surveyAction';
 import { useDispatch } from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
-import { BluetoothEscposPrinter, BluetoothManager } from 'react-native-bluetooth-printer';
-import PdfToImage from 'react-native-pdf-to-image';
+import BluetoothEscposPrinter from 'react-native-bluetooth-escpos-printer';
+//import BluetoothManager from 'react-native-bluetooth-manager';
+//import PdfToImage from 'react-native-pdf-to-image';
 
 const { IconHome, IconCheque, IconDownload, IconPaymentOptions, IconPrint } = assetsPng;
 
@@ -73,7 +74,7 @@ const PdfReader = (props: Props) => {
         setSignatureVisible(true);
     };
 
-    const requestPermissions = async () => {
+    /*const requestPermissions = async () => {
         if (Platform.OS === 'android') {
           try {
             const granted = await PermissionsAndroid.requestMultiple([
@@ -106,7 +107,7 @@ const PdfReader = (props: Props) => {
 
     const handlePrint = async () => {
         try {
-          const hasPermission = await requestPermissions();
+          const hasPermission = await requestPermissions(); 
           if (!hasPermission) {
             return;
           }
@@ -117,7 +118,7 @@ const PdfReader = (props: Props) => {
       
           // Step 2: Convert PDF to image
           const { outputFiles } = await PdfToImage.convert(pdfFilePath);
-      
+          
           if (!outputFiles || outputFiles.length === 0) {
             Alert.alert('Error', 'Failed to convert PDF to image.');
             return;
@@ -139,7 +140,7 @@ const PdfReader = (props: Props) => {
           // Step 4: Print the Image
           await BluetoothEscposPrinter.printPic(base64Image, {
             width: 720,
-            left: 0,
+            left: 0,    // Set left margin for printing
           });
       
           Alert.alert('Success', 'PDF printed successfully!');
@@ -147,7 +148,7 @@ const PdfReader = (props: Props) => {
           console.error('Error printing PDF:', error);
           Alert.alert('Error', 'An error occurred while printing.');
         }
-    };
+    };*/
 
     return (
         <View style={styles.container}>
@@ -219,7 +220,7 @@ const PdfReader = (props: Props) => {
                         />
                     </TouchableOpacity>
 
-                    <TouchableOpacity
+                    {/* <TouchableOpacity
                         onPress={handlePrint}
                         style={{
                             padding: SIZES.base,
@@ -232,7 +233,7 @@ const PdfReader = (props: Props) => {
                             source={IconPrint}
                             style={{ width: 30, height: 30 }}
                         />
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
                 </View>
             )}
 

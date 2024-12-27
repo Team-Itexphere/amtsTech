@@ -1,4 +1,4 @@
-import { View, Text, StatusBar, TouchableOpacity, Image, FlatList, ViewStyle } from 'react-native'
+import { View, Text, StatusBar, TouchableOpacity, Image, FlatList, ViewStyle, Dimensions } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
@@ -107,6 +107,21 @@ const ServiceListScreen = ({ status }: { status: Status }) => {
         </View>
     )
 
+    const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+
+    useEffect(() => {
+        const handleOrientationChange = () => {
+        const { width, height } = Dimensions.get('window');
+        setScreenWidth(Math.max(width, height));
+        };
+
+        const subscription = Dimensions.addEventListener('change', handleOrientationChange);
+
+        return () => {
+        subscription.remove();
+        };
+    }, []);
+
     return (
         <View style={{ flex: 1, backgroundColor: COLORS.white, marginTop: SIZES.base }}>
             <StatusBar backgroundColor={COLORS.white} />
@@ -135,7 +150,7 @@ const ServiceListScreen = ({ status }: { status: Status }) => {
                             item,
                             containerStyle: {
                                 // height: 90,
-                                width: SIZES.width - (SIZES.radius * 2), // - SIZES.radius),
+                                width: screenWidth - (SIZES.radius * 2), // - SIZES.radius),
                                 marginTop: SIZES.radius,
                                 marginHorizontal: SIZES.radius // : SIZES.padding
                             },

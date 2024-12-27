@@ -30,7 +30,7 @@ const LicenseTable: React.FC<{ data: LicenseData[] }> = ({ data }) => {
     const renderItem = ({ item }: { item: LicenseData }) => (
         <View style={styles.row}>
             <Text style={styles.cell}>{item.name}</Text>
-            <Text style={styles.cell}>{item.type}</Text>
+            {/* <Text style={styles.cell}>{item.type}</Text> */}
             <Text style={styles.cell}>{item.agency}</Text>
             <Text
                 style={[
@@ -47,7 +47,7 @@ const LicenseTable: React.FC<{ data: LicenseData[] }> = ({ data }) => {
         <View style={styles.table}>
             <View style={styles.header}>
                 <Text style={styles.headerCell}>License Name</Text>
-                <Text style={styles.headerCell}>Type</Text>
+                {/* <Text style={styles.headerCell}>Type</Text> */}
                 <Text style={styles.headerCell}>Agency</Text>
                 <Text style={styles.headerCell}>Expire Date</Text>
             </View>
