@@ -105,7 +105,7 @@ const HomeStackNavigator = () => {
       <Stack.Screen name="Route" component={renderScreen(RouteScreen)} listeners={getListeners("Route")} />
       <Stack.Screen name="ServiceCall" component={renderScreen(ServiceCallScreen)} listeners={getListeners("ServiceCall")} />
       <Stack.Screen name="Customers" component={renderScreen(CustomersScreen, HeaderName.Customers)} listeners={getListeners("Customer")} />
-      <Stack.Screen name="Fleet" component={renderScreen(FleetScreen)} listeners={getListeners("fleet")} />
+      <Stack.Screen name="Fleet" component={renderScreen(FleetScreen)} listeners={getListeners("Fleet")} />
       <Stack.Screen name="Settings" component={renderScreen(SettingsScreen)} listeners={getListeners("Settings")} />
 
       <Stack.Screen name="Survey" component={renderScreen(Survey, HeaderName.Mounthly_Inspection_Report)} listeners={getListeners("Route")} />

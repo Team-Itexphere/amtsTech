@@ -33,7 +33,7 @@ const ScreenWrapper = ({ children, selectedTab, setSelectedTab, ScreenName }: an
                 return navigation.navigate('Route');
             case appConfig.screens.Customer:
                 return navigation.navigate('Customers');
-            case appConfig.screens.fleet:
+            case appConfig.screens.Fleet:
                 return navigation.navigate('Fleet');
             case appConfig.screens.Settings:
                 return navigation.navigate('Settings');
@@ -127,10 +127,10 @@ const ScreenWrapper = ({ children, selectedTab, setSelectedTab, ScreenName }: an
                         onPress={() => handleNavigate('ServiceCall')}
                     />
                     <TabButton
-                        label={appConfig.screens.fleet}
+                        label={appConfig.screens.Fleet}
                         icon={IconFleet}
                         isFocused={isFocused('fleet')}
-                        onPress={() => handleNavigate('fleet')}
+                        onPress={() => handleNavigate('Fleet')}
                     />
                     <TabButton
                         label={appConfig.screens.Settings}

@@ -37,7 +37,7 @@ const NoteItem = ({ noteData }:{ noteData: NoteType}) => {
     }
 
     return (
-        <View style={styles.card}>
+        <View style={[styles.card, { display: noteData.status === Status.Completed ? 'none' : 'flex' }]}>
             <View style={{ top: 100 }}>
                 {isLoading && <Loading />}
             </View>
@@ -67,7 +67,7 @@ const NoteItem = ({ noteData }:{ noteData: NoteType}) => {
 const NotesScreen = () => {
     const { location: { notes } } = useSelector((state: RootState) => state.routeReducer);
 
-    if(notes.length === 0) return (
+    if(notes.length === 0 || notes.every(note => note.status === Status.Completed)) return (
         <View style={{flex:1, justifyContent: 'center',alignItems:'center'}}>
             <NoDataImage/>
             <Text style={styles.title}>N/A</Text>

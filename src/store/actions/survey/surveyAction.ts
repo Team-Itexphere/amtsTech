@@ -331,7 +331,7 @@ export const postPaymentInfo = async (dispatch: Dispatch, formData: postPaymentR
 export const postInvoiceInfo = async (dispatch: Dispatch, formData: postInvoiceReqBody): Promise<postPaymentInfo_res | null> => {
     try {
         const response = await postPaymentInfoService(formData)
-        console.log("postPaymentInfo res::", response);
+        console.log("postPaymentInfo res::", formData);
         if (response.hasError) {
             console.warn(
                 'has error::-> postPaymentInfoService ::',

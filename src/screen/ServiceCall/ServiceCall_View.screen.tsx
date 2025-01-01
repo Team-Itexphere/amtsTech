@@ -151,6 +151,7 @@ const ServiceCallViewScreen = () => {
                     placeholder="Comment"
                     value={comments && comments.length > 0 ? comments[0][0] : ''}
                     editable={false}
+                    multiline={true}
                 />
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

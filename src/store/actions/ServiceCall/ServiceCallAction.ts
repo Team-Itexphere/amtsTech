@@ -20,7 +20,7 @@ export type ServiceCallListType = {
     created_at: string;
     updated_at: string;
     store_address: string | null;
-    store_name: string | null;
+    store_name: string;
     ro_loc_id: number | null;
 };
 
