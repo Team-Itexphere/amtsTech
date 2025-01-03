@@ -37,7 +37,7 @@ const NoteItem = ({ noteData }:{ noteData: NoteType}) => {
     }
 
     return (
-        <View style={[styles.card, { display: noteData.status === Status.Completed ? 'none' : 'flex' }]}>
+        <View style={[styles.card]}>
             <View style={{ top: 100 }}>
                 {isLoading && <Loading />}
             </View>
@@ -54,8 +54,8 @@ const NoteItem = ({ noteData }:{ noteData: NoteType}) => {
                 </View>
                 <TouchableOpacity
                     style={[styles.button, { backgroundColor: noteData.status === Status.Pending ? COLORS.lightOrange : COLORS.green }]}
-                    onPress={() => markNoteAs(Status.Completed, noteData.id)}
-                    disabled={noteData.status === Status.Completed}
+                    onPress={() => markNoteAs(noteData.status === Status.Completed ? Status.Pending : Status.Completed, noteData.id)}
+                    // disabled={noteData.status === Status.Completed}
                 >
                     <Text style={{ color: 'white', fontSize: 11, fontWeight: 600 }}>{noteData.status === Status.Pending ?  'Mark as Completed' : 'Completed'}</Text>
                 </TouchableOpacity>
@@ -67,7 +67,7 @@ const NoteItem = ({ noteData }:{ noteData: NoteType}) => {
 const NotesScreen = () => {
     const { location: { notes } } = useSelector((state: RootState) => state.routeReducer);
 
-    if(notes.length === 0 || notes.every(note => note.status === Status.Completed)) return (
+    if(notes.length === 0) return (
         <View style={{flex:1, justifyContent: 'center',alignItems:'center'}}>
             <NoDataImage/>
             <Text style={styles.title}>N/A</Text>

@@ -15,7 +15,7 @@ const StoreScreen = (props: Props) => {
     const dispatch = useDispatch();
 
     const currentLocation = useSelector((state: RootState) => state.routeReducer.location);
-    route.params && route.params.newStatus && currentLocation.status !== route.params.newStatus && (
+    route.params && route.params.newStatus && route.params.newStatus !== undefined && currentLocation.status !== route.params.newStatus && (
         dispatch({
             type: "LOCATION_PRESS_DATA",
             payload: {

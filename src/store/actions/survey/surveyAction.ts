@@ -148,7 +148,8 @@ export const getSubmitedSurvey = async (dispatch: Dispatch, list_id: number, cus
         ])
 
         if (surveyItems.hasError || apiAnswers.length === 0) {
-            console.warn(" err getSurveyListService or getSubmitedAnswers");
+            surveyItems.hasError && console.warn(" err getSurveyListService or getSubmitedAnswers");
+            console.log('incompleted survey')
             return null
         }
 
@@ -289,9 +290,9 @@ export const getSurveys = async (dispatch: Dispatch, cus_id: number | null): Pro
     }
 }
 
-export const postAnswer = async (dispatch: Dispatch, formData: postAnswer_ApiBody): Promise<postAnswer_res> => {
+export const postAnswer = async (dispatch: Dispatch, formData: postAnswer_ApiBody, action: string): Promise<postAnswer_res> => {
     try {
-        const response = await postAnswerService(formData)
+        const response = await postAnswerService(formData, action)
         console.log("postAnswer response ::", response);
         if (response.hasError) {
             // console.warn(

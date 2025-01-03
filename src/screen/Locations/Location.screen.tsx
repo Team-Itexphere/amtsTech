@@ -24,6 +24,7 @@ type renderCardType = {
 const renderCard = ({ item, containerStyle, onPress, index }: renderCardType) => {
 
     const notesPending = item.notes.length > 0 && item.notes.some(note => note.status !== Status.Completed);
+    const pendingNotesCount = notesPending ? item.notes.filter(note => note.status !== Status.Completed).length : 0;
 
     return (
         <TouchableOpacity
@@ -78,7 +79,7 @@ const renderCard = ({ item, containerStyle, onPress, index }: renderCardType) =>
                 right: 5,
             }}>
                 <Text style={{ ...FONTS.body5, color: item.status === ServeyStatus.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginBottom: 3, width: 160, textAlign: 'center' }}>Inspection: {item.status === ServeyStatus.Completed ? 'Completed' : 'Pending'}</Text>
-                {item.notes.length > 0 && notesPending && <Text style={{ ...FONTS.body5, color: !notesPending ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginBottom: 3, width: 160, textAlign: 'center' }}>Notes: {notesPending ? Status.Pending : Status.Completed}</Text>}
+                {notesPending && <Text style={{ ...FONTS.body5, color: !notesPending ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginBottom: 3, width: 160, textAlign: 'center' }}>Notes: {Status.Pending} ({pendingNotesCount})</Text>}
                 <Text style={{ ...FONTS.body5, color: item.hasInvoice ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, width: 160, textAlign: 'center' }}>Invoiced: {item.hasInvoice ? 'Yes' : 'No'}</Text>
             </View>
         </TouchableOpacity>

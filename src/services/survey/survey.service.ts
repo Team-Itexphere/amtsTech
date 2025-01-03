@@ -55,13 +55,13 @@ export const getSurveysService = async (cus_id: number | null) => {
     ) as responseHandlerType;
 }
 
-export const postAnswerService = async (formData: any) => {
+export const postAnswerService = async (formData: any, action: string) => {
     let headerConfig = {
         'content-Type': 'application/json',
     };
     return await client.API(
         METHODS.POST,
-        POST_ANSW,
+        POST_ANSW + '?action=' + action,
         formData,
         headerConfig
     ) as responseHandlerType;

@@ -1,7 +1,7 @@
 import { View, Text, StatusBar, TouchableOpacity, Image, FlatList, ViewStyle, Dimensions } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux';
-import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { getServiceCallList, ServiceCallListType } from '../../store/actions/ServiceCall/ServiceCallAction';
 import { NavigationProp } from '../../navigation/navigationTypes';
 import { COLORS, FONTS, SIZES } from '../../assets/theme';
@@ -87,7 +87,7 @@ const ServiceListScreen = ({ status }: { status: Status }) => {
     const fetchData = async () => {
         setIsLoarding(true);
         const fetchArray = await getServiceCallList(dispatch)
-        if (fetchArray) setServiceCallData(fetchArray)
+        if (fetchArray && fetchArray.length > 0) setServiceCallData(fetchArray)
         setIsLoarding(false);
     };
 
@@ -95,6 +95,13 @@ const ServiceListScreen = ({ status }: { status: Status }) => {
         fetchData();
         dispatch(clearServiceCallData());
     }, [])
+    
+    useFocusEffect(
+        useCallback(() => {
+          fetchData();
+          dispatch(clearServiceCallData());
+        }, [])
+    );
 
     const onPressItem = (item: ServiceCallListType) => {
         navigation.navigate('ServiceCallView', item)

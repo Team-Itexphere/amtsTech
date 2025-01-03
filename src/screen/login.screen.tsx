@@ -6,6 +6,7 @@ import {
   StatusBar,
   Image,
   ActivityIndicator,
+  KeyboardAvoidingView,
 } from 'react-native';
 
 import Config from 'react-native-config';
@@ -20,8 +21,8 @@ import TextButton from '../components/UI/TextButton';
 import Loading from '../components/UI/Loading';
 
 const Login = () => {
-  const [email, setEmail] = useState<string>('fieldtech1@amtstx.com');
-  const [password, setPassword] = useState<string>('test@123');
+  const [email, setEmail] = useState<string>('fieldtechsup1@amtstx.com'); //fieldtech1@amtstx.com
+  const [password, setPassword] = useState<string>('test@123'); //test@123
 
   const dispatch: any = useDispatch();
 
@@ -54,91 +55,92 @@ const Login = () => {
           }}
           resizeMode="contain"></Image>
       </View>
-
-      <View style={styles.loginContainer}>
-        <View style={styles.mainHeader}></View>
-        <View style={{ marginTop: 45, gap: 20 }}>
-          <View>
-            {/* Email */}
-            <FormInput
-              containerStyle={{
-                borderRadius: SIZES.radius,
-                // backgroundColor: COLORS.error,
-              }}
-              // inputContainerStyle={}
-              placeholder="Email"
-              value={email}
-              onChange={(text) => setEmail(text)}
-              prependComponent={
-                <Image
-                  source={require('../assets/icons/user.png')}
-                  style={{
-                    width: 25,
-                    height: 25,
-                    marginRight: SIZES.base,
-                    tintColor: COLORS.lightGray1
+      <KeyboardAvoidingView style={{  flex: 1, marginTop: 45, width: '100%', height: '100%' }} behavior='position'>
+        <View style={styles.loginContainer}>
+          
+            <View style={styles.mainHeader}></View>
+            <View style={{ marginTop: 45, gap: 20, backgroundColor: COLORS.white }}>
+              <View>
+                {/* Email */}
+                <FormInput
+                  containerStyle={{
+                    borderRadius: SIZES.radius,
+                    // backgroundColor: COLORS.error,
                   }}
+                  // inputContainerStyle={}
+                  placeholder="Email"
+                  value={email}
+                  onChange={(text) => setEmail(text)}
+                  prependComponent={
+                    <Image
+                      source={require('../assets/icons/user.png')}
+                      style={{
+                        width: 25,
+                        height: 25,
+                        marginRight: SIZES.base,
+                        tintColor: COLORS.lightGray1
+                      }}
+                    />
+                  }
                 />
-              }
-            />
 
-          </View>
-          <View>
-            {/* Password */}
-            <FormInput
-              containerStyle={{
-                marginTop: SIZES.base,
-                borderRadius: SIZES.radius,
-                // backgroundColor: COLORS.error,
-              }}
-              // inputContainerStyle={}
-              placeholder="Password"
-              value={password}
-              // secureTextEntry={!isVisible}
-              onChange={(text) => setPassword(text)}
-              prependComponent={
-                <Image
-                  source={require('../assets/icons/password.png')}
-                  style={{
-                    width: 25,
-                    height: 25,
-                    marginRight: SIZES.base,
-                    tintColor: COLORS.lightGray1
+              </View>
+              <View>
+                {/* Password */}
+                <FormInput
+                  containerStyle={{
+                    marginTop: SIZES.base,
+                    borderRadius: SIZES.radius,
+                    // backgroundColor: COLORS.error,
                   }}
+                  // inputContainerStyle={}
+                  placeholder="Password"
+                  value={password}
+                  // secureTextEntry={!isVisible}
+                  onChange={(text) => setPassword(text)}
+                  prependComponent={
+                    <Image
+                      source={require('../assets/icons/password.png')}
+                      style={{
+                        width: 25,
+                        height: 25,
+                        marginRight: SIZES.base,
+                        tintColor: COLORS.lightGray1
+                      }}
+                    />
+                  }
+                // appendComponent={
+                //     <IconButton
+                //         icon={isVisible ? icons.eye_off : icons.eye}
+                //         iconStyle={{
+                //             tintColor: COLORS.grey
+                //         }}
+                //         onPress={() => setIsVisible(!isVisible)}
+                //     />
+                // }
                 />
-              }
-            // appendComponent={
-            //     <IconButton
-            //         icon={isVisible ? icons.eye_off : icons.eye}
-            //         iconStyle={{
-            //             tintColor: COLORS.grey
-            //         }}
-            //         onPress={() => setIsVisible(!isVisible)}
-            //     />
-            // }
-            />
-          </View>
-          <View style={styles.mainBtnContainer}>
-            <TextButton
-              label="Log In"
-              contentContainerStyle={{
-                height: 55,
-                borderRadius: SIZES.radius,
-                backgroundColor: COLORS.primary
-              }}
-              labelStyle={{
-                ...FONTS.h3,
-                color: COLORS.white
-              }}
-              onPress={() => handleLogin()}
-            />
-          </View>
+              </View>
+              <View style={styles.mainBtnContainer}>
+                <TextButton
+                  label="Log In"
+                  contentContainerStyle={{
+                    height: 55,
+                    borderRadius: SIZES.radius,
+                    backgroundColor: COLORS.primary
+                  }}
+                  labelStyle={{
+                    ...FONTS.h3,
+                    color: COLORS.white
+                  }}
+                  onPress={() => handleLogin()}
+                />
+              </View>
+            </View>
+
+            <Text style={{ ...FONTS.body4, textAlign: 'center', marginVertical: SIZES.base * 2 }}>Version: {Config.APP_VERSION}</Text>
+          
         </View>
-
-        <Text style={{ ...FONTS.body4, textAlign: 'center', marginVertical: SIZES.base * 2 }}>Version: {Config.APP_VERSION}</Text>
-
-      </View>
-
+      </KeyboardAvoidingView>
     </View>
   );
 };

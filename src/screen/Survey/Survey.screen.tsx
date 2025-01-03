@@ -124,7 +124,7 @@ const Survey = (props: Props) => {
             // trying to again edit the survey
             setSurveyItemArray(surveyItemArrayFromRedux)
             setUniqueIdData({ id: unique_id })
-        } else if (status === ServeyStatus.Completed) {
+        } else if (status /*=== ServeyStatus.Completed*/) {
             getSurveyToUpdate()
         } else {
             fetchData();
@@ -142,7 +142,9 @@ const Survey = (props: Props) => {
             setUniqueIdData({ id: SubmitedListRes.uniqueID })
 
             surveyItemArray[17] && setgenComment(surveyItemArray[17].gen_comment)
-        }        
+        } else {
+            fetchData();
+        }
 
         setIsLoarding(false)
     }
@@ -196,7 +198,7 @@ const Survey = (props: Props) => {
             gen_comment: anws.gen_comment
         }
 
-        const postData = await postAnswer(dispatch, asw);
+        const postData = await postAnswer(dispatch, asw, '');
         if (postData && postData.success) {
             setIsLoarding(false)
             return true
@@ -207,7 +209,7 @@ const Survey = (props: Props) => {
 
     }
 
-    const submitAll = async () => {
+    const submitAll = async (action: string) => {
         if (!uniqueIdData?.id) {
             console.warn('required unique_id before sendAnswer ::');
             return false
@@ -241,7 +243,7 @@ const Survey = (props: Props) => {
             }
 
             isTerminate = false;
-console.log('dsa', anws.answ)
+
             switch (anws.answ) {
                 case 1: // Yes
                     if ((index === 0 || index === 6 || index === 7 || index === 9) && !anws.image.hasImg) {
@@ -266,7 +268,7 @@ console.log('dsa', anws.answ)
             }
             
             // Collect the result for further usage
-            const result = await postAnswer(dispatch, asw);
+            const result = await postAnswer(dispatch, asw, action);
             results.push(result);
         }
 
@@ -283,7 +285,7 @@ console.log('dsa', anws.answ)
             // setIsVisible({ isVisible: true, modalName: 'submit_form' })
             //navigateToBack();
 
-            navigation.navigate('StoreList', { newStatus: ServeyStatus.Completed });
+            navigation.navigate('StoreList', { newStatus: action !== 'save' ? ServeyStatus.Completed : undefined });
             
             //list_id && navigation.navigate('LocationList', { ro_loc_id: list_id });
         } else {
@@ -702,7 +704,7 @@ console.log('dsa', anws.answ)
                                     flexDirection: 'row-reverse',
                                     backgroundColor: COLORS.secondary, padding: SIZES.radius, borderRadius: SIZES.radius
                                 }}
-                                onPress={() => submitAll()}
+                                onPress={() => submitAll('save')}
                                 disabled={isDisabled()}
                             />
                             <IconLabelButton
@@ -715,7 +717,7 @@ console.log('dsa', anws.answ)
                                     flexDirection: 'row-reverse',
                                     backgroundColor: COLORS.lightOrange, padding: SIZES.radius, borderRadius: SIZES.radius
                                 }}
-                                onPress={() => submitAll()}
+                                onPress={() => submitAll('submit')}
                                 disabled={isDisabled()}
                             />
                         </View>

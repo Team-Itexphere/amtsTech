@@ -5,7 +5,7 @@ import { Status, Invoice, ServeyStatus } from '../types';
 export type RootStackParamList = {
     Dashboard: undefined;
     Route: undefined | any[];
-    ServiceCall: undefined;
+    ServiceCall: undefined | { isRefresh?: boolean };
     Customers: undefined;
     Fleet: undefined;
     Settings: undefined;
@@ -15,9 +15,9 @@ export type RootStackParamList = {
     Camera: undefined;
     InvoiceGenerate: undefined;
     PaymentOption: { inv_id: number | null };
-    PdfReader: { invoice_link: string, istools: boolean, inv_id: number | null },
+    PdfReader: { invoice_link: string, istools: boolean, inv_id: number | null };
     LocationList: { ro_loc_id: number };
-    StoreList: undefined | { newStatus: ServeyStatus };
+    StoreList: undefined | { newStatus: ServeyStatus | undefined };
     InvoiceSubItems: { source: string, customer_id?: number, invoice?: Invoice };
     StoreInvoices: { source: string, customer_id?: number }; 
     StoreLicense: undefined;
