@@ -1,4 +1,4 @@
-export const BASE_URL = 'https://staging.amtstx.com/';
+export const BASE_URL = 'https://amtstx.com/';
 
 
 export const USER_LOGIN = 'api/login'
@@ -22,4 +22,5 @@ export const POST_SERVICE_CALL_UPDATE = 'api/update-wo'
 export const POST_SERVICE_CALL_HISTORY = 'api/service-calls/history'
 export const GET_MAINTAINS_LOGS = 'api/maintain_logs'
 export const GET_CUSTOMERS = 'api/customers'
+export const ADD_NOTES = 'api/customer/notes'
 export const UPDATE_NOTES = 'api/customer/notes/update'

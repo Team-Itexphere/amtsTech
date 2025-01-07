@@ -21,8 +21,8 @@ import TextButton from '../components/UI/TextButton';
 import Loading from '../components/UI/Loading';
 
 const Login = () => {
-  const [email, setEmail] = useState<string>('fieldtechsup1@amtstx.com'); //fieldtech1@amtstx.com
-  const [password, setPassword] = useState<string>('test@123'); //test@123
+  const [email, setEmail] = useState<string>(''); //fieldtech1@amtstx.com
+  const [password, setPassword] = useState<string>(''); //test@123
 
   const dispatch: any = useDispatch();
 

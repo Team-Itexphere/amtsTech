@@ -56,7 +56,7 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
                     <Text style={{ ...FONTS.h5, color: COLORS.white, marginLeft: SIZES.base }} numberOfLines={1}>{item.store_name}</Text>
                 </View>
                 <Text style={{ ...FONTS.h4, color: COLORS.white, }} numberOfLines={1}>{item.store_address}</Text>
-                <Text style={{ ...FONTS.h3, color: COLORS.white, maxWidth: 310 }} numberOfLines={1}>{item.id}</Text>
+                <Text style={{ ...FONTS.h3, color: COLORS.white, maxWidth: 310 }} numberOfLines={1}>{item.wo_number}</Text>
                 <Text style={{ ...FONTS.h4, color: COLORS.white, maxWidth: 310 }} numberOfLines={1}>
                     Date: {item.status === Status.Pending && item.date ? formatDateUS(item.date, 'MM-DD-YYYY') : (item.status === Status.Completed && item.comp_date ? formatDateUS(item.comp_date, 'MM-DD-YYYY') : 'N/A')}
                     , Time: {item.status === Status.Pending && item.time  ? formatTimeWithAmPm(item.time) : (item.status === Status.Completed && item.comp_time ? formatTimeWithAmPm(item.comp_time) : 'N/A')}

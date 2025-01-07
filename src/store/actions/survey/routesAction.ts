@@ -1,5 +1,5 @@
 import { Dispatch } from "redux";
-import { getCustomersService, getLocationService, getRoutesService, updateNotesService } from "../../../services/survey/routes.service";
+import { addNotesService, getCustomersService, getLocationService, getRoutesService, updateNotesService } from "../../../services/survey/routes.service";
 import { ServeyStatus } from "../../../types";
 
 // type Location = {
@@ -183,9 +183,29 @@ export const getLocations = async (dispatch: Dispatch, id: number): Promise<Loca
     }
 }
 
-export const updateNotes = async (status: Status, id: number): Promise<NoteType[]> => {
+export const addNotes = async (note: string, customer_id: number): Promise<NoteType[]> => {
     try {
-        const response = await updateNotesService(status, id)
+        const response = await addNotesService(note, customer_id)
+
+        if (response.hasError) {
+            console.warn('has error::-> addNotesService ::', response.errorMessage,);
+            return []
+        } else {
+            if (response.data.length > 0) {
+                return response.data
+            } else {
+                return []
+            }
+        }
+    } catch (error) {
+        console.warn("catch error addNotes ::", error);
+        return []
+    }
+}
+
+export const updateNotes = async (status: Status, id: number, reason?: string): Promise<NoteType[]> => {
+    try {
+        const response = await updateNotesService(status, id, reason)
 
         if (response.hasError) {
             console.warn('has error::-> updateNotesService ::', response.errorMessage,);

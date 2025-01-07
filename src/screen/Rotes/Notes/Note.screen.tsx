@@ -1,24 +1,35 @@
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Modal, TextInput } from 'react-native'
 import React, { useState } from 'react'
 import { RootState } from '../../../store/store';
 import { useDispatch, useSelector } from 'react-redux';
-import { NoteType, SaveLocationPressData, Status, updateNotes } from '../../../store/actions/survey/routesAction';
-import { COLORS, SIZES } from '../../../assets/theme';
+import { addNotes, NoteType, SaveLocationPressData, Status, updateNotes } from '../../../store/actions/survey/routesAction';
+import { COLORS, FONTS, SIZES } from '../../../assets/theme';
 import NoDataImage from '../../../components/UI/NoDataImage';
 import Loading from '../../../components/UI/Loading';
 import { ServeyStatus } from '../../../types';
-
+import FormInput from '../../../components/UI/FormInput';
+import TextButton from '../../../components/UI/TextButton';
 
 const NoteItem = ({ noteData }:{ noteData: NoteType}) => {
     const dispatch = useDispatch();
     const { location: { ro_loc_id, cus_id, list_id, status, cus_name, rec_logs, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
 
     const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+    const [statusToUpdate, setStatusToUpdate] = useState<Status>(Status.Pending);
+    const [noteIdToUpdate, setNoteIdToUpdate] = useState<number>(0);
+    const [reason, setReason] = useState<string>('');
 
-    const markNoteAs = async ( noteStatus: Status, id: number) => {
+    const markNoteAs = async () => {
         setIsLoading(true);
 
-        const newNotes = await updateNotes(noteStatus, id)
+        if (statusToUpdate === Status.Pending && !reason) {
+            Alert.alert('Please provide a reason for changing the status to Pending.');
+            setIsLoading(false);
+            return;
+        }
+
+        const newNotes = await updateNotes(statusToUpdate, noteIdToUpdate, reason);
 
         dispatch(
             SaveLocationPressData(
@@ -33,7 +44,14 @@ const NoteItem = ({ noteData }:{ noteData: NoteType}) => {
             )
         );
 
+        setIsModalVisible(false); // Hide modal after update
         setIsLoading(false);
+    }
+
+    const handleStatusChange = (status: Status, id: number) => {
+        setStatusToUpdate(status === Status.Completed ? Status.Pending : Status.Completed);
+        setNoteIdToUpdate(id);
+        setIsModalVisible(true); // Show modal
     }
 
     return (
@@ -54,34 +72,157 @@ const NoteItem = ({ noteData }:{ noteData: NoteType}) => {
                 </View>
                 <TouchableOpacity
                     style={[styles.button, { backgroundColor: noteData.status === Status.Pending ? COLORS.lightOrange : COLORS.green }]}
-                    onPress={() => markNoteAs(noteData.status === Status.Completed ? Status.Pending : Status.Completed, noteData.id)}
-                    // disabled={noteData.status === Status.Completed}
+                    onPress={() => handleStatusChange(noteData.status === Status.Completed ? Status.Completed : Status.Pending, noteData.id)}
                 >
-                    <Text style={{ color: 'white', fontSize: 11, fontWeight: 600 }}>{noteData.status === Status.Pending ?  'Mark as Completed' : 'Completed'}</Text>
+                    <Text style={{ color: 'white', fontSize: 11, fontWeight: 600 }}>
+                        {noteData.status === Status.Pending ? 'Mark as Completed' : 'Completed'}
+                    </Text>
                 </TouchableOpacity>
             </View>
+
+            {/* Modal for status change confirmation */}
+            <Modal
+                transparent={true}
+                visible={isModalVisible}
+                onRequestClose={() => setIsModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.modalTitle}>
+                            Are you sure you want to change the status?
+                        </Text>
+                        {statusToUpdate === Status.Pending && (
+                            <TextInput
+                                style={styles.reasonInput}
+                                placeholder="Enter reason for Pending status"
+                                value={reason}
+                                onChangeText={setReason}
+                                multiline
+                            />
+                        )}
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity
+                                style={[styles.button, { backgroundColor: COLORS.gray }]}
+                                onPress={() => setIsModalVisible(false)} // Close modal
+                            >
+                                <Text style={styles.modalButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.button, { backgroundColor: COLORS.primary }]}
+                                onPress={markNoteAs}
+                            >
+                                <Text style={styles.modalButtonText}>Confirm</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
         </View>
     );
 };
 
 const NotesScreen = () => {
-    const { location: { notes } } = useSelector((state: RootState) => state.routeReducer);
+    const dispatch = useDispatch();
+    const { location: { ro_loc_id, cus_id, list_id, status, cus_name, notes, rec_logs, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
 
-    if(notes.length === 0) return (
-        <View style={{flex:1, justifyContent: 'center',alignItems:'center'}}>
-            <NoDataImage/>
-            <Text style={styles.title}>N/A</Text>
-         </View>
-    )
+    const [noteText, setNoteText] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(false)
+
+    const addNote = async () => {
+        setIsLoading(true);
+
+        if(!noteText){
+            Alert.alert('Type your note before submit.')
+            return
+        }
+        
+        if(!cus_id){
+            Alert.alert('Submission failed!')
+            return
+        }
+
+        const newNotes = await addNotes(noteText, cus_id)
+
+        dispatch(
+            SaveLocationPressData(
+                ro_loc_id, 
+                cus_id, 
+                list_id, 
+                newNotes, 
+                status, 
+                cus_name, 
+                rec_logs, 
+                hasInvoice               
+            )
+        );
+
+        setIsLoading(false);
+    }
     
     return (
-        <View>
-            <FlatList
-                data={notes}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => <NoteItem noteData={item} />}
-                contentContainerStyle={{ paddingBottom: 16 }}
-            />
+        <View style={{ flex: 1 }}>
+            {notes.length === 0 ? (
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <NoDataImage />
+                    <Text style={styles.title}>N/A</Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={notes}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => <NoteItem noteData={item} />}
+                    contentContainerStyle={{ paddingBottom: 200 }}
+                />
+            )}
+
+            <View
+                style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    padding: SIZES.base,
+                }}
+            >
+                <FormInput
+                    containerStyle={{
+                        borderRadius: SIZES.radius,
+                        margin: SIZES.base,
+                        backgroundColor: COLORS.white,
+                        ...FONTS.h3,
+                    }}
+                    inputStyle={{
+                        textAlign: 'center',
+                    }}
+                    placeholder="Type here to add new note..."
+                    placeholderTextColor={COLORS.gray}
+                    value={noteText}
+                    onChange={(text: string) => setNoteText(text)}
+                />
+                <View
+                    style={{
+                        flexDirection: 'row',
+                        margin: SIZES.base,
+                        marginBottom: SIZES.radius,
+                    }}
+                >
+                    <TextButton
+                        label="Add New Note"
+                        contentContainerStyle={{
+                            height: 55,
+                            width: '100%',
+                            borderRadius: SIZES.radius,
+                            backgroundColor: COLORS.primary,
+                        }}
+                        labelStyle={{
+                            ...FONTS.h3,
+                            color: COLORS.white,
+                        }}
+                        onPress={() => addNote()}
+                        disabled={isLoading}
+                    />
+                </View>
+            </View>
         </View>
     )
 }
@@ -100,7 +241,7 @@ const styles = StyleSheet.create({
         elevation: 3,
     },
     title: {
-        color:COLORS.black,
+        color: COLORS.black,
         fontSize: 18,
         fontWeight: 'bold',
         marginBottom: 8,
@@ -128,23 +269,44 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 3,
         elevation: 10, // For Android shadow
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContainer: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+    reasonInput: {
+        borderWidth: 1,
+        borderColor: COLORS.gray,
+        borderRadius: 10,
+        padding: 10,
+        marginBottom: 20,
+        height: 80,
+        fontSize: 14,
+        textAlignVertical: 'top',
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    modalButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
     }
 });
 
-
-export default NotesScreen
-
-// [
-//     {
-//         id: 3,
-//         tech_id: 18,
-//         cus_id: 64,
-//         list_id: 4,
-//         note: 'Test note',
-//         created_at: '2024-08-14T19:32:23.000000Z',
-//         updated_at: '2024-08-14T19:32:23.000000Z',
-//     },
-  
-// ]
-
-
+export default NotesScreen;
