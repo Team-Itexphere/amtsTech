@@ -1,4 +1,4 @@
-import { View, Text, StatusBar, FlatList, TouchableOpacity, Dimensions, Image, ImageSourcePropType } from 'react-native'
+import { View, Text, StatusBar, FlatList, TouchableOpacity, Dimensions, Image, ImageSourcePropType, StyleSheet, Modal } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import ImageView from "react-native-image-viewing";
 import { Image as ImageCompressor } from 'react-native-compressor';
@@ -8,10 +8,10 @@ import { COLORS, SIZES } from '../../assets/theme';
 import FastImage from 'react-native-fast-image';
 import assetsPng from '../../assets/pngs';
 import { handleCameraLaunch, ImageLibraryPicker, resultAssets } from '../../utils/cameraHandler';
-import { getAllImageList, ImageType, postImageCapture, postImageCaptureReqBody } from '../../store/actions/survey/picturesAction';
+import { deleteImage, getAllImageList, ImageType, postImageCapture, postImageCaptureReqBody } from '../../store/actions/survey/picturesAction';
 import { RootState } from '../../store/store';
 import Loading from '../../components/UI/Loading';
-const { IconAddPhoto, IconGallery } = assetsPng
+const { IconAddPhoto, IconGallery, IconClose } = assetsPng
 
 type AddButtonProps = {
     handleAction: () => void;
@@ -54,7 +54,8 @@ const AtgsScreen = () => {
 
     const [isLoading, setIsLoarding] = useState<boolean>(false)
     const [imagesList, setImagesList] = useState<string[]>([])
-
+    const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+    const [deleteID, setDeleteID] = useState<number | null>(null);
 
     const fetchData = async (cus_id: number) => {
         setIsLoarding(true);
@@ -67,12 +68,37 @@ const AtgsScreen = () => {
         setIsLoarding(false);
     };
 
+    const handleDelete = (item: string) => {
+        const pic_id_str = item?.split('/').pop()?.split('.')[0];
+        if (pic_id_str) {
+            const pic_id = Number(pic_id_str);
+            if (!isNaN(pic_id)) {
+                setDeleteID(pic_id);
+                setIsModalVisible(true);
+            } else {
+                console.error('Failed to convert picture ID to number');
+            }
+        } else {
+            console.error('Failed to extract picture ID');
+        }
+    }
+
+    const onDelete =  async () => {
+        setIsModalVisible(false);
+        setIsLoarding(true);
+
+        deleteID && await deleteImage(deleteID);
+        cus_id && fetchData(cus_id);
+        
+        setIsLoarding(false);
+    };
+
     useEffect(() => {
         if (cus_id) fetchData(cus_id);
     }, [])
 
     const processImage = async (imageRes: resultAssets) => {
-        if (!cus_id || !list_id) return console.warn("atgs - cus_id or list_id -> null");
+        if (!cus_id) return console.warn("atgs - cus_id -> null");
         if (!imageRes || !imageRes.base64 || !imageRes.uri) return console.warn("imageRes -> null");
 
         let compressedImage: string;
@@ -91,7 +117,7 @@ const AtgsScreen = () => {
 
         const body: postImageCaptureReqBody = {
             cus_id: cus_id!,
-            list_id: list_id!,
+            // list_id: list_id!,
             image: compressedImage,
             type: ImageType.ATGS
         };
@@ -131,20 +157,29 @@ const AtgsScreen = () => {
                 keyExtractor={(item, index) => `image-${index}-${item}`}
                 renderItem={({ item, index }) => (
 
-                    <TouchableOpacity onPress={() => setIsShowImage({ isVisible: true, imgIndex: index })}>
-                        <FastImage
-                            style={{ width: width / 3, height: width / 3 }}
-                            source={{
-                                uri: item,
-                                headers: { Authorization: 'someAuthToken' },
-                                priority: FastImage.priority.low,
-                            }}
-                            resizeMode={FastImage.resizeMode.contain}
-                        />
-                    </TouchableOpacity>
+                    <View style={styles.ImgContainer}>
+                        <TouchableOpacity onPress={() => setIsShowImage({ isVisible: true, imgIndex: index })}>
+                            <FastImage
+                                style={{ width: (width - 40) / 3, height: width / 3 }}
+                                source={{
+                                    uri: item,
+                                    headers: { Authorization: 'someAuthToken' },
+                                    priority: FastImage.priority.low,
+                                }}
+                                resizeMode={FastImage.resizeMode.contain}
+                            />
+                        </TouchableOpacity>
+                        <TouchableOpacity style={styles.deleteButton} onPress={() => handleDelete(item)}>
+                            <Image
+                                source={IconClose}
+                                style={styles.closeIcon}
+                            />
+                        </TouchableOpacity>
+                    </View>
 
                 )}
                 numColumns={3}
+                columnWrapperStyle={styles.columnWrapper}
             />
             <ImageView
                 images={imagesList.map((d: string) => ({ uri: d }))}
@@ -153,8 +188,104 @@ const AtgsScreen = () => {
                 onRequestClose={() => setIsShowImage({ isVisible: false, imgIndex: 0 })}
             />
 
+            {/* Modal for status change confirmation */}
+            <Modal
+                transparent={true}
+                visible={isModalVisible}
+                onRequestClose={() => setIsModalVisible(false)}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.modalContainer}>
+                        <Text style={styles.modalTitle}>
+                            Are you sure you want to delete this item?
+                        </Text>
+                        <View style={styles.modalButtons}>
+                            <TouchableOpacity
+                                style={[styles.button, { backgroundColor: COLORS.gray }]}
+                                onPress={() => setIsModalVisible(false)} // Close modal
+                            >
+                                <Text style={styles.modalButtonText}>Cancel</Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={[styles.button, { backgroundColor: COLORS.primary }]}
+                                onPress={() => onDelete()}
+                            >
+                                <Text style={styles.modalButtonText}>Confirm</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </View>
+            </Modal>
+
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    columnWrapper: {
+        paddingHorizontal: 10,
+        gap: 10,
+    },
+    ImgContainer: {
+        backgroundColor: 'rgba(0, 0, 0, 0.2)',
+        borderRadius: 5,
+        
+    },
+    deleteButton: {
+        position: 'absolute',
+        top: 5,
+        right: 5,
+        backgroundColor: COLORS.white,
+        borderRadius: 15,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    closeIcon: {
+        width: 25,
+        height: 25
+    },
+    button: {
+        backgroundColor: COLORS.lightOrange,
+        padding: 5,
+        borderRadius: 10,
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '40%',
+        borderWidth: 1,
+        borderColor: '#ccc',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+        elevation: 10, // For Android shadow
+    },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    },
+    modalContainer: {
+        backgroundColor: '#fff',
+        padding: 20,
+        borderRadius: 10,
+        width: '80%',
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 20,
+    },
+    modalButtons: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        width: '100%',
+    },
+    modalButtonText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    }
+});
 
 export default AtgsScreen

@@ -1,5 +1,5 @@
 import { Dispatch } from "redux";
-import { getAllImageListService, postImageCaptureService } from "../../../services/survey/routes.service";
+import { deleteImageService, getAllImageListService, postImageCaptureService } from "../../../services/survey/routes.service";
 
 export enum ImageType {
     ATGS = "atgs",
@@ -10,7 +10,7 @@ export enum ImageType {
 
 export type postImageCaptureReqBody = {
     cus_id: number,
-    list_id: number,
+    // list_id: number,
     image: string,
     type: ImageType
 }
@@ -63,5 +63,25 @@ export const getAllImageList = async (dispatch: Dispatch, queryParam: queryParam
     } catch (error) {
         console.warn("catch error getAllImageListService ::", queryParam.type, error);
         return null
+    }
+}
+
+export const deleteImage = async (id: number) => {
+    try {
+        const response = await deleteImageService(id)
+
+        if (response.hasError) {
+            console.warn('has error::-> deleteImage ::', id, response.errorMessage);
+            return false
+        } else {
+            if (response.data) {
+                return response.data
+            } else {
+                return false
+            }
+        }
+    } catch (error) {
+        console.warn("catch error deleteImageService ::", id, error);
+        return false
     }
 }

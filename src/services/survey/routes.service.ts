@@ -2,7 +2,7 @@ import { postImageCaptureReqBody, queryParam_GetImages } from "../../store/actio
 import { Status } from "../../types"
 import { responseHandlerType } from "../api/responseHandler"
 import { METHODS, client } from "../api/restClient"
-import { GET_ALL_IMAGE_LIST, GET_CUSTOMERS, GET_LOCATIONS, GET_MAINTAINS_LOGS, GET_ROUTES, GET_SITE_INFO, GET_STORE_LICENSE, POST_IMAGE_CAPTURED, ADD_NOTES, UPDATE_NOTES } from "../urls"
+import { GET_ALL_IMAGE_LIST, GET_CUSTOMERS, GET_LOCATIONS, GET_MAINTAINS_LOGS, GET_ROUTES, GET_SITE_INFO, GET_STORE_LICENSE, POST_IMAGE_CAPTURED, ADD_NOTES, UPDATE_NOTES, DELETE_IMAGE } from "../urls"
 
 export const getRoutesService = async (date: string) => {
     return await client.API(
@@ -72,6 +72,14 @@ export const getAllImageListService = async (queryParam: queryParam_GetImages) =
     return await client.API(
         METHODS.GET,
         `${GET_ALL_IMAGE_LIST}?type=${type}&cus_id=${cus_id}`
+    ) as responseHandlerType
+}
+
+// Delete Image
+export const deleteImageService = async (id: number) => {
+    return await client.API(
+        METHODS.GET,
+        `${DELETE_IMAGE}/${id}`
     ) as responseHandlerType
 }
 

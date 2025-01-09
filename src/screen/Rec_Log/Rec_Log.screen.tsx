@@ -72,7 +72,7 @@ const Rec_LogScreen = () => {
     }, [])
 
     const processImage = async (imageRes: resultAssets) => {
-        if (!cus_id || !list_id) return console.warn("Rec_Log - cus_id or list_id -> null");
+        if (!cus_id) return console.warn("Rec_Log - cus_id -> null");
         if (!imageRes || !imageRes.base64 || !imageRes.uri) return console.warn("imageRes -> null");
 
         let compressedImage: string;
@@ -91,7 +91,7 @@ const Rec_LogScreen = () => {
 
         const body: postImageCaptureReqBody = {
             cus_id: cus_id!,
-            list_id: list_id!,
+            // list_id: list_id!,
             image: compressedImage,
             type: ImageType.REC_LOG
         };

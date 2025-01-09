@@ -9,6 +9,7 @@ import Loading from '../../../components/UI/Loading';
 import { ServeyStatus } from '../../../types';
 import FormInput from '../../../components/UI/FormInput';
 import TextButton from '../../../components/UI/TextButton';
+import { Colors } from 'react-native/Libraries/NewAppScreen';
 
 const NoteItem = ({ noteData }:{ noteData: NoteType}) => {
     const dispatch = useDispatch();
@@ -71,11 +72,11 @@ const NoteItem = ({ noteData }:{ noteData: NoteType}) => {
                     </Text>
                 </View>
                 <TouchableOpacity
-                    style={[styles.button, { backgroundColor: noteData.status === Status.Pending ? COLORS.lightOrange : COLORS.green }]}
+                    style={[styles.button, { backgroundColor: noteData.status !== Status.Completed ? COLORS.lightOrange : COLORS.green }]}
                     onPress={() => handleStatusChange(noteData.status === Status.Completed ? Status.Completed : Status.Pending, noteData.id)}
                 >
                     <Text style={{ color: 'white', fontSize: 11, fontWeight: 600 }}>
-                        {noteData.status === Status.Pending ? 'Mark as Completed' : 'Completed'}
+                        {noteData.status !== Status.Completed ? 'Mark as Completed' : 'Completed'}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -182,6 +183,7 @@ const NotesScreen = () => {
                     left: 0,
                     right: 0,
                     padding: SIZES.base,
+                    backgroundColor: COLORS.white
                 }}
             >
                 <FormInput

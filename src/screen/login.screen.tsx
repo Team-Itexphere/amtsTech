@@ -7,6 +7,7 @@ import {
   Image,
   ActivityIndicator,
   KeyboardAvoidingView,
+  TouchableOpacity,
 } from 'react-native';
 
 import Config from 'react-native-config';
@@ -14,15 +15,47 @@ import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import FormInput from '../components/UI/FormInput';
 import { useDispatch, useSelector } from 'react-redux';
-import { login } from '../store/actions/authentication/authAction';
+import { autoLogin, login } from '../store/actions/authentication/authAction';
 import { RootState } from '../store/store';
 import { COLORS, SIZES, FONTS } from '../assets/theme';
 import TextButton from '../components/UI/TextButton';
 import Loading from '../components/UI/Loading';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import assetsPng from '../assets/pngs'
+const { IconCheckmark } = assetsPng
+
+const CheckBox = ({ value, onValueChange }: { value: boolean; onValueChange: (newValue: boolean) => void }) => {
+  return (
+    <TouchableOpacity
+      onPress={() => onValueChange(!value)}
+      style={{
+        width: 20,
+        height: 20,
+        backgroundColor: value ? COLORS.primary : COLORS.lightGray1,
+        borderRadius: 4,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      {value && (
+        <Image
+          source={IconCheckmark}
+          style={{
+            width: 20,
+            height: 20,
+            tintColor: COLORS.white
+          }}
+        />
+      )}
+    </TouchableOpacity>
+  );
+};
 
 const Login = () => {
-  const [email, setEmail] = useState<string>(''); //fieldtech1@amtstx.com
-  const [password, setPassword] = useState<string>(''); //test@123
+  const [email, setEmail] = useState<string>('fieldtech1@amtstx.com'); //fieldtech1@amtstx.com
+  const [password, setPassword] = useState<string>('test@123'); //test@123
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
 
   const dispatch: any = useDispatch();
 
@@ -33,8 +66,23 @@ const Login = () => {
   const navigation: any = useNavigation();
 
   const handleLogin = async () => {
-    dispatch(login(email, password));
+    const response = await dispatch(login(email, password, rememberMe));
   };
+
+  const checkToken = async () => {
+    // const token = await AsyncStorage.getItem('authToken');
+    const savedEmail = await AsyncStorage.getItem('email');
+    const savedPass = await AsyncStorage.getItem('password');
+
+    if (savedEmail && savedPass) {console.log('asd')
+      // dispatch(autoLogin(token));
+      const response = await dispatch(login(email, password, false));
+    }
+  };
+
+  useEffect(() => {
+    checkToken();
+  }, []);
 
   return (
     <View
@@ -119,6 +167,13 @@ const Login = () => {
                 //     />
                 // }
                 />
+              </View>
+              <View style={styles.rememberMeContainer}>
+                <CheckBox
+                  value={rememberMe}
+                  onValueChange={(newValue: boolean) => setRememberMe(newValue)}
+                />
+                <Text style={styles.rememberMeText}>Remember Me</Text>
               </View>
               <View style={styles.mainBtnContainer}>
                 <TextButton
@@ -211,6 +266,17 @@ const styles = StyleSheet.create({
     //     elevation: 10,
     //   },
     // }),
+  },
+  rememberMeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 15,
+    marginTop: SIZES.base,
+  },
+  rememberMeText: {
+    ...FONTS.body4,
+    marginLeft: SIZES.base,
+    color: COLORS.gray,
   },
 });
 

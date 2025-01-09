@@ -2,6 +2,7 @@ export const BASE_URL = 'https://amtstx.com/';
 
 
 export const USER_LOGIN = 'api/login'
+export const USER_CHECK = 'api/user'
 export const SUBMIT_FLEET = 'api/fleet-routing/add/7'
 export const GET_SURVEY = 'api/testing'
 export const GET_STORE_SURVEYS = 'api/store-testings'
@@ -15,6 +16,7 @@ export const POST_PAYMENTINFO = '/api/testing/invoice'
 export const POST_INVOICE_BY_SERVICE_CALL = '/api/invoice'
 export const POST_IMAGE_CAPTURED = '/api/img-upload'
 export const GET_ALL_IMAGE_LIST = '/api/img-upload'
+export const DELETE_IMAGE = '/api/img-delete'
 export const GET_STORE_LICENSE = 'api/license/'
 export const GET_SITE_INFO = 'api/site-info/'
 export const GET_SERVICE_CALL = '/api/work-orders'// 'api/pend-wo'
