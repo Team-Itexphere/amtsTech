@@ -137,7 +137,7 @@ const formatDateWithShortMonthHyphen = (date: Date | string, format: string = 'D
 const formatDateUS = (date: Date | string, format: string = 'MM-DD-YYYY'): string => {
     try {
         const parsedDate = new Date(date);
-        const dd = String(parsedDate.getDate()).padStart(2, '0');
+        const dd = String(parsedDate.getUTCDate()).padStart(2, '0');
         const mm = String(parsedDate.getMonth() + 1).padStart(2, '0'); // January is 0!
         const yyyy = parsedDate.getFullYear();
 

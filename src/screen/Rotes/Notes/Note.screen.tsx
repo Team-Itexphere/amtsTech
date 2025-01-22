@@ -1,15 +1,13 @@
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Modal, TextInput } from 'react-native'
-import React, { useState } from 'react'
+import { View, Text, FlatList, StyleSheet, TouchableOpacity, Alert, Modal, TextInput } from 'react-native';
+import React, { useState } from 'react';
 import { RootState } from '../../../store/store';
 import { useDispatch, useSelector } from 'react-redux';
 import { addNotes, NoteType, SaveLocationPressData, Status, updateNotes } from '../../../store/actions/survey/routesAction';
 import { COLORS, FONTS, SIZES } from '../../../assets/theme';
 import NoDataImage from '../../../components/UI/NoDataImage';
-import Loading from '../../../components/UI/Loading';
-import { ServeyStatus } from '../../../types';
 import FormInput from '../../../components/UI/FormInput';
 import TextButton from '../../../components/UI/TextButton';
-import { Colors } from 'react-native/Libraries/NewAppScreen';
+import Loading from '../../../components/UI/Loading';
 
 const NoteItem = ({ noteData }:{ noteData: NoteType}) => {
     const dispatch = useDispatch();
@@ -127,55 +125,102 @@ const NotesScreen = () => {
     const { location: { ro_loc_id, cus_id, list_id, status, cus_name, notes, rec_logs, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
 
     const [noteText, setNoteText] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(false)
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [activeTab, setActiveTab] = useState<Status>(Status.Pending); // Default tab is 'Pending'
+
+    // Filter notes based on the selected tab
+    const filteredNotes = notes
+                            .map((note) => ({
+                                ...note,
+                                status: note.status ?? Status.Pending,
+                            }))
+                            .filter((note) => note.status === activeTab);
 
     const addNote = async () => {
         setIsLoading(true);
 
-        if(!noteText){
-            Alert.alert('Type your note before submit.')
-            return
-        }
-        
-        if(!cus_id){
-            Alert.alert('Submission failed!')
-            return
+        if (!noteText) {
+            Alert.alert('Type your note before submit.');
+            return;
         }
 
-        const newNotes = await addNotes(noteText, cus_id)
+        if (!cus_id) {
+            Alert.alert('Submission failed!');
+            return;
+        }
+
+        const newNotes = await addNotes(noteText, cus_id);
 
         dispatch(
             SaveLocationPressData(
-                ro_loc_id, 
-                cus_id, 
-                list_id, 
-                newNotes, 
-                status, 
-                cus_name, 
-                rec_logs, 
-                hasInvoice               
+                ro_loc_id,
+                cus_id,
+                list_id,
+                newNotes,
+                status,
+                cus_name,
+                rec_logs,
+                hasInvoice
             )
         );
 
         setIsLoading(false);
-    }
-    
+    };
+
     return (
         <View style={{ flex: 1 }}>
-            {notes.length === 0 ? (
+            {/* Tabs */}
+            <View style={styles.tabContainer}>
+                <TouchableOpacity
+                    style={[
+                        styles.tabButton,
+                        activeTab === Status.Pending && styles.activeTab,
+                    ]}
+                    onPress={() => setActiveTab(Status.Pending)}
+                >
+                    <Text
+                        style={[
+                            styles.tabText,
+                            activeTab === Status.Pending && styles.tabText,
+                        ]}
+                    >
+                        Pending
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[
+                        styles.tabButton,
+                        activeTab === Status.Completed && styles.activeTab,
+                    ]}
+                    onPress={() => setActiveTab(Status.Completed)}
+                >
+                    <Text
+                        style={[
+                            styles.tabText,
+                            activeTab === Status.Completed && styles.tabText,
+                        ]}
+                    >
+                        Completed
+                    </Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* Notes List */}
+            {filteredNotes.length === 0 ? (
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <NoDataImage />
-                    <Text style={styles.title}>N/A</Text>
+                    <Text style={styles.title}>No {activeTab} Notes</Text>
                 </View>
             ) : (
                 <FlatList
-                    data={notes}
+                    data={filteredNotes}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => <NoteItem noteData={item} />}
                     contentContainerStyle={{ paddingBottom: 200 }}
                 />
             )}
 
+            {/* Add Note Section */}
             <View
                 style={{
                     position: 'absolute',
@@ -183,7 +228,7 @@ const NotesScreen = () => {
                     left: 0,
                     right: 0,
                     padding: SIZES.base,
-                    backgroundColor: COLORS.white
+                    backgroundColor: COLORS.white,
                 }}
             >
                 <FormInput
@@ -226,10 +271,39 @@ const NotesScreen = () => {
                 </View>
             </View>
         </View>
-    )
-}
+    );
+};
 
 const styles = StyleSheet.create({
+    tabContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        backgroundColor: COLORS.lightGray2,
+        paddingVertical: 10,
+    },
+    tabButton: {
+        flex: 1,
+        paddingHorizontal: 15,
+        paddingVertical: 15,
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderBottomWidth: 5,
+        borderBottomColor: COLORS.transparent,
+        borderRadius: 3,
+    },
+    activeTab: {
+        borderBottomColor: COLORS.primary,
+    },
+    tabText: {
+        ...FONTS.h3, 
+        fontSize: SIZES.height > 800 ? 16 : 15
+    },
+    title: {
+        color: COLORS.black,
+        fontSize: 18,
+        fontWeight: 'bold',
+        marginBottom: 8,
+    },
     card: {
         backgroundColor: '#fff',
         padding: 16,
@@ -241,12 +315,6 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 3,
-    },
-    title: {
-        color: COLORS.black,
-        fontSize: 18,
-        fontWeight: 'bold',
-        marginBottom: 8,
     },
     noteText: {
         fontSize: 16,

@@ -105,15 +105,17 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
     const { location: { ro_loc_id, cus_id, list_id, status, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
 
     const route = useRoute<InvoiceSubItemsProp>();
-    const { source } = route.params;
-
-    const DescriptionOptions = !source.includes("Service Call") ? ['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker', "Calibration"] : ["Calibration", "Service Call", "Labour"];
+    const { source } = route.params;    
+    const [DescriptionOptions, setDescriptionOptions] = useState<any[]>(!source.includes("Service Call") ? ['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker', "Calibration"] : ["Service Call"]);
 
     const CategoryOptions = ["Parts", "Calibration", "Service Call"];
     !hasInvoice && !source.includes("Service Call") && CategoryOptions.unshift("Monthly Inspection");
 
     const isMonthlyInspection = data.category === "Monthly Inspection"
     const isServiceCall = data.category === "Service Call"
+    const isCalibration = data.category === "Calibration"
+    const isLabor = data.description === "Calibration Labor"
+
     const dataAmount = typeof data.amount === "number" ? +data.amount.toFixed(2) : 0;
     
     const [inspAmount, setInspAmount] = useState<number>(dataAmount) 
@@ -130,8 +132,16 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
             case "Service Call":
                 // onChange(id, 'amount', 0)
                 // onChange(id, 'des_problem', "")
+                onChange(id, 'description', "")
+                setDescriptionOptions(["Service Call"])
+                break;
+            case "Calibration":
+                onChange(id, 'description', "")
+                setDescriptionOptions(["Calibration", "Calibration Labor"])
                 break;
             default:
+                onChange(id, 'description', "")
+                setDescriptionOptions(['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker'])
                 // onChange(id, 'rate', 0)
                 // onChange(id, 'qty', 0)
                 // onChange(id, 'amount', 0)
@@ -183,7 +193,7 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                         placeholder="Description"
                         contentContainerStyle={{ marginTop: SIZES.base, }}
                     />
-                    {isServiceCall &&
+                    {!isServiceCall && !isCalibration &&
                         <FormInput
                             value={data.des_problem!}
                             placeholder="Problem Description"
@@ -191,14 +201,18 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                             onChange={(value) => onChange(id, "des_problem", value)}
                             containerStyle={{ marginTop: SIZES.base, }}
                         />
+
+                        
                     }
-                    <FormInput
+                    
+                    {!isServiceCall && !isLabor && <FormInput
                         value={data.location}
                         placeholder="Location"
                         keyboardType='default'
                         onChange={(value) => onChange(id, 'location', value)}
                         containerStyle={{ marginTop: SIZES.base, }}
                     />
+                    }
 
                     <FormInput
                         value={data.qty === 0 ? '' : data.qty.toString()}
@@ -287,6 +301,7 @@ const SubItemsScreen = () => {
 
     const sales_tax_perc = 8.25/100; // Sales Tax Percentage
     let inspect_total = 0;
+    let calib_total = 0;
 
     useEffect(() => {
         let monthlyIns = false;
@@ -297,6 +312,10 @@ const SubItemsScreen = () => {
                 case "Monthly Inspection":
                     amount = typeof form.amount === 'number' ? form.amount : 0;
                     inspect_total =+ amount;
+                    break;
+                case "Calibration":
+                    amount = typeof form.amount === 'number' ? form.amount : 0;
+                    calib_total =+ amount;
                     break;
                 default:
                     const qty = typeof form.qty === 'string' ? parseFloat(form.qty) : form.qty || 0;
@@ -324,7 +343,7 @@ const SubItemsScreen = () => {
             setService("Monthly Inspection");
         }        
 
-        const tax = (total - inspect_total) * sales_tax_perc;
+        const tax = (total - inspect_total - calib_total) * sales_tax_perc;
 
         setSalesTax(parseFloat(tax.toFixed(2)));
         setTotalAmount(parseFloat((total + tax).toFixed(2)));        
@@ -442,20 +461,37 @@ const SubItemsScreen = () => {
             postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id }));
         } else {
 
-            if (!list_id || !cus_id) return console.warn("list_id | cus_id -> null");
-            const form: postInvoiceReqBody = {
-                list_id: list_id!,
-                cus_id: cus_id!,
-                amount: fetchedAmount,
-                items: formsWithAmount,
-                addi_comments: comment,
-                service: service,
-                id: inv_id
-            }
+            let postData: any;
 
-            setIsLoarding(true)
-            const postData = await postInvoiceInfo(dispatch, form);
-            setIsLoarding(false)
+            if (inv_id) { 
+                console.log("list_id | cus_id -> null") 
+
+                const form: postInvoice_from_ServiceCall_ReqBody = {
+                    customer_id: cus_id!,
+                    items: formsWithAmount,
+                    addi_comments: comment,
+                    service: service,
+                    id: inv_id
+                }
+    
+                setIsLoarding(true)
+                postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
+                setIsLoarding(false)
+            } else {
+                const form: postInvoiceReqBody = {
+                    list_id: list_id!,
+                    cus_id: cus_id!,
+                    amount: fetchedAmount,
+                    items: formsWithAmount,
+                    addi_comments: comment,
+                    service: service,
+                    id: inv_id
+                }
+
+                setIsLoarding(true)
+                postData = await postInvoiceInfo(dispatch, form);
+                setIsLoarding(false)
+            };
 
             postData && (
                 setInvId(postData.id), 

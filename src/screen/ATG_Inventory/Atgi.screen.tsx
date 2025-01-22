@@ -225,6 +225,7 @@ const styles = StyleSheet.create({
     columnWrapper: {
         paddingHorizontal: 10,
         gap: 10,
+        marginBottom: 10
     },
     ImgContainer: {
         backgroundColor: 'rgba(0, 0, 0, 0.2)',

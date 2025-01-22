@@ -53,8 +53,8 @@ const CheckBox = ({ value, onValueChange }: { value: boolean; onValueChange: (ne
 };
 
 const Login = () => {
-  const [email, setEmail] = useState<string>('fieldtech1@amtstx.com'); //fieldtech1@amtstx.com
-  const [password, setPassword] = useState<string>('test@123'); //test@123
+  const [email, setEmail] = useState<string>(''); //fieldtech1@amtstx.com
+  const [password, setPassword] = useState<string>(''); //test@123
   const [rememberMe, setRememberMe] = useState<boolean>(false);
 
   const dispatch: any = useDispatch();
