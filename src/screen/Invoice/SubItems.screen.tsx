@@ -140,7 +140,7 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                 setDescriptionOptions(["Calibration", "Calibration Labor"])
                 break;
             default:
-                onChange(id, 'description', "")
+                onChange(id, 'description', data.description)
                 setDescriptionOptions(['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker'])
                 // onChange(id, 'rate', 0)
                 // onChange(id, 'qty', 0)
@@ -250,7 +250,7 @@ const SubItemsScreen = () => {
     const { source, customer_id, invoice } = route.params;
 
     const currentLocation = useSelector((state: RootState) => state.routeReducer.location);
-    const { location: { ro_loc_id, cus_id, list_id, status, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
+    const { location: { ro_loc_id, cus_id, list_id, status, hasInvoice, allowInv } } = useSelector((state: RootState) => state.routeReducer);
 
     const [isLoading, setIsLoarding] = useState<boolean>(false);
     const [fetchedAmount, setFetchedAmount] = useState<number>(0);
@@ -300,22 +300,25 @@ const SubItemsScreen = () => {
     }, [source, invoice])
 
     const sales_tax_perc = 8.25/100; // Sales Tax Percentage
-    let inspect_total = 0;
-    let calib_total = 0;
 
     useEffect(() => {
+        let inspect_total = 0;
+        let calib_total = 0;
         let monthlyIns = false;
+        
         const total = forms.reduce((acc, form) => {
             let amount = 0;
 
             switch (form.category) {
                 case "Monthly Inspection":
                     amount = typeof form.amount === 'number' ? form.amount : 0;
-                    inspect_total =+ amount;
+                    inspect_total += amount;
                     break;
                 case "Calibration":
-                    amount = typeof form.amount === 'number' ? form.amount : 0;
-                    calib_total =+ amount;
+                    const cali_qty = typeof form.qty === 'string' ? parseFloat(form.qty) : form.qty || 0;
+                    const cali_rate = typeof form.rate === 'string' ? parseFloat(form.rate) : form.rate || 0;
+                    amount = cali_qty * cali_rate;
+                    calib_total += amount;
                     break;
                 default:
                     const qty = typeof form.qty === 'string' ? parseFloat(form.qty) : form.qty || 0;
@@ -384,7 +387,7 @@ const SubItemsScreen = () => {
 
     const handleSubmit = async () => {
         // validate 
-        if (!invoice && status !== ServeyStatus.Completed && !source.includes("Service Call")) {
+        if (!invoice && status !== ServeyStatus.Completed && !source.includes("Service Call") && !allowInv) {
             Alert.alert("Can not create an invoice until Inspection completed.");
             return;
         }
@@ -429,7 +432,7 @@ const SubItemsScreen = () => {
                         qty: form.qty,
                         rate: form.rate,
                         amount: form.qty * form.rate,
-                        des_problem: form.des_problem
+                        des_problem: form.des_problem || ''
                     } as ServiceCall_Invoice_SubItem_withAmount;
                 default:
                     return {
@@ -439,6 +442,7 @@ const SubItemsScreen = () => {
                         qty: form.qty,
                         rate: form.rate,
                         amount: form.qty * form.rate,
+                        des_problem: form.des_problem || ''
                     } as GeneralInvoiceSubItemWithAmount;
             }
         });
@@ -518,7 +522,7 @@ const SubItemsScreen = () => {
             />            
             {invoice ? (
                 <Text style={{ ...FONTS.body3, margin: SIZES.base, marginBottom: SIZES.base, textAlign: "center", fontWeight: 700, color: 'green' }}>Edit Invoice #{invoice.invoice_no}</Text>
-            ) : status !== ServeyStatus.Completed && !source.includes("Service Call") && (
+            ) : status !== ServeyStatus.Completed && !source.includes("Service Call") && !allowInv && (
                 <Text style={{ ...FONTS.body4, margin: SIZES.base, marginBottom: SIZES.base, textAlign: "center", fontWeight: 700, color: 'red' }}>Can not create an invoice until Inspection completed.</Text>
             )}
             {forms.map((form, index) => (

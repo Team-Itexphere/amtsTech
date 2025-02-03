@@ -98,7 +98,7 @@ const PaymentOption = () => {
             if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id })
 
         } else {
-            if (!res_Amount || !location.list_id || !location.cus_id) return console.warn("res_Amount or list_id or cus_id -> null ");
+            if ((!res_Amount || !location.list_id || !location.cus_id) && !inv_id) return console.warn("res_Amount or list_id or cus_id -> null ");
             // const form: postPaymentReqBody = {
             //     list_id: location.list_id,
             //     cus_id: location.cus_id,
@@ -123,7 +123,7 @@ const PaymentOption = () => {
                 items: invoice.items,
                 inv_id: inv_id
             }
-
+            
             const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
             setIsLoarding(false)
 

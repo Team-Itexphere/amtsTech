@@ -97,6 +97,7 @@ export type NoteType = {
 
 export interface LocationItem {
     hasInvoice: boolean | undefined;
+    allowInv: boolean | undefined;
     rec_logs: string | number;
     route_no: string;
     id: number;
@@ -149,7 +150,6 @@ export const getCustomers = async (searchParam: string): Promise<any[]> => {
             );
             return []
         } else {
-            console.log('get getCustomers ::', response);
             if (response.data.length > 0) {
                 return response.data
             } else {
@@ -224,10 +224,10 @@ export const updateNotes = async (status: Status, id: number, reason?: string): 
 }
 
 export const SaveLocationPressData = (
-ro_loc_id: number | null, cus_id: number | null, list_id: number | null, notes: LocationItem['notes'], status: LocationItem['status'] | null, cus_name: string | null, rec_logs: string | number | null, hasInvoice?: boolean | undefined,
+ro_loc_id: number | null, cus_id: number | null, list_id: number | null, notes: LocationItem['notes'], status: LocationItem['status'] | null, cus_name: string | null, rec_logs: string | number | null, hasInvoice?: boolean | undefined, allowInv?: boolean | undefined,
 ) => ({
     type: 'LOCATION_PRESS_DATA',
-    payload: { ro_loc_id, cus_id, list_id, notes, status, cus_name, rec_logs, hasInvoice},
+    payload: { ro_loc_id, cus_id, list_id, notes, status, cus_name, rec_logs, hasInvoice, allowInv},
 });
 
 export const ClearAllRouteData = () => ({ type: 'CLEAR_ALL' });

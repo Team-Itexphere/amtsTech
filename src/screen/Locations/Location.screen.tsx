@@ -125,7 +125,8 @@ const LocationScreen = (props: Props) => {
         notes: LocationItem['notes'],        
         cus_name: string,
         rec_logs: number | string,
-        hasInvoice: boolean | undefined
+        hasInvoice: boolean | undefined,
+
     ) => {
 
         dispatch(SaveLocationPressData(ro_loc_id, cus_id, list_id, notes, status, cus_name, rec_logs, hasInvoice));

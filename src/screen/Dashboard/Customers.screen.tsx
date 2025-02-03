@@ -43,7 +43,7 @@ const CustomersScreen = () => {
     //     fetchCustomers();
     // }, [dispatch]);
 
-    const viewCustomer = (customer: { id: number; name: string; cus_notes: any[] }) => {
+    const viewCustomer = (customer: { id: number; name: string; cus_notes: any[], rec_logs: string; allowInv: boolean }) => {
         const emtRt = {
           ro_loc_id: null, 
           cus_id: customer.id, 
@@ -51,9 +51,11 @@ const CustomersScreen = () => {
           notes: customer.cus_notes, 
           status: null, 
           cus_name: customer.name, 
-          rec_logs: null
+          rec_logs: customer.rec_logs,
+          hasInvoice: undefined,
+          allowInv: customer.allowInv
         }
-        dispatch(SaveLocationPressData(emtRt.ro_loc_id, emtRt.cus_id, emtRt.list_id, emtRt.notes, emtRt.status, emtRt.cus_name, emtRt.rec_logs));
+        dispatch(SaveLocationPressData(emtRt.ro_loc_id, emtRt.cus_id, emtRt.list_id, emtRt.notes, emtRt.status, emtRt.cus_name, emtRt.rec_logs, emtRt.hasInvoice, emtRt.allowInv));
         navigation.navigate('StoreList');
     };
 

@@ -25,13 +25,14 @@ const StoreScreen = (props: Props) => {
         })
     );
 
-    const { location: { ro_loc_id, cus_id, list_id, rec_logs, hasInvoice, status } } = useSelector((state: RootState) => state.routeReducer);
+    const { location: { ro_loc_id, cus_id, list_id, rec_logs, hasInvoice, status, allowInv } } = useSelector((state: RootState) => state.routeReducer);
     useEffect(() => {
         console.log("Route Location ID:", ro_loc_id);
         console.log("Customer ID:", cus_id);
         console.log("List ID:", list_id);
         console.log("Rec Logs:", rec_logs);
         console.log("HasInvoice:", hasInvoice);
+        console.log("AllowInvoice:", allowInv);
         console.log("Status:", status);
       }, [rec_logs]);
     const buttons = [

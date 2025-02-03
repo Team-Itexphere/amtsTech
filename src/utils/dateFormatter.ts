@@ -138,8 +138,8 @@ const formatDateUS = (date: Date | string, format: string = 'MM-DD-YYYY'): strin
     try {
         const parsedDate = new Date(date);
         const dd = String(parsedDate.getUTCDate()).padStart(2, '0');
-        const mm = String(parsedDate.getMonth() + 1).padStart(2, '0'); // January is 0!
-        const yyyy = parsedDate.getFullYear();
+        const mm = String(parsedDate.getUTCMonth() + 1).padStart(2, '0'); // January is 0!
+        const yyyy = parsedDate.getUTCFullYear();
 
         switch (format) {
             case 'MM-DD-YYYY':

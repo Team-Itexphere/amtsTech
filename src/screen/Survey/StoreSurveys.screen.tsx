@@ -1,4 +1,4 @@
-import { View, Text, Button, FlatList, KeyboardAvoidingViewComponent, KeyboardAvoidingView, TouchableOpacity, Image, Alert, Linking } from 'react-native';
+import { View, Text, Button, FlatList, KeyboardAvoidingViewComponent, KeyboardAvoidingView, TouchableOpacity, Image, Alert, Linking, StyleSheet } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { COLORS, FONTS, SIZES } from '../../assets/theme';
 import { useDispatch, useSelector } from 'react-redux';
@@ -52,6 +52,12 @@ const StoreSurveysScreen = () => {
             contentContainerStyle={{ paddingBottom: 20 }}
             keyboardShouldPersistTaps="handled"
         >
+            <View style={styles.header}>
+                <Text style={[styles.headerCell, styles.dateCell]}>Started</Text>
+                <Text style={[styles.headerCell, styles.dateCell]}>Completed</Text>
+                <Text style={[styles.headerCell, styles.moreCell]}>More</Text>
+            </View>
+
             {isLoading ? (
                 <Text style={{ textAlign: 'center', marginTop: 200 }}>Loading...</Text>
             ) : surveys.length === 0 ? (
@@ -71,16 +77,26 @@ const StoreSurveysScreen = () => {
                             backgroundColor: '#00000014',
                         }}
                     >
-                        <View style={{ margin: SIZES.base }}>
+                        <View style={{ margin: SIZES.base, flexDirection: 'row' }}>
                             <Text
                                 style={{
                                     ...FONTS.body4,
                                     margin: SIZES.base,
                                     marginBottom: SIZES.none,
-                                    textAlign: 'right',
+                                    width: 90,
                                 }}
                             >
-                                {formatDateUS(survey.created_at, 'MM-DD-YYYY')}
+                                {formatDateUS(survey.created_at, 'MM-DD-YYYY') }
+                            </Text>
+                            <Text
+                                style={{
+                                    ...FONTS.body4,
+                                    margin: SIZES.base,
+                                    marginBottom: SIZES.none,
+                                    width: 90,
+                                }}
+                            >
+                                {formatDateUS(survey.updated_at, 'MM-DD-YYYY') }
                             </Text>
                         </View>
                         <View style={{ margin: SIZES.base, display: 'flex', flexDirection: 'row', gap: 5, marginRight: 10 }}>
@@ -105,5 +121,25 @@ const StoreSurveysScreen = () => {
         </KeyboardAwareScrollView>
     );
 };
+
+const styles = StyleSheet.create({
+    header: {
+        flexDirection: 'row',
+        backgroundColor: '#f1f1f1',
+    },
+    headerCell: {
+        fontWeight: 'bold',
+        padding: 10,
+    },
+    dateCell: {
+        flex: 1,
+        textAlign: 'center',
+        paddingLeft: 15
+    },
+    moreCell: {
+        flex: 2,
+        textAlign: 'center',
+    },
+})
 
 export default StoreSurveysScreen;
