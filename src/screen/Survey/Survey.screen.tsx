@@ -687,6 +687,7 @@ const Survey = (props: Props) => {
                             placeholder="General Comments"
                             value={genComment || surveyItemArray[17].gen_comment}
                             onChange={(text: string) => onChangeComment(text)}
+                            autoCapitalize="sentences"
                         />
                         <View
                             style={{

@@ -141,11 +141,13 @@ const NotesScreen = () => {
 
         if (!noteText) {
             Alert.alert('Type your note before submit.');
+            setIsLoading(false)
             return;
         }
 
         if (!cus_id) {
             Alert.alert('Submission failed!');
+            setIsLoading(false)
             return;
         }
 

@@ -151,9 +151,9 @@ const formatDateUS = (date: Date | string, format: string = 'MM-DD-YYYY'): strin
         }
     } catch (ex) {
         const today = new Date();
-        const dd = String(today.getDate()).padStart(2, '0');
-        const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
-        const yyyy = today.getFullYear();
+        const dd = String(today.getUTCDate()).padStart(2, '0');
+        const mm = String(today.getUTCMonth() + 1).padStart(2, '0'); // January is 0!
+        const yyyy = today.getUTCFullYear();
 
         switch (format) {
             case 'MM-DD-YYYY':

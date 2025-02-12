@@ -53,11 +53,11 @@ const MaintainsModal = ({ isVisible = true, setIsVisible, selectedLog }: Props) 
                         height: "40%"
                     }}>
                         {renderfield({ fieldName: "Date", value: formatDate(selectedLog.date) })}
-                        {renderfield({ fieldName: "Part", value: selectedLog.category })}
+                        {renderfield({ fieldName: "Part", value: selectedLog.descript })}
                         {renderfield({ fieldName: "Location", value: selectedLog.location })}
                         {renderfield({ fieldName: "Tech", value: selectedLog.tech_name })}
                         {renderfield({ fieldName: "Company", value: selectedLog.company })}
-                        {renderfield({ fieldName: "Description", value: selectedLog.descript })}
+                        {/* {renderfield({ fieldName: "Description", value: selectedLog.descript })} */}
                     </View>
                 </View>
             </TouchableWithoutFeedback>
