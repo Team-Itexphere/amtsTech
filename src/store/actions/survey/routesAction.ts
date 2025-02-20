@@ -68,6 +68,7 @@ interface Customer {
 }
 
 export interface RouteItem {
+    inv_completed: boolean;
     initiated: boolean;
     id: number;
     route_id: number;
@@ -96,6 +97,7 @@ export type NoteType = {
 };
 
 export interface LocationItem {
+    invPaid: boolean | undefined;
     hasInvoice: boolean | undefined;
     allowInv: boolean | undefined;
     rec_logs: string | number;

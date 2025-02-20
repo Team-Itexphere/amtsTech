@@ -110,7 +110,7 @@ const RouteScreen = (props: Props) => {
 
         <View style={{
           position: 'absolute',
-          bottom: 10,
+          top: 10,
           left: 10,
         }}>
           <Text style={{ ...FONTS.h4, color: COLORS.white, }}>{item.name}</Text>
@@ -122,7 +122,8 @@ const RouteScreen = (props: Props) => {
           bottom: 10,
           right: 10
         }}>
-          <Text style={{ ...FONTS.body5, color: COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, }}>{item.status ? item.status : 'pending'}</Text>
+          <Text style={{ ...FONTS.body5, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, textAlign: 'center', textTransform: 'capitalize', color: !item.status || item.status == 'pending' ? COLORS.red : COLORS.green, marginBottom: 3 }}>Insp: {item.status ? item.status : 'pending'}</Text>
+          <Text style={{ ...FONTS.body5, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, textAlign: 'center', textTransform: 'capitalize', color: !item.inv_completed ? COLORS.red : COLORS.green }}>Inv: {item.inv_completed ? 'completed' : 'pending'}</Text>
         </View>
       </TouchableOpacity>
     )

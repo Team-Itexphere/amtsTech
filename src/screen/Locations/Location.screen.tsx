@@ -80,7 +80,7 @@ const renderCard = ({ item, containerStyle, onPress, index }: renderCardType) =>
             }}>
                 <Text style={{ ...FONTS.body5, color: item.status === ServeyStatus.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginBottom: 3, width: 160, textAlign: 'center' }}>Inspection: {item.status === ServeyStatus.Completed ? 'Completed' : 'Pending'}</Text>
                 {notesPending && <Text style={{ ...FONTS.body5, color: !notesPending ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginBottom: 3, width: 160, textAlign: 'center' }}>Notes: {Status.Pending} ({pendingNotesCount})</Text>}
-                <Text style={{ ...FONTS.body5, color: item.hasInvoice ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, width: 160, textAlign: 'center' }}>Invoiced: {item.hasInvoice ? 'Yes' : 'No'}</Text>
+                <Text style={{ ...FONTS.body5, color: item.hasInvoice ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, width: 160, textAlign: 'center' }}>Invoiced: {item.hasInvoice ? 'Yes' : 'No'} <Text style={{ color: item.invPaid ? COLORS.green : COLORS.red }}>{item.invPaid ? '- Paid' : '- Unpaid'}</Text></Text>
             </View>
         </TouchableOpacity>
     )

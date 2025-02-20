@@ -83,7 +83,7 @@ const StoreSurveysScreen = () => {
                                     ...FONTS.body4,
                                     margin: SIZES.base,
                                     marginBottom: SIZES.none,
-                                    width: 90,
+                                    width: 95,
                                 }}
                             >
                                 {formatDateUS(survey.created_at, 'MM-DD-YYYY') }
@@ -93,7 +93,7 @@ const StoreSurveysScreen = () => {
                                     ...FONTS.body4,
                                     margin: SIZES.base,
                                     marginBottom: SIZES.none,
-                                    width: 90,
+                                    width: 95,
                                 }}
                             >
                                 {formatDateUS(survey.updated_at, 'MM-DD-YYYY') }
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     dateCell: {
         flex: 1,
         textAlign: 'center',
-        paddingLeft: 15
+        paddingLeft: 18
     },
     moreCell: {
         flex: 2,

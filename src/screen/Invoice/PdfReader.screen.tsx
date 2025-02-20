@@ -278,6 +278,13 @@ const PdfReader = (props: Props) => {
                             .m-signature-pad--footer button {
                                 background: ${COLORS.primary} !important;
                             }
+                            
+                            .m-signature-pad {
+                                margin:auto; 
+                                top: 0; 
+                                width:100%;
+                                height:100%
+                            }
                         `}
                         autoClear={true}
                     />
