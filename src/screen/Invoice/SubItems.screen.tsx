@@ -169,7 +169,8 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                         value={data.description}
                         placeholder="Description"
                         keyboardType='default'
-                        onChange={(value) => onChange(id, 'description', value)}
+                        // onChange={(value) => onChange(id, 'description', value)}
+                        editable={false}
                         containerStyle={{ marginTop: SIZES.base, }}
                     />
                     <FormInput

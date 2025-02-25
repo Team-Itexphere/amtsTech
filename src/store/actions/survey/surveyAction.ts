@@ -146,7 +146,7 @@ export const getSubmitedSurvey = async (dispatch: Dispatch, list_id: number, cus
             getSurveyListService(),
             getSubmitedAnswers(list_id, cus_id)
         ])
-        console.log("asda", surveyItems)
+
         if (surveyItems.hasError || apiAnswers.length === 0) {
             surveyItems.hasError && console.warn(" err getSurveyListService or getSubmitedAnswers");
             console.log('incompleted survey')

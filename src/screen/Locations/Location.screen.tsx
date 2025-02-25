@@ -68,7 +68,11 @@ const renderCard = ({ item, containerStyle, onPress, index }: renderCardType) =>
                 bottom: 35,
                 left: 10
             }}>
-                <Text style={{ ...FONTS.h3, color: COLORS.white, }} numberOfLines={1}>{item.customer?.str_addr ?? ''}</Text>
+                <Text style={{ ...FONTS.h3, color: COLORS.white, }} numberOfLines={1}>
+                    {[item.customer?.str_addr, item.customer?.city, item.customer?.state, item.customer?.zip_code]
+                    .filter(Boolean)
+                    .join(", ")}
+                </Text>
                 <Text style={{ ...FONTS.h4, color: COLORS.white, }}>{item.cus_name}</Text>
                 <Text style={{ ...FONTS.body4, color: COLORS.white, maxWidth: 90 }} numberOfLines={1}>{item.cus_fac_id}</Text>
             </View>

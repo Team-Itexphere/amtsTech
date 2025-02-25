@@ -30,7 +30,7 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
     return (
         <TouchableOpacity
             onPress={onPress}
-            style={{ height: 120, width: 200, ...containerStyle, position: 'relative' }}>
+            style={{ height: 140, width: 200, ...containerStyle, position: 'relative' }}>
             <Image
                 source={item.status === Status.Pending ? Bg1 : Bg2}
                 resizeMode='cover'
@@ -58,8 +58,12 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
                 <Text style={{ ...FONTS.h4, color: COLORS.white, }} numberOfLines={1}>{item.store_address}</Text>
                 <Text style={{ ...FONTS.h3, color: COLORS.white, maxWidth: 310 }} numberOfLines={1}>{item.wo_number}</Text>
                 <Text style={{ ...FONTS.h4, color: COLORS.white, maxWidth: 310 }} numberOfLines={1}>
-                    Date: {item.status === Status.Pending && item.date ? formatDateUS(item.date, 'MM-DD-YYYY') : (item.status === Status.Completed && item.comp_date ? formatDateUS(item.comp_date, 'MM-DD-YYYY') : 'N/A')}
-                    , Time: {item.status === Status.Pending && item.time  ? formatTimeWithAmPm(item.time) : (item.status === Status.Completed && item.comp_time ? formatTimeWithAmPm(item.comp_time) : 'N/A')}
+                    {item.status === Status.Completed ? 'Date' : 'Date Created'}
+                    : {item.status === Status.Pending && item.created_at ? formatDateUS(item.created_at, 'MM-DD-YYYY') : (item.status === Status.Completed && item.comp_date ? formatDateUS(item.comp_date, 'MM-DD-YYYY') : 'N/A')}
+                    </Text>
+                <Text style={{ ...FONTS.h4, color: COLORS.white, maxWidth: 310 }} numberOfLines={1}>
+                    {item.status === Status.Completed ? 'Time' : 'Date Scheduled'}
+                    : {item.status === Status.Completed && item.comp_time ? formatTimeWithAmPm(item.comp_time) : (item.status === Status.Pending && item.date ? formatDateUS(item.date, 'MM-DD-YYYY') : 'N/A')}
                 </Text>
                 {/* <Text style={{ ...FONTS.body4, color: COLORS.white, maxWidth: 90 }} numberOfLines={1}>{item.tech_id}</Text> */}
             </View>

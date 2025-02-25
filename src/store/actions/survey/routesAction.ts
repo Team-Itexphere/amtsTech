@@ -54,6 +54,9 @@ interface Customer {
     com_name: string | null;
     own_name: string | null;
     str_addr: string;
+    city: string;
+    state: string;
+    zip_code: string;
     str_phone: string;
     cp_name: string;
     cp_phone: string | null;
