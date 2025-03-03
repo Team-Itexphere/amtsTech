@@ -72,9 +72,11 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
                 position: 'absolute',
                 bottom: 10,
                 right: 10,
-                alignItems: 'center'
+                alignItems: 'center',
+                gap:5
             }}>
-                <Text style={{ ...FONTS.body5, color: item.status === Status.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius }}>{item.status === Status.Completed ? Status.Completed : Status.Pending}</Text>
+                <Text style={{ ...FONTS.body5, textAlign: 'center', width: 100, color: item.status === Status.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius }}>{item.status === Status.Completed ? Status.Completed : Status.Pending}</Text>
+                <Text style={{ ...FONTS.body5, textAlign: 'center', width: 100, color: item.invoiced ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius }}>Invoiced : {item.invoiced ? 'Yes' : 'No'}</Text>
             </View>
         </TouchableOpacity>
     )

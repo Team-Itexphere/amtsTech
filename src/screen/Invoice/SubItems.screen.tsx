@@ -105,7 +105,7 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
     const { location: { ro_loc_id, cus_id, list_id, status, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
 
     const route = useRoute<InvoiceSubItemsProp>();
-    const { source } = route.params;    
+    const { source, customer_id, invoice } = route.params; 
     const [DescriptionOptions, setDescriptionOptions] = useState<any[]>(!source.includes("Service Call") ? ['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker', "Calibration"] : ["Service Call"]);
 
     const CategoryOptions = ["Parts", "Calibration", "Service Call"];
@@ -133,15 +133,17 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                 // onChange(id, 'amount', 0)
                 // onChange(id, 'des_problem', "")
                 onChange(id, 'description', "")
+                invoice && onChange(id, 'description', data.description)
                 setDescriptionOptions(["Service Call"])
                 break;
             case "Calibration":
                 onChange(id, 'description', "")
+                invoice && onChange(id, 'description', data.description)
                 setDescriptionOptions(["Calibration", "Calibration Labor"])
                 break;
             default:
-                onChange(id, 'description', data.description)
                 setDescriptionOptions(['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker'])
+                invoice && onChange(id, 'description', data.description)
                 // onChange(id, 'rate', 0)
                 // onChange(id, 'qty', 0)
                 // onChange(id, 'amount', 0)
@@ -519,7 +521,7 @@ const SubItemsScreen = () => {
             <Button 
                 title="📝 View Previous Invoices" 
                 onPress={() => {
-                    navigation.navigate('StoreInvoices', { source: "store" });
+                    navigation.navigate('StoreInvoices', { source: "store", customer_id: customer_id });
                 }} 
                 color={COLORS.lightOrange} 
             />            

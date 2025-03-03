@@ -23,7 +23,7 @@ const StoreInvoicesScreen = () => {
     useEffect(() => {
         const fetchInvoices = async () => {
             setIsLoading(true);
-            const invoices_arr = await getInvoices(dispatch, location.cus_id);
+            const invoices_arr = await getInvoices(dispatch, customer_id && customer_id !== undefined ? customer_id : location.cus_id);
             setIsLoading(false);
             if (!invoices_arr) {
                 console.warn('No invoices');

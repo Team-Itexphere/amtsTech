@@ -4,6 +4,7 @@ import { getServiceCall_HistoryListService, getServiceCallListService, postServi
 import { FormDataType } from "../../../screen/ServiceCall/ServiceCall_View.screen";
 
 export type ServiceCallListType = {
+    invoiced: string | null;
     id: number;
     wo_number: string;
     customer_id: number;
