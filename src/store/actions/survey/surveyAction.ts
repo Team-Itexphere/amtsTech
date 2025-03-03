@@ -111,6 +111,7 @@ interface getSubmitedSurveyResult {
 interface postPaymentInfo_res { 
     id: number;
     invoice_link: string;
+    has_sign: boolean; 
 }
 
 export const getSurvey = async (dispatch: Dispatch): Promise<ExtendedSurveyItem[]> => {

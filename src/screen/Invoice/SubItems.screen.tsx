@@ -201,6 +201,7 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                             keyboardType='default'
                             onChange={(value) => onChange(id, "des_problem", value)}
                             containerStyle={{ marginTop: SIZES.base, }}
+                            autoCapitalize="sentences"
                         />
 
                         
@@ -212,6 +213,7 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                         keyboardType='default'
                         onChange={(value) => onChange(id, 'location', value)}
                         containerStyle={{ marginTop: SIZES.base, }}
+                        autoCapitalize="sentences"
                     />
                     }
 
@@ -463,7 +465,7 @@ const SubItemsScreen = () => {
             const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
             setIsLoarding(false)
             
-            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id }));
+            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id, payOpt: postData.has_sign }));
         } else {
 
             let postData: any;
@@ -501,7 +503,7 @@ const SubItemsScreen = () => {
             postData && (
                 setInvId(postData.id), 
                 setHasInvoice(true), 
-                navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id })
+                navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id, payOpt: postData.has_sign })
             );
             // navigation.navigate('PaymentOption');
         }
@@ -543,6 +545,7 @@ const SubItemsScreen = () => {
                 keyboardType='default'
                 containerStyle={{ marginTop: SIZES.base, }}
                 onChange={(value) => setComment(value)}
+                autoCapitalize="sentences"
             />
             <Text style={{ ...FONTS.body2, margin: SIZES.base, marginBottom: SIZES.none, textAlign: "right" }}>Sales Tax : ${sales_tax}</Text>
             <Text style={{ ...FONTS.body2, margin: SIZES.base, marginBottom: SIZES.none, textAlign: "right", fontWeight: 700 }}>Total Amount : ${totalAmount}</Text>

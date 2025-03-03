@@ -33,7 +33,7 @@ const PdfReader = (props: Props) => {
     const dispatch = useDispatch();
     const route = useRoute<PdfReaderRouteProp>();
     const navigation = useNavigation<NavigationProp>();
-    const { invoice_link, istools, inv_id } = route.params;
+    const { invoice_link, istools, inv_id, payOpt } = route.params;
     const source = { uri: invoice_link, cache: true };
     const [isLoading, setIsLoarding] = useState<boolean>(false)
 
@@ -60,7 +60,7 @@ const PdfReader = (props: Props) => {
 
         const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
         setIsLoarding(false)
-        if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id })
+        if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id, payOpt: postData.has_sign })
     };
 
     // Handle when the user cancels the signature
@@ -190,7 +190,7 @@ const PdfReader = (props: Props) => {
                         />
                     </TouchableOpacity>
 
-                    <TouchableOpacity
+                    {payOpt && (<TouchableOpacity
                         onPress={() => navigation.navigate('PaymentOption', { inv_id: inv_id })}
                         style={{
                             padding: SIZES.base,
@@ -203,7 +203,7 @@ const PdfReader = (props: Props) => {
                             source={IconPaymentOptions}
                             style={{ width: 30, height: 30 }}
                         />
-                    </TouchableOpacity>
+                    </TouchableOpacity>)}
 
                     <TouchableOpacity
                         onPress={openSignatureModal}

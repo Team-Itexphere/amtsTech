@@ -196,6 +196,7 @@ const ServiceCallViewScreen = () => {
                     placeholder="Comment"
                     value={formData.comment}
                     onChange={(text) => setFormData({ ...formData, comment: text })}
+                    autoCapitalize="sentences"
                 />
                 <CustomDropdown
                     selectedValue={formData.status || ''}

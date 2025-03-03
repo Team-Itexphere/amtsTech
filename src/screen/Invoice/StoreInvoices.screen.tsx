@@ -35,8 +35,8 @@ const StoreInvoicesScreen = () => {
         fetchInvoices();
     }, [location.cus_id, dispatch]);
 
-    const viewPDF = (pdf_link: string, inv_id: number) => {
-        navigation.navigate('PdfReader', { invoice_link: pdf_link, istools: true, inv_id: inv_id });
+    const viewPDF = (pdf_link: string, inv_id: number, has_sign: boolean) => {
+        navigation.navigate('PdfReader', { invoice_link: pdf_link, istools: true, inv_id: inv_id, payOpt: has_sign });
     };
 
     const editInvoice = (id: number) => {
@@ -103,7 +103,7 @@ const StoreInvoicesScreen = () => {
                             <View style={{ marginLeft: invoice.payment == 'Paid' ? 50 : 0 }}>
                                 <Button
                                     title="View PDF"
-                                    onPress={() => viewPDF(invoice.pdf_link, invoice.id)} // Pass pdf_link when clicked
+                                    onPress={() => viewPDF(invoice.pdf_link, invoice.id, invoice.has_sign)} // Pass pdf_link when clicked
                                     color={COLORS.lightOrange}
                                 />
                             </View>
