@@ -1,22 +1,24 @@
 import { Dispatch } from "redux";
-import { getAmountService, getSubmitedAnswersService, getSurveyListService, getUniqueIdService, postAnswerService, postInvoiceInfo_From_ServiceCall_Service, postPaymentInfoService } from "../../../services/survey/survey.service";
+import { getAmountService, getInvoicesService, getSubmitedAnswersService, getSurveyListService, getSurveysService, getUniqueIdService, postAnswerService, postInvoiceInfo_From_ServiceCall_Service, postPaymentInfoService } from "../../../services/survey/survey.service";
 import { Status } from "./routesAction";
 import { InvoiceSubItemWithAmount } from "../../../screen/Invoice/SubItems.screen";
 import { save_Amount } from "./invoiceAction";
+import { BASE_URL } from "../../../services/urls";
 
 export interface SurveyItem {
     id: number;
     question: string;
 }
 export interface ExtendedSurveyItem extends SurveyItem {
-    answ: 1 | 2 | 3,
+    answ: 1 | 2 | 3 | null | '',
     description: string,
-    image: { hasImg: boolean, imguri: string | undefined }
+    image: { hasImg: boolean, imguri: string | undefined },
+    gen_comment: string
 }
 
 export interface UniqueIdVal {
     // unique_id: number;
-    cus_id: string;
+    cus_id: number;
     tech_id: number;
     updated_at: string; // ISO 8601 date string
     created_at: string; // ISO 8601 date string
@@ -36,14 +38,16 @@ export type getUniqueId_Apiqueryparams = { unique_id: number, ro_loc_id: number,
 export enum Answer {
     Yes = "Yes",
     No = "No",
-    NA = "N/A"
+    NA = "N/A",
+    NULL = "",
 }
 export type postAnswer_ApiBody = {
     unique_id: number,
     ques_id: number,
     answer: Answer,
     desc: string,
-    file: string
+    file: string,
+    gen_comment: string | null
 }
 
 export interface postAnswer_res {
@@ -51,6 +55,7 @@ export interface postAnswer_res {
     created_at: string;
     desc: string;
     file?: string;
+    gen_comment: string | null;
     id: number;
     ques_id: number;
     testing_id: number;
@@ -60,22 +65,27 @@ export interface postAnswer_res {
 }
 
 export interface postPaymentReqBody {
-    pay_opt: 'Cash' | 'Check' | 'MO';
-    check_no: string | null;
-    mo_no: string | null;
+    pay_opt?: 'Cash' | 'Check' | 'MO';
+    check_no?: string | null;
+    mo_no?: string | null;
     // descript: string
-    amount: number;
-    items: InvoiceSubItemWithAmount[];
-    list_id: number;
-    cus_id: number
+    amount?: number;
+    items?: InvoiceSubItemWithAmount[];
+    list_id?: number;
+    cus_id?: number;
+    addi_comments?: string | null;
+    service?: string | null;
+    id?: number | null;
+    inv_id?: number | null;
 }
 
 export type postInvoiceReqBody = Omit<postPaymentReqBody, 'pay_opt' | 'check_no' | 'mo_no'>;
 export type postInvoice_from_ServiceCall_ReqBody = Omit<postPaymentReqBody, 'pay_opt' | 'check_no' | 'mo_no' | 'list_id' | 'cus_id' | 'amount'> & {
     customer_id: number
 }
-export type postInvoice_from_ServiceCall_ReqPaymentBody = Omit<postPaymentReqBody, 'list_id' | 'cus_id' | 'amount'> & {
-    customer_id: number
+export type postInvoice_from_ServiceCall_ReqPaymentBody = Omit<postPaymentReqBody, 'list_id' | 'cus_id' | 'amount' | 'addi_comments' | 'service'> & {
+    customer_id?: number,
+    signature: string | null
 }
 
 
@@ -83,9 +93,10 @@ type TestResultType = {
     id: number;
     testing_id: number;
     ques_id: number;
-    answer: Answer;
+    answer: Answer | null;
     desc: string | null;
     file: string | null;
+    gen_comment: string | null;
     created_at: string;
     updated_at: string;
 };
@@ -93,10 +104,15 @@ type TestResultType = {
 interface getSubmitedSurveyResult {
     extendedSurveyItem: ExtendedSurveyItem[];
     uniqueID: number;
+    gen_comment: string | null
 }
 
 
-interface postPaymentInfo_res { invoice_link: string }
+interface postPaymentInfo_res { 
+    id: number;
+    invoice_link: string;
+    has_sign: boolean; 
+}
 
 export const getSurvey = async (dispatch: Dispatch): Promise<ExtendedSurveyItem[]> => {
     try {
@@ -110,9 +126,11 @@ export const getSurvey = async (dispatch: Dispatch): Promise<ExtendedSurveyItem[
         } else {
             const res: ExtendedSurveyItem[] = response.data.map((item: SurveyItem) => ({
                 ...item,
-                answ: 2,
+                // answ: 2,
+                answ: '',
                 description: '',
-                image: { hasImg: false, imguri: '' }
+                image: { hasImg: false, imguri: '' },
+                gen_comment: '',
             }));
 
             return res;
@@ -131,7 +149,8 @@ export const getSubmitedSurvey = async (dispatch: Dispatch, list_id: number, cus
         ])
 
         if (surveyItems.hasError || apiAnswers.length === 0) {
-            console.warn(" err getSurveyListService or getSubmitedAnswers");
+            surveyItems.hasError && console.warn(" err getSurveyListService or getSubmitedAnswers");
+            console.log('incompleted survey')
             return null
         }
 
@@ -140,12 +159,13 @@ export const getSubmitedSurvey = async (dispatch: Dispatch, list_id: number, cus
             if (answer) {
                 return {
                     ...survey,
-                    answ: answer.answer === "Yes" ? 1 : answer.answer === "No" ? 2 : 3,
+                    answ: answer.answer === "Yes" ? 1 : answer.answer === "No" ? 2 : answer.answer === "N/A" ? 3 : '',
                     description: answer.desc || "",
                     image: {
                         hasImg: !!answer.file,
-                        imguri: answer.file || undefined,
-                    }
+                        imguri: BASE_URL + answer.file || undefined,
+                    },
+                    gen_comment: answer.ques_id ===  18 ? apiAnswers[17].gen_comment : ""
                 } as ExtendedSurveyItem
 
 
@@ -164,6 +184,7 @@ export const getSubmitedSurvey = async (dispatch: Dispatch, list_id: number, cus
         return {
             extendedSurveyItem: extendedSurveyResults,
             uniqueID: apiAnswers[0].testing_id,
+            gen_comment: apiAnswers[17]?.gen_comment
         };
 
     } catch (error) {
@@ -217,7 +238,7 @@ export const getUniqueId = async (dispatch: Dispatch, queryparams: getUniqueId_A
 
 export const getAmount = async (dispatch: Dispatch, ro_loc_id: number): Promise<string | null> => {
     try {
-        const response = await getAmountService(ro_loc_id)
+        const response = await getAmountService(ro_loc_id);
         if (response.hasError) {
             console.warn(
                 'has error::-> getAmountService ::',
@@ -234,22 +255,58 @@ export const getAmount = async (dispatch: Dispatch, ro_loc_id: number): Promise<
     }
 }
 
-export const postAnswer = async (dispatch: Dispatch, formData: postAnswer_ApiBody): Promise<postAnswer_res> => {
+export const getInvoices = async (dispatch: Dispatch, cus_id: number | null): Promise<any[] | null> => {
     try {
-        const response = await postAnswerService(formData)
-        console.log("postAnswer response ::", response);
+        const response = await getInvoicesService(cus_id);
         if (response.hasError) {
             console.warn(
-                'has error::-> postAnswerService ::',
+                'has error::-> getInvoicesService ::',
                 response.errorMessage,
             );
+            return null
+        } else {
+            return response.data
+        }
+    } catch (error) {
+        console.warn('catch error getInvoices ::', error);
+        return null
+    }
+}
+
+export const getSurveys = async (dispatch: Dispatch, cus_id: number | null): Promise<any[] | null> => {
+    try {
+        const response = await getSurveysService(cus_id);
+        if (response.hasError) {
+            console.warn(
+                'has error::-> getInvoicesService ::',
+                response.errorMessage,
+            );
+            return null
+        } else {
+            return response.data
+        }
+    } catch (error) {
+        console.warn('catch error getInvoices ::', error);
+        return null
+    }
+}
+
+export const postAnswer = async (dispatch: Dispatch, formData: postAnswer_ApiBody, action: string): Promise<postAnswer_res> => {
+    try {
+        const response = await postAnswerService(formData, action)
+        console.log("postAnswer response ::", response);
+        if (response.hasError) {
+            // console.warn(
+            //     'has error::-> postAnswerService ::',
+            //     response.errorMessage,
+            // );
             throw new Error(response.errorMessage);
         } else {
             return response.data
         }
 
     } catch (error) {
-        console.warn('catch error postAnswer ::', error);
+        // console.warn('catch error postAnswer ::', error);
         throw error;
     }
 }
@@ -276,7 +333,7 @@ export const postPaymentInfo = async (dispatch: Dispatch, formData: postPaymentR
 export const postInvoiceInfo = async (dispatch: Dispatch, formData: postInvoiceReqBody): Promise<postPaymentInfo_res | null> => {
     try {
         const response = await postPaymentInfoService(formData)
-        // console.log("postPaymentInfo res::", response);
+        console.log("postPaymentInfo res::", formData);
         if (response.hasError) {
             console.warn(
                 'has error::-> postPaymentInfoService ::',

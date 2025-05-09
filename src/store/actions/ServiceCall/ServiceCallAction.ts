@@ -4,6 +4,7 @@ import { getServiceCall_HistoryListService, getServiceCallListService, postServi
 import { FormDataType } from "../../../screen/ServiceCall/ServiceCall_View.screen";
 
 export type ServiceCallListType = {
+    invoiced: string | null;
     id: number;
     wo_number: string;
     customer_id: number;
@@ -14,12 +15,13 @@ export type ServiceCallListType = {
     start_date: string | null;
     comp_date: string | null;
     time: string | null;
+    comp_time: string | null;
     priority: "High" | "Low";
     comment: string;
     created_at: string;
     updated_at: string;
     store_address: string | null;
-    store_name: string | null;
+    store_name: string;
     ro_loc_id: number | null;
 };
 

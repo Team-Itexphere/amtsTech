@@ -1,4 +1,4 @@
-import { ActivityIndicator, FlatList, Image, SafeAreaView, StatusBar, StyleSheet, Text, View, Switch, Alert } from 'react-native'
+import { ActivityIndicator, FlatList, Image, SafeAreaView, StatusBar, StyleSheet, Text, View, Switch, Alert, Button } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { COLORS, FONTS, SIZES } from '../../assets/theme'
 import TextButton from '../../components/UI/TextButton'
@@ -16,10 +16,10 @@ import SurveyImgModal from '../../components/UI/Modals/surveyImgModal'
 import ResponseModal from '../../components/UI/Modals/ResponseModal'
 import Loading from '../../components/UI/Loading'
 import { Image as ImageCompressor } from 'react-native-compressor';
-import { Status } from '../../types'
+import { ServeyStatus, Status } from '../../types'
 const { IconEye, IconGallery, IconNext, IconSuccessLetter, IconAddPhoto } = assetsPng
 type Props = {}
-type ButtonId = 1 | 2 | 3;
+type ButtonId = 1 | 2 | 3 | null | '';
 
 type visibleSurveyState = {
     modalName: "view_image" | "submit_form" | ""
@@ -97,7 +97,8 @@ const Survey = (props: Props) => {
             status,
             ro_loc_id,
             cus_id,
-            list_id
+            list_id,
+            cus_name
         }
     } = useSelector((state: RootState) => state.routeReducer);
 
@@ -115,13 +116,15 @@ const Survey = (props: Props) => {
         isVisible: false
     })
 
+    const [genComment, setgenComment] = useState<string>('');
+
     useEffect(() => {
 
         if (surveyItemArrayFromRedux.length > 0 && unique_id) {
             // trying to again edit the survey
             setSurveyItemArray(surveyItemArrayFromRedux)
             setUniqueIdData({ id: unique_id })
-        } else if (status === Status.Completed) {
+        } else if (status /*=== ServeyStatus.Completed*/) {
             getSurveyToUpdate()
         } else {
             fetchData();
@@ -137,7 +140,12 @@ const Survey = (props: Props) => {
         if (SubmitedListRes) {
             setSurveyItemArray(SubmitedListRes.extendedSurveyItem)
             setUniqueIdData({ id: SubmitedListRes.uniqueID })
+
+            surveyItemArray[17] && setgenComment(surveyItemArray[17].gen_comment)
+        } else {
+            fetchData();
         }
+
         setIsLoarding(false)
     }
 
@@ -168,6 +176,8 @@ const Survey = (props: Props) => {
                 return Answer.No
             case 3:
                 return Answer.NA
+            default:
+                return Answer.NULL;
         }
     }
     const sendAnswer = async (currentanw: number) => {
@@ -184,10 +194,11 @@ const Survey = (props: Props) => {
             ques_id: currentanw + 1,
             answer: a(anws.answ),
             desc: anws.description,
-            file: base64Image ? base64Image : ''
+            file: base64Image ? base64Image : '',
+            gen_comment: anws.gen_comment
         }
 
-        const postData = await postAnswer(dispatch, asw);
+        const postData = await postAnswer(dispatch, asw, '');
         if (postData && postData.success) {
             setIsLoarding(false)
             return true
@@ -198,50 +209,85 @@ const Survey = (props: Props) => {
 
     }
 
-    const submitAll = async () => {
+    const submitAll = async (action: string) => {
         if (!uniqueIdData?.id) {
             console.warn('required unique_id before sendAnswer ::');
             return false
         }
         setIsLoarding(true)
 
-        const results = await Promise.allSettled(
-            surveyItemArray.map(async (anws, index) => {
-                const asw = {
-                    unique_id: uniqueIdData?.id,
-                    ques_id: index + 1,
-                    answer: a(anws.answ),
-                    desc: anws.description,
-                    file: ''
-                }
+        const results: Array<any> = [];
 
-                if (anws.image.hasImg) {
-                    try {
-                        asw.file = await ImageCompressor.compress(anws.image.imguri!, {
-                            returnableOutputType: 'base64',
-                            compressionMethod: 'auto'
-                        });
-                    } catch (error) {
-                        console.error(`Error compressing image for question ${surveyItemArray[index].id}:`, error);
-                    }
+        let isTerminate = false;
+        for (let index = 0; index < surveyItemArray.length; index++) {
+            const anws = surveyItemArray[index];
+
+            const asw = {
+                unique_id: uniqueIdData?.id,
+                ques_id: index + 1,
+                answer: a(anws.answ),
+                desc: anws.description,
+                file: '',
+                gen_comment: anws.gen_comment
+            };
+
+            if (anws.image.hasImg) {
+                try {
+                    asw.file = await ImageCompressor.compress(anws.image.imguri!, {
+                        returnableOutputType: 'base64',
+                        compressionMethod: 'auto'
+                    });
+                } catch (error) {
+                    console.error(`Error compressing image for question ${index + 1}:`, error);
                 }
-                return await postAnswer(dispatch, asw);
-                // if (postData && postData.success) {
-                //     return true
-                // } else {
-                //     console.error(`Answer for question ${surveyItemArray[index].id} failed with error::`);
-                //     return false
-                // }
-            })
-        );
+            }
+
+            isTerminate = false;
+
+            switch (anws.answ) {
+                case 1: // Yes
+                    if ((index === 0 || index === 6 || index === 7 || index === 9) && !anws.image.hasImg) {
+                        Alert.alert("Picture is required for question " + (index + 1));
+                        isTerminate = true;
+                    }
+                    break;
+                case 2: // No
+                    if ((index !== 0 && index !== 6 && index !== 7 && index !== 9) && !anws.image.hasImg) {
+                        Alert.alert("Picture is required for question " + (index + 1));
+                        isTerminate = true;
+                    }
+                    break;
+                case '':
+                    Alert.alert("Answer is required for question " + (index + 1));
+                    isTerminate = true;
+                    break;
+            }
+
+            if (isTerminate) {
+                break;
+            }
+            
+            // Collect the result for further usage
+            const result = await postAnswer(dispatch, asw, action);
+            results.push(result);
+        }
+
         setIsLoarding(false)
 
-        const allSuccess = results.every(result => result.status === "fulfilled");
+        if (isTerminate) {
+            return;
+        }
+        
+        const allSuccess = results.every(result => result.success === true);
 
         if (allSuccess) {
             console.log('All answers were submitted successfully.');
             // setIsVisible({ isVisible: true, modalName: 'submit_form' })
-            navigateToBack();
+            //navigateToBack();
+
+            navigation.navigate('StoreList', { newStatus: action !== 'save' ? ServeyStatus.Completed : undefined });
+            
+            //list_id && navigation.navigate('LocationList', { ro_loc_id: list_id });
         } else {
             Alert.alert("Some answers failed to submit.");
         }
@@ -322,6 +368,21 @@ const Survey = (props: Props) => {
                     break;
                 }
             }
+            return newItems;
+        })
+    }
+
+    const onChangeComment = (text: string) => {
+        setSurveyItemArray((prevItems) => {
+            const newItems = [...prevItems];
+            for (let i = 0; i < newItems.length; i++) {
+                if (newItems[i].id === 18) {
+                    newItems[i] = { ...newItems[i], gen_comment: text };
+                    break;
+                }
+            }
+            
+            setgenComment(newItems[17].gen_comment)
             return newItems;
         })
     }
@@ -414,156 +475,148 @@ const Survey = (props: Props) => {
     const renderView = () => {
         if (isToggleMode) {
             return (
-                <View style={{ height: 400, }}>
-                    <View style={{ flex: 1 }}>
-                        <FlatList
-                            ref={containerRef}
-                            horizontal
-                            pagingEnabled
-                            scrollEnabled={false}
-                            snapToAlignment='center'
-                            snapToInterval={SIZES.width}
-                            decelerationRate="fast"
-                            showsHorizontalScrollIndicator={false}
-                            data={surveyItemArray}
-                            keyExtractor={(item, index) => `container ${item.id}${index}`}
-                            renderItem={({ item, index }) => {
-                                return (
-                                    // same element use in else block in below
-                                    <View style={{ backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.padding, width: SIZES.width, }}>
-                                        {/* <View style={{ marginVertical: 'auto' }}> */}
+                // <View style={{ height: 400, }}>
+                //     <View style={{ flex: 1 }}>
+                //         <FlatList
+                //             ref={containerRef}
+                //             horizontal
+                //             pagingEnabled
+                //             scrollEnabled={false}
+                //             snapToAlignment='center'
+                //             snapToInterval={SIZES.width}
+                //             decelerationRate="fast"
+                //             showsHorizontalScrollIndicator={false}
+                //             data={surveyItemArray}
+                //             keyExtractor={(item, index) => `container ${item.id}${index}`}
+                //             renderItem={({ item, index }) => {
+                //                 return (
+                //                     // same element use in else block in below
+                //                     <View style={{ backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.padding, width: SIZES.width, }}>
+                //                         {/* <View style={{ marginVertical: 'auto' }}> */}
 
 
-                                        <Text style={[FONTS.h3,]}>{item.id}: {item.question}</Text>
-                                        {renderAnswerButtons({ item, isDisabled, onPressAnswButton })}
-                                        <LineDivider />
+                //                         <Text style={[FONTS.h3,]}>{item.id}: {item.question}</Text>
+                //                         {renderAnswerButtons({ item, isDisabled, onPressAnswButton })}
+                //                         <LineDivider />
 
 
-                                        <FormInput
-                                            containerStyle={{
-                                                borderRadius: SIZES.radius,
-                                                marginVertical: SIZES.base * 2
-                                                // backgroundColor: COLORS.error,
-                                            }}
-                                            // inputContainerStyle={}
-                                            placeholder="Description"
-                                            value={item.description}
-                                            onChange={(text: string) => onChangeDescText(text)}
-                                            editable={!isDisabled()}
-                                        />
+                //                         <FormInput
+                //                             containerStyle={{
+                //                                 borderRadius: SIZES.radius,
+                //                                 marginVertical: SIZES.base * 2
+                //                                 // backgroundColor: COLORS.error,
+                //                             }}
+                //                             // inputContainerStyle={}
+                //                             placeholder="Description"
+                //                             value={item.description}
+                //                             onChange={(text: string) => onChangeDescText(text)}
+                //                             editable={!isDisabled()}
+                //                         />
 
 
-                                        <View style={{ flex: 1 }} />
-                                        <LineDivider />
-                                        <View style={{ flexDirection: 'row', marginTop: SIZES.radius }}>
-                                            <IconLabelButton
-                                                iconStyle={{ tintColor: COLORS.secondary }}
-                                                icon={IconAddPhoto} label='Camera'
-                                                containerStyle={{ flex: 1 }}
-                                                onPress={() => handleCamera()} />
-                                            <IconLabelButton
-                                                iconStyle={{ tintColor: COLORS.secondary }}
-                                                icon={IconGallery} label='Gallery'
-                                                containerStyle={{ flex: 1 }}
-                                                onPress={() => handleImagePick()} />
-                                            {item.image.hasImg ?
-                                                <IconLabelButton
-                                                    iconStyle={{ tintColor: COLORS.secondary }}
-                                                    icon={IconEye} label='view image'
-                                                    containerStyle={{ flex: 1 }}
-                                                    onPress={() => {
-                                                        setimgurl(item.image.imguri)
-                                                        setIsVisible({ modalName: 'view_image', isVisible: true })
-                                                    }}
-                                                /> :
-                                                <View style={{ flex: 1 }} />
-                                            }
-                                        </View>
-                                        {/* </View> */}
+                //                         <View style={{ flex: 1 }} />
+                //                         <LineDivider />
+                //                         <View style={{ flexDirection: 'row', marginTop: SIZES.radius }}>
+                //                             <IconLabelButton
+                //                                 iconStyle={{ tintColor: COLORS.secondary }}
+                //                                 icon={IconAddPhoto} label='Camera'
+                //                                 containerStyle={{ flex: 1 }}
+                //                                 onPress={() => handleCamera()} />
+                //                             <IconLabelButton
+                //                                 iconStyle={{ tintColor: COLORS.secondary }}
+                //                                 icon={IconGallery} label='Gallery'
+                //                                 containerStyle={{ flex: 1 }}
+                //                                 onPress={() => handleImagePick()} />
+                //                             {item.image.hasImg ?
+                //                                 <IconLabelButton
+                //                                     iconStyle={{ tintColor: COLORS.secondary }}
+                //                                     icon={IconEye} label='view image'
+                //                                     containerStyle={{ flex: 1 }}
+                //                                     onPress={() => {
+                //                                         setimgurl(item.image.imguri)
+                //                                         setIsVisible({ modalName: 'view_image', isVisible: true })
+                //                                     }}
+                //                                 /> :
+                //                                 <View style={{ flex: 1 }} />
+                //                             }
+                //                         </View>
+                //                         {/* </View> */}
 
-                                    </View>
+                //                     </View>
 
-                                )
-                            }}
-                        />
-                    </View>
-                    {/* This only use in their */}
-                    <View style={{
-                        display: 'flex',
-                        flexDirection: 'row',
-                        justifyContent: isFirstQuestion() ? 'flex-end' : 'space-between',
-                        backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.base, marginTop: SIZES.base * 2,
-                    }}>
+                //                 )
+                //             }}
+                //         />
+                //     </View>
+                //     {/* This only use in their */}
+                //     <View style={{
+                //         display: 'flex',
+                //         flexDirection: 'row',
+                //         justifyContent: isFirstQuestion() ? 'flex-end' : 'space-between',
+                //         backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.base, marginTop: SIZES.base * 2,
+                //     }}>
 
-                        {!isFirstQuestion() && <IconLabelButton
-                            labelStyle={{ marginRight: SIZES.base }}
-                            iconStyle={{ tintColor: COLORS.dark60 }}
-                            containerStyle={{
-                                backgroundColor: COLORS.lightGrey,
-                                padding: SIZES.base,
-                                borderRadius: SIZES.radius,
-                            }}
-                            icon={IconNext}
-                            label="Prev"
-                            onPress={handlePrevPress}
-                            disabled={isDisabled()}
-                        />}
+                //         {!isFirstQuestion() && <IconLabelButton
+                //             labelStyle={{ marginRight: SIZES.base }}
+                //             iconStyle={{ tintColor: COLORS.dark60 }}
+                //             containerStyle={{
+                //                 backgroundColor: COLORS.lightGrey,
+                //                 padding: SIZES.base,
+                //                 borderRadius: SIZES.radius,
+                //             }}
+                //             icon={IconNext}
+                //             label="Prev"
+                //             onPress={handlePrevPress}
+                //             disabled={isDisabled()}
+                //         />}
 
-                        <IconLabelButton
-                            labelStyle={{ marginRight: SIZES.base }}
-                            iconStyle={{ tintColor: COLORS.dark60 }}
-                            icon={IconNext}
-                            label={(isLoading && !!base64Image) ? 'Image is uploading...' : isLoading ? 'Loading...' : isLastItem ? 'Submit' : 'Next'}
-                            containerStyle={{ flexDirection: 'row-reverse', backgroundColor: isLastItem ? COLORS.lightOrange : COLORS.lightGrey, padding: SIZES.base, borderRadius: SIZES.radius }}
-                            onPress={handleNextPress}
-                            disabled={isDisabled()}
-                        />
-                    </View>
-                </View>
-            );
+                //         {isLastItem && <FormInput
+                //             containerStyle={{
+                //                 borderRadius: SIZES.radius,
+                //                 marginVertical: SIZES.base * 2
+                //             }}
+                //             placeholder="General Comments"
+                //             value=""
+                //             onChange={(text: string) => onChangeComment(text)}
+                //         />}
+
+                //         <IconLabelButton
+                //             labelStyle={{ marginRight: SIZES.base }}
+                //             iconStyle={{ tintColor: COLORS.dark60 }}
+                //             icon={IconNext}
+                //             label={(isLoading && !!base64Image) ? 'Image is uploading...' : isLoading ? 'Loading...' : isLastItem ? 'Submit' : 'Next'}
+                //             containerStyle={{ flexDirection: 'row-reverse', backgroundColor: isLastItem ? COLORS.lightOrange : COLORS.lightGrey, padding: SIZES.base, borderRadius: SIZES.radius }}
+                //             onPress={handleNextPress}
+                //             disabled={isDisabled()}
+                //         />
+                //     </View>
+                // </View>
+            '');
         } else {
             return (
                 <View style={{ flex: 1 }}>
                     {isLoading && <Loading />}
+                    <Text 
+                        style={{
+                            textAlign: 'center',
+                            paddingBottom: 5,
+                            fontWeight: 600,
+                            backgroundColor: COLORS.white
+                        }}
+                    >{cus_name}</Text>
+                    <Button 
+                        title="📝 View Previous Surveys" 
+                        onPress={() => {
+                            navigation.navigate('StoreSurveys');
+                        }} 
+                        color={COLORS.lightOrange} 
+                    />  
                     <FlatList
                         data={surveyItemArray}
                         keyExtractor={(item, index) => `container ${item.id}${index}`}
-                        ListFooterComponent={<View
-                            style={{
-                                flexDirection: 'row',
-                                margin: SIZES.base,
-                                marginBottom: SIZES.radius
-                            }}>
-                            <IconLabelButton
-                                labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
-                                iconStyle={{ tintColor: COLORS.white }}
-                                icon={IconNext}
-                                label={'Save'}
-                                containerStyle={{
-                                    flex: 1, marginRight: 4,
-                                    flexDirection: 'row-reverse',
-                                    backgroundColor: COLORS.secondary, padding: SIZES.radius, borderRadius: SIZES.radius
-                                }}
-                                onPress={() => submitAll()}
-                                disabled={isDisabled()}
-                            />
-                            <IconLabelButton
-                                labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
-                                iconStyle={{ tintColor: COLORS.white }}
-                                icon={IconNext}
-                                label={'Submit'}
-                                containerStyle={{
-                                    flex: 1,
-                                    flexDirection: 'row-reverse',
-                                    backgroundColor: COLORS.lightOrange, padding: SIZES.radius, borderRadius: SIZES.radius
-                                }}
-                                onPress={() => submitAll()}
-                                disabled={isDisabled()}
-                            />
-                        </View>}
                         renderItem={({ item, index }) => {
                             return (
-                                <View style={{ backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.padding, margin: SIZES.base }}>
+                                <View style={{ backgroundColor: COLORS.white, borderRadius: SIZES.radius, padding: SIZES.padding, margin: SIZES.base, marginBottom: item.id === 18 ? 100 : 0 }}>
                                     {/* <View style={{ marginVertical: 'auto' }}> */}
 
                                     <Text style={[FONTS.h3,]}>{item.id}: {item.question}</Text>
@@ -617,6 +670,59 @@ const Survey = (props: Props) => {
                             )
                         }}
                     />
+                    <View>
+                        {/* <Text 
+                            style={{
+                                textAlign: 'center',
+                                marginBottom: -25,
+                                position: 'relative',
+                                zIndex: 9
+                            }}
+                            >General Comments</Text> */}
+                        <FormInput
+                            containerStyle={{
+                                borderRadius: SIZES.radius,
+                                margin: SIZES.base
+                            }}
+                            placeholder="General Comments"
+                            value={genComment || surveyItemArray[17].gen_comment}
+                            onChange={(text: string) => onChangeComment(text)}
+                            autoCapitalize="sentences"
+                        />
+                        <View
+                            style={{
+                                flexDirection: 'row',
+                                margin: SIZES.base,
+                                marginBottom: SIZES.radius
+                            }}>
+                            <IconLabelButton
+                                labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
+                                iconStyle={{ tintColor: COLORS.white }}
+                                icon={IconNext}
+                                label={'Save'}
+                                containerStyle={{
+                                    flex: 1, marginRight: 4,
+                                    flexDirection: 'row-reverse',
+                                    backgroundColor: COLORS.secondary, padding: SIZES.radius, borderRadius: SIZES.radius
+                                }}
+                                onPress={() => submitAll('save')}
+                                disabled={isDisabled()}
+                            />
+                            <IconLabelButton
+                                labelStyle={{ marginRight: SIZES.base, ...FONTS.h3, color: COLORS.white }}
+                                iconStyle={{ tintColor: COLORS.white }}
+                                icon={IconNext}
+                                label={'Submit'}
+                                containerStyle={{
+                                    flex: 1,
+                                    flexDirection: 'row-reverse',
+                                    backgroundColor: COLORS.lightOrange, padding: SIZES.radius, borderRadius: SIZES.radius
+                                }}
+                                onPress={() => submitAll('submit')}
+                                disabled={isDisabled()}
+                            />
+                        </View>
+                    </View> 
                 </View>
             );
         }
@@ -629,7 +735,7 @@ const Survey = (props: Props) => {
             display: 'flex', justifyContent: 'center', alignItems: 'center'
         }}>
             <StatusBar backgroundColor={COLORS.white} />
-            <View style={{ flexDirection: "row", alignItems: "center", margin: SIZES.base }}>
+            {/* <View style={{ flexDirection: "row", alignItems: "center", margin: SIZES.base }}>
                 <Switch
                     value={isToggleMode}
                     onValueChange={() => setIsToggleMode((prev) => !prev)}
@@ -637,7 +743,7 @@ const Survey = (props: Props) => {
                     thumbColor={COLORS.secondary}
                 />
                 <Text style={{ ...FONTS.body3 }}>Toggle View</Text>
-            </View>
+            </View> */}
 
             {renderView()}
 

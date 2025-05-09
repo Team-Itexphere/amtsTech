@@ -33,7 +33,7 @@ const Header = ({ containerStyles, title, leftComponent, rightComponent, isTextO
 
             {/* Title */}
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Text style={[{}, FONTS.h3]}>{title}</Text>
+                <Text style={[{ textAlign: 'center' }, FONTS.h3]}>{title}</Text>
             </View>
 
 

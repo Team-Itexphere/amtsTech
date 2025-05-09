@@ -9,6 +9,7 @@ import { useIsFocused, useNavigation, useRoute } from '@react-navigation/native'
 import { ClearAllRouteData, getLocations, LocationItem, SaveLocationPressData, Status } from '../../store/actions/survey/routesAction'
 import assetsPng from '../../assets/pngs'
 import Loading from '../../components/UI/Loading'
+import { ServeyStatus } from '../../types'
 
 const { Bg1, Bg2, IconWarning } = assetsPng;
 
@@ -16,17 +17,21 @@ type Props = {}
 type renderCardType = {
     item: LocationItem,
     containerStyle: ViewStyle,
-    onPress: () => void
+    onPress: () => void,
+    index: number
 }
 
-const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
+const renderCard = ({ item, containerStyle, onPress, index }: renderCardType) => {
+
+    const notesPending = item.notes.length > 0 && item.notes.some(note => note.status !== Status.Completed);
+    const pendingNotesCount = notesPending ? item.notes.filter(note => note.status !== Status.Completed).length : 0;
 
     return (
         <TouchableOpacity
             onPress={onPress}
             style={{ height: 150, width: 200, ...containerStyle, position: 'relative' }}>
             <Image
-                source={item.status === Status.Pending ? Bg1 : Bg2}
+                source={item.status === ServeyStatus.Pending ? Bg1 : Bg2}
                 resizeMode='cover'
                 style={{
                     width: "100%",
@@ -42,23 +47,44 @@ const renderCard = ({ item, containerStyle, onPress }: renderCardType) => {
             }}>
                 <Text style={{ ...FONTS.h3, color: COLORS.white, }} numberOfLines={1}>Route # {item.route_no}</Text>
             </View>
+
+            <View style={{
+                position: 'absolute',
+                top: 10,
+                right: 10,
+                backgroundColor: COLORS.dark60, 
+                width: 30, 
+                height: 30, 
+                borderRadius: 7,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+            }}>
+                <Text style={{ ...FONTS.h3, color: COLORS.white }} numberOfLines={1}>{index + 1}</Text>
+            </View>
             
             <View style={{
                 position: 'absolute',
-                bottom: 10,
+                bottom: 35,
                 left: 10
             }}>
-                <Text style={{ ...FONTS.h3, color: COLORS.white, }} numberOfLines={1}>{item.customer.str_addr}</Text>
+                <Text style={{ ...FONTS.h3, color: COLORS.white, }} numberOfLines={1}>
+                    {[item.customer?.str_addr, item.customer?.city, item.customer?.state, item.customer?.zip_code]
+                    .filter(Boolean)
+                    .join(", ")}
+                </Text>
                 <Text style={{ ...FONTS.h4, color: COLORS.white, }}>{item.cus_name}</Text>
                 <Text style={{ ...FONTS.body4, color: COLORS.white, maxWidth: 90 }} numberOfLines={1}>{item.cus_fac_id}</Text>
             </View>
 
             <View style={{
                 position: 'absolute',
-                bottom: 10,
-                right: 10
+                bottom: 5,
+                right: 5,
             }}>
-                <Text style={{ ...FONTS.body5, color: item.status === Status.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius }}>{item.status ? item.status : 'pending'}</Text>
+                <Text style={{ ...FONTS.body5, color: item.status === ServeyStatus.Completed ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginBottom: 3, width: 160, textAlign: 'center' }}>Inspection: {item.status === ServeyStatus.Completed ? 'Completed' : 'Pending'}</Text>
+                {notesPending && <Text style={{ ...FONTS.body5, color: !notesPending ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, marginBottom: 3, width: 160, textAlign: 'center' }}>Notes: {Status.Pending} ({pendingNotesCount})</Text>}
+                <Text style={{ ...FONTS.body5, color: item.hasInvoice ? COLORS.green : COLORS.red, backgroundColor: COLORS.transparentWhite1, paddingHorizontal: SIZES.base, borderRadius: SIZES.radius, width: 160, textAlign: 'center' }}>Invoiced: {item.hasInvoice ? 'Yes' : 'No'} <Text style={{ color: item.invPaid ? COLORS.green : COLORS.red }}>{item.invPaid ? '- Paid' : '- Unpaid'}</Text></Text>
             </View>
         </TouchableOpacity>
     )
@@ -100,10 +126,14 @@ const LocationScreen = (props: Props) => {
         cus_id: number,
         list_id: number,
         status: LocationItem['status'],
-        notes: LocationItem['notes'],
+        notes: LocationItem['notes'],        
+        cus_name: string,
+        rec_logs: number | string,
+        hasInvoice: boolean | undefined,
+
     ) => {
 
-        dispatch(SaveLocationPressData(ro_loc_id, cus_id, list_id, notes, status));
+        dispatch(SaveLocationPressData(ro_loc_id, cus_id, list_id, notes, status, cus_name, rec_logs, hasInvoice));
         navigation.navigate('StoreList')
 
     }
@@ -139,12 +169,13 @@ const LocationScreen = (props: Props) => {
                         renderCard({
                             item,
                             containerStyle: {
-                                height: 130,
+                                height: 145,
                                 width: SIZES.width - (SIZES.radius * 2), // - SIZES.radius),
                                 marginTop: SIZES.radius,
                                 marginHorizontal: SIZES.radius // : SIZES.padding
                             },
-                            onPress: () => onPressItem(item.id, item.cus_id, item.list_id, item.status, item.notes)
+                            onPress: () => onPressItem(item.id, item.cus_id, item.list_id, item.status, item.notes, item.cus_name, item.customer.rec_logs, item.hasInvoice),
+                            index
                         })
                     )}
                     refreshControl={

@@ -13,6 +13,7 @@ import { InvoiceSubItemsProp, NavigationProp } from '../../navigation/navigation
 import { getAmount, postInvoice_from_ServiceCall_ReqBody, postInvoiceInfo, postInvoiceInfo_From_ServiceCall, postInvoiceReqBody } from '../../store/actions/survey/surveyAction';
 import { RootState } from '../../store/store';
 import { saveDataFrom_ServiceCallTo_Invoice } from '../../store/actions/ServiceCall/ServiceCallStateAction';
+import { ServeyStatus } from '../../types';
 
 interface FormComponentProps {
     id: number;
@@ -53,7 +54,30 @@ export type InvoiceSubItemWithAmount =
     | GeneralInvoiceSubItemWithAmount
     | MonthlyInspectionInvoiceSubItemWithAmount | ServiceCall_Invoice_SubItem_withAmount;
 
-function renderAbsoluteButton(handleSubmit: () => void) {
+// function renderAbsoluteButton(handleSubmit: () => void) {
+//     return (
+//         <TouchableOpacity
+//             onPress={() => handleSubmit()}
+//             style={{
+//                 padding: 10,
+//                 borderRadius: 20,
+//                 backgroundColor: COLORS.primary,
+//             }}>
+//             <Image
+//                 alt="home"
+//                 source={require('../../assets/pngs/Icon-Checkmark.png')}
+//                 resizeMode="contain"
+//                 style={{
+//                     width: 20,
+//                     height: 20,
+//                     tintColor: COLORS.white,
+//                 }}
+//             />
+//         </TouchableOpacity>
+//     );
+// }
+
+function renderSaveButton(handleSubmit: () => void) {
     return (
         <TouchableOpacity
             onPress={() => handleSubmit()}
@@ -63,8 +87,8 @@ function renderAbsoluteButton(handleSubmit: () => void) {
                 backgroundColor: COLORS.primary,
             }}>
             <Image
-                alt="home"
-                source={require('../../assets/pngs/Icon-Checkmark.png')}
+                alt="save"
+                source={require('../../assets/pngs/save.png')}
                 resizeMode="contain"
                 style={{
                     width: 20,
@@ -77,31 +101,61 @@ function renderAbsoluteButton(handleSubmit: () => void) {
 }
 
 const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComponentProps) => {
-    const DescriptionOptions = ['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker', "Calibration"];
-    const CategoryOptions = ["Monthly Inspection", "Parts", "Calibration", "Calibration", "Service Call"];
+
+    const { location: { ro_loc_id, cus_id, list_id, status, hasInvoice } } = useSelector((state: RootState) => state.routeReducer);
+
+    const route = useRoute<InvoiceSubItemsProp>();
+    const { source, customer_id, invoice } = route.params; 
+    const [DescriptionOptions, setDescriptionOptions] = useState<any[]>(!source.includes("Service Call") ? ['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker', "Calibration"] : ["Service Call"]);
+
+    const CategoryOptions = ["Parts", "Calibration", "Service Call"];
+    !hasInvoice && !source.includes("Service Call") && CategoryOptions.unshift("Monthly Inspection");
 
     const isMonthlyInspection = data.category === "Monthly Inspection"
     const isServiceCall = data.category === "Service Call"
+    const isCalibration = data.category === "Calibration"
+    const isLabor = data.description === "Calibration Labor"
 
-    const calculatedAmount = isMonthlyInspection ? data.amount : data.qty * data.rate
+    const dataAmount = typeof data.amount === "number" ? +data.amount.toFixed(2) : 0;
+    
+    const [inspAmount, setInspAmount] = useState<number>(dataAmount) 
 
+    const calculatedAmount = isMonthlyInspection ? inspAmount : (data.qty * data.rate).toFixed(2)
+    
     useEffect(() => {
         switch (data.category) {
             case "Monthly Inspection":
-                onChange(id, 'amount', fetchedAmount)
+                setInspAmount(dataAmount || fetchedAmount);
+                onChange(id, 'amount', dataAmount || fetchedAmount)
                 onChange(id, 'description', "Monthly Inspection")
                 break;
             case "Service Call":
-                onChange(id, 'amount', 0)
-                onChange(id, 'des_problem', "")
+                // onChange(id, 'amount', 0)
+                // onChange(id, 'des_problem', "")
+                onChange(id, 'description', "")
+                invoice && onChange(id, 'description', data.description)
+                setDescriptionOptions(["Service Call"])
+                break;
+            case "Calibration":
+                onChange(id, 'description', "")
+                invoice && onChange(id, 'description', data.description)
+                setDescriptionOptions(["Calibration", "Calibration Labor"])
                 break;
             default:
-                onChange(id, 'amount', 0)
-                onChange(id, 'description', "")
-                onChange(id, 'des_problem', "")
+                setDescriptionOptions(['Gasoline nozzle', 'Diesel nozzle', '3/4 swivel', '3/4 hose', '3/4 breakaway', '3/4 whip hose', 'Gas filters', 'Diesel filters', 'Gray fill cap', 'Orange vapor cap', 'Ethanol sticker'])
+                invoice && onChange(id, 'description', data.description)
+                // onChange(id, 'rate', 0)
+                // onChange(id, 'qty', 0)
+                // onChange(id, 'amount', 0)
+                // onChange(id, 'description', "")
+                // onChange(id, 'des_problem', "")
                 break;
         }
     }, [data.category])
+
+    useEffect(() => {
+        setInspAmount(dataAmount || fetchedAmount);
+    }, [data.amount])
 
     return (
         <View style={{ marginVertical: SIZES.base, marginHorizontal: SIZES.base }}>
@@ -117,14 +171,18 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                         value={data.description}
                         placeholder="Description"
                         keyboardType='default'
-                        onChange={(value) => onChange(id, 'description', value)}
+                        // onChange={(value) => onChange(id, 'description', value)}
+                        editable={false}
                         containerStyle={{ marginTop: SIZES.base, }}
                     />
                     <FormInput
-                        value={data.amount ? data.amount?.toString() : ''}
+                        value={inspAmount.toString() || ''}
                         placeholder="Amount"
                         keyboardType='numeric'
-                        onChange={(value) => onChange(id, 'amount', value)}
+                        onChange={(value) => {console.log('vasl',+value)
+                            setInspAmount(+value);
+                            onChange(id, 'amount', +value);                            
+                        }}
                         containerStyle={{ marginTop: SIZES.base, }}
                     />
 
@@ -138,22 +196,28 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                         placeholder="Description"
                         contentContainerStyle={{ marginTop: SIZES.base, }}
                     />
-                    {isServiceCall &&
+                    {!isServiceCall && !isCalibration &&
                         <FormInput
                             value={data.des_problem!}
                             placeholder="Problem Description"
                             keyboardType='default'
                             onChange={(value) => onChange(id, "des_problem", value)}
                             containerStyle={{ marginTop: SIZES.base, }}
+                            autoCapitalize="sentences"
                         />
+
+                        
                     }
-                    <FormInput
+                    
+                    {!isServiceCall && !isLabor && <FormInput
                         value={data.location}
                         placeholder="Location"
                         keyboardType='default'
                         onChange={(value) => onChange(id, 'location', value)}
                         containerStyle={{ marginTop: SIZES.base, }}
+                        autoCapitalize="sentences"
                     />
+                    }
 
                     <FormInput
                         value={data.qty === 0 ? '' : data.qty.toString()}
@@ -167,7 +231,7 @@ const FormComponent = ({ id, data, fetchedAmount, onChange, onDelete }: FormComp
                         value={data.rate === 0 ? '' : data.rate.toString()}
                         placeholder="Rate"
                         keyboardType='numeric'
-                        onChange={(value) => onChange(id, 'rate', Number(value))}
+                        onChange={(value) => onChange(id, 'rate', value)}
                     />
                 </>
             )}
@@ -188,15 +252,22 @@ const SubItemsScreen = () => {
     const dispatch = useDispatch();
     const route = useRoute<InvoiceSubItemsProp>();
     const navigation = useNavigation<NavigationProp>();
-    const { source, customer_id } = route.params;
+    const { source, customer_id, invoice } = route.params;
 
-    const { location: { ro_loc_id, cus_id, list_id } } = useSelector((state: RootState) => state.routeReducer);
+    const currentLocation = useSelector((state: RootState) => state.routeReducer.location);
+    const { location: { ro_loc_id, cus_id, list_id, status, hasInvoice, allowInv } } = useSelector((state: RootState) => state.routeReducer);
 
     const [isLoading, setIsLoarding] = useState<boolean>(false);
     const [fetchedAmount, setFetchedAmount] = useState<number>(0);
-    const [forms, setForms] = useState<InvoiceSubItem[]>([
+    const [forms, setForms] = useState<InvoiceSubItem[]>(!invoice ? [
         { description: '', category: '', location: '', qty: 0, rate: 0 },
-    ]);
+    ] : []);
+
+    const [totalAmount, setTotalAmount] = useState(0);
+    const [sales_tax, setSalesTax] = useState(0);
+    const [comment, setComment] = useState<string>('');
+    const [service, setService] = useState<string | null>(null);
+    const [inv_id, setInvId] = useState<number | null>(null);
 
     const fetchData = async (ro_loc_id: number) => {
         setIsLoarding(true);
@@ -223,7 +294,68 @@ const SubItemsScreen = () => {
                 }
             ])
         }
-    }, [source])
+
+        if(invoice) { 
+            const newInvoiceArr = invoice.invoice_items.map((item) =>
+                { return { description: item.descript ?? '', category: item.category ?? '', location: item.location ?? '', qty: item.qty ?? 0, rate: parseFloat(item.rate) ?? 0, amount: parseFloat(item.amount) ?? 0 } }
+            );
+            setForms(newInvoiceArr);
+            setInvId(invoice.id)
+        }
+    }, [source, invoice])
+
+    const sales_tax_perc = 8.25/100; // Sales Tax Percentage
+
+    useEffect(() => {
+        let inspect_total = 0;
+        let calib_total = 0;
+        let monthlyIns = false;
+        
+        const total = forms.reduce((acc, form) => {
+            let amount = 0;
+
+            switch (form.category) {
+                case "Monthly Inspection":
+                    amount = typeof form.amount === 'number' ? form.amount : 0;
+                    inspect_total += amount;
+                    break;
+                case "Calibration":
+                    const cali_qty = typeof form.qty === 'string' ? parseFloat(form.qty) : form.qty || 0;
+                    const cali_rate = typeof form.rate === 'string' ? parseFloat(form.rate) : form.rate || 0;
+                    amount = cali_qty * cali_rate;
+                    calib_total += amount;
+                    break;
+                default:
+                    const qty = typeof form.qty === 'string' ? parseFloat(form.qty) : form.qty || 0;
+                    const rate = typeof form.rate === 'string' ? parseFloat(form.rate) : form.rate || 0;
+                    amount = qty * rate;
+                    break;
+            }
+            
+            switch (form.category) {
+                case "Monthly Inspection":
+                    monthlyIns = true;
+                    break;
+                case "Calibration":
+                    setService("Calibration");
+                    break;
+                default:
+                    setService("Service Call");
+                    break;
+            }
+        
+            return acc + amount;
+        }, 0);
+
+        if(!invoice && ro_loc_id && !hasInvoice && monthlyIns){
+            setService("Monthly Inspection");
+        }        
+
+        const tax = (total - inspect_total - calib_total) * sales_tax_perc;
+
+        setSalesTax(parseFloat(tax.toFixed(2)));
+        setTotalAmount(parseFloat((total + tax).toFixed(2)));        
+    }, [forms]);
 
     const addForm = () => {
         setForms([...forms, { description: '', category: '', location: '', qty: 0, rate: 0 }]);
@@ -247,9 +379,24 @@ const SubItemsScreen = () => {
         const newForms = forms.filter((_, index) => index !== id);
         setForms(newForms);
     };
+    
+    const setHasInvoice = (hasInvoice: boolean) => {
+        dispatch({
+            type: "LOCATION_PRESS_DATA",
+            payload: {
+                ...currentLocation,
+                hasInvoice: hasInvoice,
+            },
+        })
+    };
 
     const handleSubmit = async () => {
         // validate 
+        if (!invoice && status !== ServeyStatus.Completed && !source.includes("Service Call") && !allowInv) {
+            Alert.alert("Can not create an invoice until Inspection completed.");
+            return;
+        }
+
         for (const form of forms) {
             if (!form.description || !form.category) {
                 Alert.alert("Please fill all required fields in every form.");
@@ -262,10 +409,6 @@ const SubItemsScreen = () => {
                 }
 
             } else if (form.category === "Service Call") {
-                if (form.des_problem === "") {
-                    Alert.alert("Please enter valid des_problem for Service Call.");
-                    return;
-                }
                 if (form.qty <= 0 || form.rate <= 0) {
                     Alert.alert("Please enter valid Quantity and Rate in every form.");
                     return;
@@ -294,7 +437,7 @@ const SubItemsScreen = () => {
                         qty: form.qty,
                         rate: form.rate,
                         amount: form.qty * form.rate,
-                        des_problem: form.des_problem
+                        des_problem: form.des_problem || ''
                     } as ServiceCall_Invoice_SubItem_withAmount;
                 default:
                     return {
@@ -304,6 +447,7 @@ const SubItemsScreen = () => {
                         qty: form.qty,
                         rate: form.rate,
                         amount: form.qty * form.rate,
+                        des_problem: form.des_problem || ''
                     } as GeneralInvoiceSubItemWithAmount;
             }
         });
@@ -313,27 +457,56 @@ const SubItemsScreen = () => {
         if (source.includes("Service Call")) {
             const form: postInvoice_from_ServiceCall_ReqBody = {
                 customer_id: customer_id!,
-                items: formsWithAmount
+                items: formsWithAmount,
+                addi_comments: comment,
+                service: service,
+                id: inv_id
             }
 
             setIsLoarding(true)
             const postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
             setIsLoarding(false)
-            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
+            
+            postData && (setInvId(postData.id), navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id, payOpt: postData.has_sign }));
         } else {
 
-            if (!list_id || !cus_id) return console.warn("list_id | cus_id -> null");
-            const form: postInvoiceReqBody = {
-                list_id: list_id!,
-                cus_id: cus_id!,
-                amount: fetchedAmount,
-                items: formsWithAmount
-            }
+            let postData: any;
 
-            setIsLoarding(true)
-            const postData = await postInvoiceInfo(dispatch, form);
-            setIsLoarding(false)
-            if (postData) navigation.navigate('PdfReader', { invoice_link: postData.invoice_link })
+            if (inv_id) { 
+                console.log("list_id | cus_id -> null") 
+
+                const form: postInvoice_from_ServiceCall_ReqBody = {
+                    customer_id: cus_id!,
+                    items: formsWithAmount,
+                    addi_comments: comment,
+                    service: service,
+                    id: inv_id
+                }
+    
+                setIsLoarding(true)
+                postData = await postInvoiceInfo_From_ServiceCall(dispatch, form);
+                setIsLoarding(false)
+            } else {
+                const form: postInvoiceReqBody = {
+                    list_id: list_id!,
+                    cus_id: cus_id!,
+                    amount: fetchedAmount,
+                    items: formsWithAmount,
+                    addi_comments: comment,
+                    service: service,
+                    id: inv_id
+                }
+
+                setIsLoarding(true)
+                postData = await postInvoiceInfo(dispatch, form);
+                setIsLoarding(false)
+            };
+
+            postData && (
+                setInvId(postData.id), 
+                setHasInvoice(true), 
+                navigation.navigate('PdfReader', { invoice_link: postData.invoice_link, istools: true, inv_id: postData.id, payOpt: postData.has_sign })
+            );
             // navigation.navigate('PaymentOption');
         }
 
@@ -345,6 +518,18 @@ const SubItemsScreen = () => {
             contentContainerStyle={{ paddingBottom: 20 }}
             keyboardShouldPersistTaps="handled"
         >
+            <Button 
+                title="📝 View Previous Invoices" 
+                onPress={() => {
+                    navigation.navigate('StoreInvoices', { source: "store", customer_id: customer_id });
+                }} 
+                color={COLORS.lightOrange} 
+            />            
+            {invoice ? (
+                <Text style={{ ...FONTS.body3, margin: SIZES.base, marginBottom: SIZES.base, textAlign: "center", fontWeight: 700, color: 'green' }}>Edit Invoice #{invoice.invoice_no}</Text>
+            ) : status !== ServeyStatus.Completed && !source.includes("Service Call") && !allowInv && (
+                <Text style={{ ...FONTS.body4, margin: SIZES.base, marginBottom: SIZES.base, textAlign: "center", fontWeight: 700, color: 'red' }}>Can not create an invoice until Inspection completed.</Text>
+            )}
             {forms.map((form, index) => (
                 <FormComponent
                     key={index}
@@ -356,8 +541,23 @@ const SubItemsScreen = () => {
                 />
             ))}
             <Button title="+ Add Form" onPress={addForm} color={COLORS.lightOrange} />
-            <View style={{ display: "flex", alignItems: "flex-end", margin: SIZES.base }}>
-                {renderAbsoluteButton(handleSubmit)}
+            <FormInput
+                value={comment}
+                placeholder="Comment"
+                keyboardType='default'
+                containerStyle={{ marginTop: SIZES.base, }}
+                onChange={(value) => setComment(value)}
+                autoCapitalize="sentences"
+            />
+            <Text style={{ ...FONTS.body2, margin: SIZES.base, marginBottom: SIZES.none, textAlign: "right" }}>Sales Tax : ${sales_tax}</Text>
+            <Text style={{ ...FONTS.body2, margin: SIZES.base, marginBottom: SIZES.none, textAlign: "right", fontWeight: 700 }}>Total Amount : ${totalAmount}</Text>
+            <View style={{ display: "flex", flexDirection: "row", justifyContent: "flex-end", margin: SIZES.base }}>
+                <View style={{ margin: SIZES.base }}>
+                    {renderSaveButton(handleSubmit)}
+                </View>
+                {/* <View style={{ margin: SIZES.base }}>
+                    {renderAbsoluteButton(handleSubmit)}
+                </View> */}
             </View>
         </KeyboardAwareScrollView>
     );

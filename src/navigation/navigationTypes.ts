@@ -1,25 +1,29 @@
 import { RouteProp } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
-import { Status } from '../types';
+import { Status, Invoice, ServeyStatus } from '../types';
 
 export type RootStackParamList = {
     Dashboard: undefined;
-    Route: undefined;
-    ServiceCall: undefined;
+    Route: undefined | any[];
+    ServiceCall: undefined | { isRefresh?: boolean };
+    Customers: undefined;
     Fleet: undefined;
     Settings: undefined;
     ImageView: undefined;
     Survey: undefined;
+    StoreSurveys: undefined;
     Camera: undefined;
     InvoiceGenerate: undefined;
-    PaymentOption: undefined;
-    PdfReader: { invoice_link: string },
+    PaymentOption: { inv_id: number | null };
+    PdfReader: { invoice_link: string, istools: boolean, inv_id: number | null, payOpt: boolean };
     LocationList: { ro_loc_id: number };
-    StoreList: undefined;
-    InvoiceSubItems: { source: string, customer_id?: number };
+    StoreList: undefined | { newStatus: ServeyStatus | undefined };
+    InvoiceSubItems: { source: string, customer_id?: number, invoice?: Invoice };
+    StoreInvoices: { source: string, customer_id?: number }; 
     StoreLicense: undefined;
     ATG_I: undefined;
     ATG_S: undefined;
+    Rec_Log: undefined;    
     SiteInfo: undefined;
     ServiceCallView: {
         id: number;
@@ -32,8 +36,10 @@ export type RootStackParamList = {
         start_date: string | null;
         comp_date: string | null;
         time: string | null;
+        comp_time: string | null;
         priority: string;
         comment: string;
+        store_name: string;
         created_at: string;
         updated_at: string;
     };

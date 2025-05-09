@@ -1,11 +1,11 @@
 
 export interface Screens {
     Dashboard: string;
-    fleet: string;
+    Fleet: string;
     ServiceCall: string;
     Route: string;
     Settings: string;
-
+    Customer: string
 }
 
 export interface Config {
@@ -16,9 +16,9 @@ const screens: Screens = {
     Dashboard: "Dashboard",
     Route: "Route",
     ServiceCall: "ServiceCall",
-    fleet: "fleet",
+    Fleet: "Fleet",
     Settings: "Settings",
-
+    Customer: "Customer",
 };
 
 const bottom_tabs = [
@@ -36,7 +36,7 @@ const bottom_tabs = [
     },
     {
         id: 3,
-        label: screens.fleet,
+        label: screens.Fleet,
     },
     {
         id: 4,

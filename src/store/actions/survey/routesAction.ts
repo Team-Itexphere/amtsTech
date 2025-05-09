@@ -1,5 +1,6 @@
 import { Dispatch } from "redux";
-import { getLocationService, getRoutesService } from "../../../services/survey/routes.service";
+import { addNotesService, getCustomersService, getLocationService, getRoutesService, updateNotesService } from "../../../services/survey/routes.service";
+import { ServeyStatus } from "../../../types";
 
 // type Location = {
 //     cus_id: string;
@@ -53,6 +54,9 @@ interface Customer {
     com_name: string | null;
     own_name: string | null;
     str_addr: string;
+    city: string;
+    state: string;
+    zip_code: string;
     str_phone: string;
     cp_name: string;
     cp_phone: string | null;
@@ -62,17 +66,20 @@ interface Customer {
     com_to_inv: string;
     role: number;
     login: string;
+    rec_logs: string | number;
     deleted: string | null;
 }
 
 export interface RouteItem {
+    inv_completed: boolean;
+    initiated: boolean;
     id: number;
     route_id: number;
     tech_id: number;
     insp_type: string | null;
     start_date: string;
     comp_date: string | null;
-    status: Status;
+    status: string;
     created_at: string;
     updated_at: string;
     no: string;
@@ -87,11 +94,16 @@ export type NoteType = {
     cus_id: number;
     list_id: number;
     note: string;
+    status: Status | null;
     created_at: string;
     updated_at: string;
 };
 
 export interface LocationItem {
+    invPaid: boolean | undefined;
+    hasInvoice: boolean | undefined;
+    allowInv: boolean | undefined;
+    rec_logs: string | number;
     route_no: string;
     id: number;
     route_id: number;
@@ -101,7 +113,7 @@ export interface LocationItem {
     updated_at: string;
     cus_name: string;
     cus_fac_id: string;
-    status: Status;
+    status: ServeyStatus;
     customer: Customer;
     list_id: number;
     notes: NoteType[]
@@ -119,6 +131,30 @@ export const getRoutes = async (dispatch: Dispatch, date: string): Promise<Route
             return []
         } else {
             console.log('get getRoutes ::', response);
+            if (response.data.length > 0) {
+                return response.data
+            } else {
+                return []
+            }
+
+        }
+    } catch (error) {
+        console.warn('catch error getRoutes ::', error);
+        return []
+    }
+}
+
+export const getCustomers = async (searchParam: string): Promise<any[]> => {
+    try {
+        const response = await getCustomersService(searchParam);
+
+        if (response.hasError) {
+            console.warn(
+                'has error::-> getCustomersService ::',
+                response.errorMessage,
+            );
+            return []
+        } else {
             if (response.data.length > 0) {
                 return response.data
             } else {
@@ -152,13 +188,51 @@ export const getLocations = async (dispatch: Dispatch, id: number): Promise<Loca
     }
 }
 
+export const addNotes = async (note: string, customer_id: number): Promise<NoteType[]> => {
+    try {
+        const response = await addNotesService(note, customer_id)
+
+        if (response.hasError) {
+            console.warn('has error::-> addNotesService ::', response.errorMessage,);
+            return []
+        } else {
+            if (response.data.length > 0) {
+                return response.data
+            } else {
+                return []
+            }
+        }
+    } catch (error) {
+        console.warn("catch error addNotes ::", error);
+        return []
+    }
+}
+
+export const updateNotes = async (status: Status, id: number, reason?: string): Promise<NoteType[]> => {
+    try {
+        const response = await updateNotesService(status, id, reason)
+
+        if (response.hasError) {
+            console.warn('has error::-> updateNotesService ::', response.errorMessage,);
+            return []
+        } else {
+            if (response.data.length > 0) {
+                return response.data
+            } else {
+                return []
+            }
+        }
+    } catch (error) {
+        console.warn("catch error updateNotes ::", error);
+        return []
+    }
+}
+
 export const SaveLocationPressData = (
-    ro_loc_id: number, cus_id: number, list_id: number,
-    notes: LocationItem['notes'],
-    status: LocationItem['status'],
+ro_loc_id: number | null, cus_id: number | null, list_id: number | null, notes: LocationItem['notes'], status: LocationItem['status'] | null, cus_name: string | null, rec_logs: string | number | null, hasInvoice?: boolean | undefined, allowInv?: boolean | undefined,
 ) => ({
     type: 'LOCATION_PRESS_DATA',
-    payload: { ro_loc_id, cus_id, list_id, notes, status},
+    payload: { ro_loc_id, cus_id, list_id, notes, status, cus_name, rec_logs, hasInvoice, allowInv},
 });
 
 export const ClearAllRouteData = () => ({ type: 'CLEAR_ALL' });

@@ -11,6 +11,14 @@ type Props = {
 
 const MaintainsModal = ({ isVisible = true, setIsVisible, selectedLog }: Props) => {
 
+    const formatDate = (dateString: string) => {
+        const date = new Date(dateString);
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const year = date.getUTCFullYear();
+        return `${month}/${day}/${year}`;
+    };
+
     const renderfield = ({ fieldName, value }: {
         fieldName: "Date" | "Part" | "Location" | "Tech" | "Company" | "Description"
         value: string
@@ -44,12 +52,12 @@ const MaintainsModal = ({ isVisible = true, setIsVisible, selectedLog }: Props) 
                         width: "80%",
                         height: "40%"
                     }}>
-                        {renderfield({ fieldName: "Date", value: new Date(selectedLog.date).toLocaleDateString() })}
-                        {renderfield({ fieldName: "Part", value: selectedLog.category })}
+                        {renderfield({ fieldName: "Date", value: formatDate(selectedLog.date) })}
+                        {renderfield({ fieldName: "Part", value: selectedLog.descript })}
                         {renderfield({ fieldName: "Location", value: selectedLog.location })}
                         {renderfield({ fieldName: "Tech", value: selectedLog.tech_name })}
-                        {renderfield({ fieldName: "Company", value: selectedLog.company })}
-                        {renderfield({ fieldName: "Description", value: selectedLog.descript })}
+                        {renderfield({ fieldName: "Company", value: selectedLog.company == 'PTS' ? 'Petro-Tank Solutions' : selectedLog.company })}
+                        {/* {renderfield({ fieldName: "Description", value: selectedLog.descript })} */}
                     </View>
                 </View>
             </TouchableWithoutFeedback>

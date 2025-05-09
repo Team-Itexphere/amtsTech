@@ -1,4 +1,4 @@
-import { View, Text, StatusBar, FlatList, TouchableOpacity, Animated, Keyboard } from 'react-native'
+import { View, Text, StatusBar, FlatList, TouchableOpacity, Animated, Keyboard, Dimensions } from 'react-native'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { COLORS, FONTS, SIZES } from '../../assets/theme';
 import { Status } from '../../types';
@@ -15,7 +15,23 @@ const serviceCall_tabs = [{ id: 1, label: "Pending" }, { id: 0, label: "Complete
 const serviceCall_tabs_withRef = serviceCall_tabs.map((val) => ({ ...val, ref: React.createRef<TouchableOpacity>() }))
 
 const TabIndicator = ({ measureLayout, scrollX }: { measureLayout: LayoutMeasurement[], scrollX: Animated.Value }) => {
-    const inputRange = serviceCall_tabs_withRef.map((_, i) => i * SIZES.width)
+    
+    const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+    
+    useEffect(() => {
+        const handleOrientationChange = () => {
+        const { width, height } = Dimensions.get('window');
+            setScreenWidth(Math.max(width, height));
+        };
+    
+        const subscription = Dimensions.addEventListener('change', handleOrientationChange);
+    
+        return () => {
+            subscription.remove();
+        };
+    }, []);
+
+    const inputRange = serviceCall_tabs_withRef.map((_, i) => 1 * screenWidth)
     const tabIndicatorWidth = scrollX.interpolate({
         inputRange,
         outputRange: measureLayout.map(measure => measure.width)
@@ -44,6 +60,21 @@ const TabIndicator = ({ measureLayout, scrollX }: { measureLayout: LayoutMeasure
 }
 
 const Tabs = ({ scrollX, onTabPress }: { scrollX: Animated.Value, onTabPress: (val: number) => void }) => {
+
+    const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+    
+    useEffect(() => {
+        const handleOrientationChange = () => {
+        const { width, height } = Dimensions.get('window');
+            setScreenWidth(Math.max(width, height));
+        };
+    
+        const subscription = Dimensions.addEventListener('change', handleOrientationChange);
+    
+        return () => {
+            subscription.remove();
+        };
+    }, []);
 
     const [measureLayout, setMeasureLayout] = useState<LayoutMeasurement[]>([]);
     const containerRef = useRef<View>(null);
@@ -103,9 +134,24 @@ const ServiceCallScreen = () => {
     const scrollX = useRef(new Animated.Value(0)).current;
     const flatListRef = useRef<FlatList<any>>(null);
 
+    const [screenWidth, setScreenWidth] = useState(Dimensions.get('window').width);
+    
+    useEffect(() => {
+        const handleOrientationChange = () => {
+        const { width, height } = Dimensions.get('window');
+            setScreenWidth(Math.max(width, height));
+        };
+    
+        const subscription = Dimensions.addEventListener('change', handleOrientationChange);
+    
+        return () => {
+            subscription.remove();
+        };
+    }, []);
+
     const onTabPress = useCallback((tabIndex: number) => {
         flatListRef?.current?.scrollToOffset({
-            offset: tabIndex * SIZES.width,
+            offset: tabIndex * screenWidth,
         });
     }, [])
 
@@ -123,7 +169,7 @@ const ServiceCallScreen = () => {
                 horizontal
                 pagingEnabled
                 snapToAlignment={'center'}
-                snapToInterval={SIZES.width}
+                snapToInterval={screenWidth}
                 decelerationRate={"fast"}
                 keyboardDismissMode={"on-drag"}
                 showsHorizontalScrollIndicator={false}
@@ -136,7 +182,7 @@ const ServiceCallScreen = () => {
                 })}
                 renderItem={({ item, index }) => {
                     return (
-                        <View style={{ width: SIZES.width }}>
+                        <View style={{ width: screenWidth }}>
                             {index == 0 && <ServiceListScreen status={Status.Pending} />}
                             {index == 1 && <ServiceListScreen status={Status.Completed} />}
                         </View>

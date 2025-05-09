@@ -1,27 +1,28 @@
-export const BASE_URL = 'https://staging.amtstx.com/';
+export const BASE_URL = 'https://amtstx.com/';
 
 
 export const USER_LOGIN = 'api/login'
+export const USER_CHECK = 'api/user'
 export const SUBMIT_FLEET = 'api/fleet-routing/add/7'
 export const GET_SURVEY = 'api/testing'
+export const GET_STORE_SURVEYS = 'api/store-testings'
 export const GET_SUBMITED_SURVEY_ANSWERS = 'api/tests'
 export const GET_ROUTES = 'api/route-list'
 export const GET_LOCATIONS = 'api/route-list/locations/'
 export const POST_UNIQUEID = 'api/testing/create'
 export const POST_ANSW = 'api/testing/fill'
-export const GET_AMOUNT = '/api/testing/amount'
+export const GET_AMOUNT = 'api/testing/amount'
 export const POST_PAYMENTINFO = '/api/testing/invoice'
 export const POST_INVOICE_BY_SERVICE_CALL = '/api/invoice'
 export const POST_IMAGE_CAPTURED = '/api/img-upload'
 export const GET_ALL_IMAGE_LIST = '/api/img-upload'
+export const DELETE_IMAGE = '/api/img-delete'
 export const GET_STORE_LICENSE = 'api/license/'
 export const GET_SITE_INFO = 'api/site-info/'
 export const GET_SERVICE_CALL = '/api/work-orders'// 'api/pend-wo'
 export const POST_SERVICE_CALL_UPDATE = 'api/update-wo'
 export const POST_SERVICE_CALL_HISTORY = 'api/service-calls/history'
 export const GET_MAINTAINS_LOGS = 'api/maintain_logs'
-
-
-
-
-
+export const GET_CUSTOMERS = 'api/customers'
+export const ADD_NOTES = 'api/customer/notes'
+export const UPDATE_NOTES = 'api/customer/notes/update'

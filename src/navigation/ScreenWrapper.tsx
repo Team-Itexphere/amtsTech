@@ -10,7 +10,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NavigationProp, RootStackParamList } from './navigationTypes';
-const { IconHome, IconFleet, IconWorkOrder, IconSettings, IconSignOut } = assetsPng
+import { HeaderName } from './HomeStack.navigation';
+const { IconHome, IconFleet, IconWorkOrder, IconSettings, IconSignOut, IconUser } = assetsPng
 
 type ScreenName = keyof Screens;
 
@@ -22,13 +23,17 @@ const ScreenWrapper = ({ children, selectedTab, setSelectedTab, ScreenName }: an
     const isFocused = (label: any) => selectedTab === label;
     const user = useSelector((state: RootState) => state.authReducer.user);
 
+    const locationData = useSelector((state: RootState) => state.routeReducer.location);
+    const cus_name = locationData.cus_name || null;
 
     const handleNavigate = (name: ScreenName) => {
         setSelectedTab(name)
         switch (name) {
             case appConfig.screens.Route:
                 return navigation.navigate('Route');
-            case appConfig.screens.fleet:
+            case appConfig.screens.Customer:
+                return navigation.navigate('Customers');
+            case appConfig.screens.Fleet:
                 return navigation.navigate('Fleet');
             case appConfig.screens.Settings:
                 return navigation.navigate('Settings');
@@ -51,7 +56,7 @@ const ScreenWrapper = ({ children, selectedTab, setSelectedTab, ScreenName }: an
             {/* Header */}
             <Header
                 containerStyles={{ paddingHorizontal: SIZES.padding, alignItems: 'center' }}
-                title={ScreenName}
+                title={`${cus_name && ScreenName == HeaderName.Stores  ? cus_name : ScreenName}`}
                 leftComponent={!Object.values(appConfig.screens).includes(ScreenName) ? true : false}
                 rightComponent={
                     <TouchableOpacity
@@ -110,16 +115,22 @@ const ScreenWrapper = ({ children, selectedTab, setSelectedTab, ScreenName }: an
                         onPress={() => handleNavigate('Route')}
                     />
                     <TabButton
+                        label={appConfig.screens.Customer}
+                        icon={IconUser}
+                        isFocused={isFocused('Customer')}
+                        onPress={() => handleNavigate('Customer')}
+                    />
+                    <TabButton
                         label={appConfig.screens.ServiceCall}
                         icon={IconWorkOrder}
                         isFocused={isFocused('ServiceCall')}
                         onPress={() => handleNavigate('ServiceCall')}
                     />
                     <TabButton
-                        label={appConfig.screens.fleet}
+                        label={appConfig.screens.Fleet}
                         icon={IconFleet}
                         isFocused={isFocused('fleet')}
-                        onPress={() => handleNavigate('fleet')}
+                        onPress={() => handleNavigate('Fleet')}
                     />
                     <TabButton
                         label={appConfig.screens.Settings}

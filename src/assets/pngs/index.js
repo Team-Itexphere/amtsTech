@@ -24,12 +24,16 @@ import IconLowPriority from './Icon-Low-Priority.png'
 import IconHighPriority from './Icon-High-Priority.png'
 import IconRefresh from './Icon-Refresh.png'
 import IconPaymentOptions from './Icon-Payment-Options.png'
+import IconPrint from './Icon-Print.png'
+import IconClose from './close.png'
 
 import IconSuccessLetter from './Icon_success_Letter.png'
 
 
 import Bg1 from './bg_1.png'
 import Bg2 from './bg_2.png'
+import Bg3 from './bg_3.jpg'
+import Bg4 from './bg_4.jpg'
 
 export default {
     IconMenu,
@@ -48,6 +52,8 @@ export default {
     IconNext,
     Bg1,
     Bg2,
+    Bg3,
+    Bg4,
     IconSuccessLetter,
     IconCheckmark,
     IconMO,
@@ -59,5 +65,7 @@ export default {
     IconLowPriority,
     IconHighPriority,
     IconRefresh,
-    IconPaymentOptions
+    IconPaymentOptions,
+    IconPrint,
+    IconClose
 }

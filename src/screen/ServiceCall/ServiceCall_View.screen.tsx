@@ -71,6 +71,7 @@ const ServiceCallViewScreen = () => {
     const navigation = useNavigation<NavigationProp>();
     const route = useRoute<ServiceCallViewProp>();
     const params = route.params;
+    const comments = typeof params.comment === 'string' ? JSON.parse(params.comment) : params.comment ?? [];
 
     const [isShowImage, setIsShowImage] = useState<{ isVisible: boolean, imgIndex: number }>({ isVisible: false, imgIndex: 0 })
     const [isLoading, setIsLoarding] = useState<boolean>(false)
@@ -143,11 +144,14 @@ const ServiceCallViewScreen = () => {
         <View style={{ flex: 1 }}>
             {isLoading && <Loading />}
             <View style={{ padding: SIZES.base }}>
+                <Text style={{ ...FONTS.h3, textAlign:'center', margin: SIZES.padding, marginTop: SIZES.none, color: COLORS.primary }}>{params.store_name}</Text>
+                {comments && comments.length > 0 ? <Text style={{ ...FONTS.h3 }}>Comment By { comments[0][2] }</Text> : ''}
                 <FormInput
                     containerStyle={{ marginVertical: SIZES.base * 2 }}
                     placeholder="Comment"
-                    value={params.comment}
+                    value={comments && comments.length > 0 ? comments[0][0] : ''}
                     editable={false}
+                    multiline={true}
                 />
 
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -192,6 +196,7 @@ const ServiceCallViewScreen = () => {
                     placeholder="Comment"
                     value={formData.comment}
                     onChange={(text) => setFormData({ ...formData, comment: text })}
+                    autoCapitalize="sentences"
                 />
                 <CustomDropdown
                     selectedValue={formData.status || ''}

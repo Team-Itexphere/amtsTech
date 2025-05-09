@@ -134,11 +134,44 @@ const formatDateWithShortMonthHyphen = (date: Date | string, format: string = 'D
     }
 };
 
+const formatDateUS = (date: Date | string, format: string = 'MM-DD-YYYY'): string => {
+    try {
+        const parsedDate = new Date(date);
+        const dd = String(parsedDate.getUTCDate()).padStart(2, '0');
+        const mm = String(parsedDate.getUTCMonth() + 1).padStart(2, '0'); // January is 0!
+        const yyyy = parsedDate.getUTCFullYear();
+
+        switch (format) {
+            case 'MM-DD-YYYY':
+                return `${mm}/${dd}/${yyyy}`;
+            case 'DD-MM-YYYY':
+                return `${dd}/${mm}/${yyyy}`;
+            default:
+                return `${mm}/${dd}/${yyyy}`;
+        }
+    } catch (ex) {
+        const today = new Date();
+        const dd = String(today.getUTCDate()).padStart(2, '0');
+        const mm = String(today.getUTCMonth() + 1).padStart(2, '0'); // January is 0!
+        const yyyy = today.getUTCFullYear();
+
+        switch (format) {
+            case 'MM-DD-YYYY':
+                return `${mm}/${dd}/${yyyy}`;
+            case 'DD-MM-YYYY':
+                return `${dd}/${mm}/${yyyy}`;
+            default:
+                return `${mm}/${dd}/${yyyy}`;
+        }
+    }
+};
+
 export {
     formatDate,
-    formatDateWithHyphen,
+    formatDateWithHyphen,    
     formatDateWithMonthName,
     formatDateWithFullDesign,
     formatDateWithShortMonth,
     formatDateWithShortMonthHyphen,
+    formatDateUS
 };
